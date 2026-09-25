@@ -1,0 +1,49 @@
+---
+// The real dashboard view (today, rates or goals) rendered inside the site, interactive, with its CSS scoped
+// under .sb-app__stage (native nesting) so nothing leaks either way. Desktop: the 1440 by 900 window in the
+// app's own frame (the 56px bar is the top edge, radius 12, hairline outline, on butter). Phone: frameless
+// 375 by 812, radius 20. The stage renders at its native size and scales to the container (product-ui.ts).
+import data from '../../data/product-ui.json';
+import { ALT } from '../../lib/assets';
+// page (added by the dashboard agent): the view laid out as a real page, unscaled and full width, for /today, /rates and /goals.
+interface Props { view: 'today' | 'rates' | 'goals'; phone?: boolean; page?: boolean; class?: string; id?: string; label?: string; interactive?: boolean; }
+const { view, phone = false, page = false, class: className = '', id, label, interactive = true } = Astro.props;
+const v = (data as any).views[view];
+if (!v) throw new Error(`ProductView: unknown view ${view}`);
+const alt = label || ALT[`product.${view}-${phone ? 'phone' : 'desktop'}`];
+const locals = Astro.locals as any;
+const emitShared = !locals.sbProductShared;
+locals.sbProductShared = true;
+// the site's own heading, link and layout rules are reset inside the stage before the product's rules apply
+const reset = '.sb-app__stage :is(h1,h2,h3,h4){font-family:inherit;font-size:inherit;font-weight:inherit;line-height:inherit;color:inherit;letter-spacing:0;margin:0}.sb-app__stage :is(ul,ol){list-style:none}.sb-app__stage a{text-decoration:none}';
+const shared = emitShared ? `<style>${reset}.sb-app__stage{${(data as any).shellCss}}</style>${(data as any).symbols}` : '';
+const viewCss = `<style>.sb-app__stage[data-view="${view}"]{${v.css}}</style>`;
+---
+{emitShared && <Fragment set:html={shared} />}
+<Fragment set:html={viewCss} />
+<div class:list={['sb-app', page ? 'sb-app--page' : phone ? 'sb-app--phone' : 'sb-app--desktop', className]} id={id} data-product={view} data-phone={phone ? 'true' : 'false'} data-page={page ? 'true' : undefined} role={page ? undefined : 'group'} aria-label={page ? undefined : alt} data-interactive={interactive ? 'true' : 'false'}>
+  <div class:list={['sb-app__stage', phone ? 'is-phone' : '']} data-view={view} set:html={v.html}></div>
+</div>
+<style is:global>
+  .sb-app { position: relative; width: 100%; overflow: hidden; background: var(--white); container-type: inline-size; }
+  .sb-app--desktop { aspect-ratio: 1440 / 900; border-radius: 12px; outline: 1px solid var(--hairline); box-shadow: 0 1px 2px rgba(20, 22, 58, 0.10); }
+  .sb-app--phone { aspect-ratio: 375 / 812; border-radius: 20px; }
+  .sb-app__stage { position: absolute; top: 0; left: 0; width: 1440px; height: 900px; transform-origin: 0 0; transform: scale(var(--k, 1)); }
+  .sb-app__stage.is-phone { width: 375px; height: 812px; }
+  /* neutralise the site's own classes that share a name with the product's */
+  .sb-app__stage .field { flex-direction: row; gap: 8px; min-width: auto; }
+  /* page mode (the dashboard routes): the stage is the page, unscaled, full width, its own height */
+  .sb-app--page { aspect-ratio: auto; overflow: visible; border-radius: 12px; outline: 1px solid var(--hairline); box-shadow: 0 1px 2px rgba(20, 22, 58, 0.10); }
+  .sb-app--page .sb-app__stage { position: static; width: 100%; height: auto; transform: none; overflow: visible; }
+  .sb-app--page .sb-app__stage > .app { height: auto; min-height: 60vh; border-radius: 12px; }
+  .sb-app--page .sb-app__stage .content { overflow: visible; }
+  .sb-app--page .sb-app__stage .bar { border-radius: 12px 12px 0 0; }
+  @media (max-width: 767px) { .sb-app--page, .sb-app--page .sb-app__stage > .app, .sb-app--page .sb-app__stage .bar { border-radius: 0; } .sb-app--page { outline: 0; box-shadow: none; } }
+  .sb-app__stage .chip { min-height: 0; transition: none; }
+  .sb-app__stage .chip:hover { background: var(--white); }
+  .sb-app__stage .chip.on:hover { background: var(--indigo); }
+  .sb-app__stage a:focus-visible, .sb-app__stage button:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
+</style>
+<script>
+  import '../../scripts/product-ui';
+</script>

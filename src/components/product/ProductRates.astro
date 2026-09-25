@@ -1,0 +1,6 @@
+---
+// The Rate Tracker view (Offering Spec 10.3, screen 2). <ProductRates /> desktop, <ProductRates phone /> phone.
+import ProductView from './ProductView.astro';
+interface Props { phone?: boolean; page?: boolean; class?: string; id?: string; label?: string; interactive?: boolean; }
+---
+<ProductView view="rates" {...Astro.props} />

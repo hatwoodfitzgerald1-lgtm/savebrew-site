@@ -1,0 +1,6 @@
+---
+// The Goals view (Offering Spec 10.3, screen 3). <ProductGoals /> desktop, <ProductGoals phone /> phone.
+import ProductView from './ProductView.astro';
+interface Props { phone?: boolean; page?: boolean; class?: string; id?: string; label?: string; interactive?: boolean; }
+---
+<ProductView view="goals" {...Astro.props} />
