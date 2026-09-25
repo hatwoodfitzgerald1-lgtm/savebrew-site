@@ -16,7 +16,7 @@ import { t } from '../../lib/copy';
 <style is:global>
   .hm-ranker-row__foot { row-gap: var(--gap); align-items: center; }
   /* entrance: the edge image unrolls from the top like cloth off the bolt (Shuttle), then the line follows */
-  [data-entrance="unroll"] .ent { clip-path: inset(0 0 100% 0); }
+  :where(html.sb-motion) [data-entrance="unroll"] .ent { clip-path: inset(0 0 100% 0); }
   [data-entrance="unroll"].is-in .ent { animation: sb-unroll var(--dur-slow) var(--ease-shuttle) both; animation-delay: calc(var(--i, 0) * 200ms); }
   @keyframes sb-unroll { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
   @media (prefers-reduced-motion: reduce) { [data-entrance="unroll"] .ent { clip-path: none !important; animation: none !important; } }
