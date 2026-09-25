@@ -1,0 +1,479 @@
+---
+// HOME (/), design document 7.1, Art Direction 3.23 HOME: the ten sections in order, each with its own entrance,
+// the plucked thread hover, the loom (src/routes/home/loom.ts, Three.js r128, lazy after first paint behind the
+// poster) with THE PASS scrubbed over 1.3 viewport heights of native scroll, the designed mobile hero (PULL A
+// THREAD, src/routes/home/mobile-hero.ts) under 900px or on coarse pointers, The Tightening on the H1 once on load.
+// Every string comes from copy.json by id; the items from the long form JSON; the offering facts from the
+// membership row. Nav, H1, standfirst and Bobbin are plain DOM at first paint and are never covered.
+import Layout from '../../layouts/Layout.astro';
+import HeadingPass from '../../components/HeadingPass.astro';
+import Board from '../../components/Board.astro';
+import Cell from '../../components/Cell.astro';
+import Bobbin from '../../components/Bobbin.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import MembershipRow from '../../components/MembershipRow.astro';
+import SmsOptIn from '../../components/SmsOptIn.astro';
+import Picture from '../../components/Picture.astro';
+import Knot from '../../components/kit/Knot.astro';
+import Icon from '../../components/kit/Icon.astro';
+import ProductToday from '../../components/product/ProductToday.astro';
+import ProductRates from '../../components/product/ProductRates.astro';
+import ProductGoals from '../../components/product/ProductGoals.astro';
+import RankerSection from './RankerSection.astro';
+import { t, fill, THREADS } from '../../lib/copy';
+import { brief, roundup, guides } from '../../lib/longform';
+import { file, isPresent } from '../../lib/assets';
+
+interface Props { path: string; }
+const chips: Record<string, string> = {
+  rates: t('home.pass.chip.rates'), cashback: t('home.pass.chip.cashback'), coupons: t('home.pass.chip.coupons'),
+  seasonal: t('home.pass.chip.seasonal'), paycheck: t('home.pass.chip.paycheck')
+};
+const knotLabels = THREADS.map((th) => ({ key: th.key, label: t(`home.hero.knot.${th.key}`) }));
+const today = brief.today.items;
+const week = brief.lastWeek.days;
+const dayLabelIds = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+const dayLabels = dayLabelIds.map((d) => t(`home.week.column.${d}`));
+const views = [
+  { key: 'today', name: t('home.dashboard.view.today.name'), caption: t('home.dashboard.view.today.caption') },
+  { key: 'rates', name: t('home.dashboard.view.rates.name'), caption: t('home.dashboard.view.rates.caption') },
+  { key: 'goals', name: t('home.dashboard.view.goals.name'), caption: t('home.dashboard.view.goals.caption') }
+];
+const guideOrder = ['the-national-average-is-a-warning', 'make-a-rotating-category-pay', 'why-patio-furniture-is-cheap-in-october'];
+const freeGuides = guideOrder.map((slug) => guides.find((g) => g.slug === slug)!);
+const faq = Array.from({ length: 10 }, (_, i) => ({ q: t(`home.faq.q${i + 1}`), a: t(`home.faq.a${i + 1}`) }));
+// the email and phone in the answers are live links
+const linkify = (s: string) => s
+  .replace(/support@savebrew\.com/g, '<a href="mailto:support@savebrew.com">support@savebrew.com</a>')
+  .replace(/\(888\) 338 8809/g, '<a href="tel:+18883388809">(888) 338 8809</a>');
+const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const heroVideo = { desktop: file('video.hero-loop', 'desktop'), mobile: file('video.hero-loop', 'mobile'), poster: file('video.hero-loop', 'poster') };
+const pan = { src: file('video.product-pan', 'desktop'), poster: file('video.product-pan', 'poster') };
+const loomPoster = file('scene.loom-poster');
+const weekData = week.map((d, di) => ({
+  weekday: d.weekday, date: d.date, label: dayLabels[di],
+  items: d.items.map((it) => ({ key: it.key, thread: it.thread, headline: it.headline, summary: it.summary }))
+}));
+// the H1 keeps its two lines at every weight of The Tightening (the display face narrows at 500), so nothing reflows: the break sits after "your money"
+const h1Text = t('home.hero.h1');
+const h1Break = h1Text.indexOf(' runs on ');
+const h1Lines = h1Break > 0 ? [h1Text.slice(0, h1Break), h1Text.slice(h1Break + 1)] : [h1Text];
+const heroItems = today.map((it) => ({ key: it.key, thread: it.thread, headline: it.headline, summary: it.summary, chip: chips[it.key] }));
+---
+<Layout title={t('head.home.title')} description={t('head.home.meta')} route="/" hover="pluck" bodyClass="home" rss={[{ title: t('home.free.roundup.label'), href: '/roundup/feed.xml' }, { title: t('home.free.guides.label'), href: '/guides/feed.xml' }]} preload={[{ href: loomPoster, as: 'image', media: '(min-width: 900px)' }]}>
+  <Fragment slot="head">
+    <link rel="prefetch" href="/assets/js/three-lines-r128.js" as="script" fetchpriority="low" />
+  </Fragment>
+
+  <!-- 1. the hero: the loom, full bleed on butter; the copy is plain DOM at first paint -->
+  <section class="hm-hero" id="hero" aria-labelledby="hero-h1" data-hero data-items={JSON.stringify(heroItems)}>
+    <div class="hm-loom" data-loom aria-hidden="true">
+      <img class="hm-loom__poster" src={loomPoster} alt="" width="1600" height="1000" decoding="async" fetchpriority="high" data-loom-poster />
+      <div class="hm-loom__proxies" data-loom-proxies></div>
+    </div>
+    <div class="hm-hero__pass pass">
+      <h1 class="hm-hero__h1" id="hero-h1" data-tighten="manual">{h1Lines.map((line, i) => <span class="hm-hero__h1-line">{line}{i < h1Lines.length - 1 ? ' ' : ''}</span>)}</h1>
+      <p class="hm-hero__standfirst standfirst">{t('home.hero.standfirst')}</p>
+      <p class="hm-hero__audience muted">{t('home.hero.audience')}</p>
+      <div class="hm-hero__actions">
+        <Bobbin label={t('home.hero.cta')} sku="SB101" class="hm-hero__cta" />
+        <a class="hm-hero__link" href="/roundup">{t('home.hero.link')}</a>
+      </div>
+      <div class="hm-hero__mobile" data-mobile-hero>
+        <canvas class="hm-hero__mobile-canvas" aria-hidden="true"></canvas>
+        <ol class="hm-hero__mobile-labels" aria-hidden="true">
+          {knotLabels.map((k) => <li data-thread={k.key}><Knot size={14} /><span>{k.label}</span></li>)}
+        </ol>
+        <p class="hm-hero__mobile-hint small muted">{t('home.hero.mobile.hint')}</p>
+        <div class="hm-hero__mobile-card" data-mobile-card hidden role="region" aria-live="polite" aria-label={t('home.pass.heading')}>
+          <p class="cell-head" data-mobile-card-thread><Knot size={16} /><span></span></p>
+          <p class="hm-hero__mobile-card-headline" data-mobile-card-headline></p>
+          <p class="small" data-mobile-card-summary></p>
+          <div class="hm-hero__mobile-card-actions">
+            <button class="chip" type="button" aria-disabled="true" data-mobile-card-chip></button>
+            <button class="hm-hero__mobile-card-close" type="button" data-mobile-card-close>{t('home.hero.mobile.card.close')}</button>
+          </div>
+        </div>
+      </div>
+      <ol class="hm-hero__knots" aria-label={t('home.hero.knots.aria')} data-hero-knots>
+        {knotLabels.map((k, i) => (
+          <li class="hm-hero__knot" data-thread={k.key} style={`--i:${i}`}>
+            <Knot size={22} draw class="hm-hero__knot-glyph" />
+            <span class="hm-hero__knot-label">{k.label}</span>
+            <span class="hm-hero__knot-headline">{today[i].headline}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- 2. What's in today's pass? the five cells dock onto the warp positions -->
+  <HeadingPass title={t('home.pass.heading')} id="pass" intro={t('home.pass.intro')} photoSlot="photo.todays-pass-heading" class="home-pass-heading" />
+  <Board id="today" cells={5} entrance="dock" stagger={40} label={t('home.pass.heading')} class="hm-today-board" data-dock-board>
+    {today.map((item) => (
+      <Cell thread={item.key as any} head={t(`home.pass.thread.${item.key}`)} class="hm-today-cell">
+        <p class="hm-today-cell__headline">{item.headline}</p>
+        <p class="hm-today-cell__summary">{item.summary}</p>
+        <button class="chip" type="button" aria-disabled="true" title={fill(t('home.pass.chip.tip.pattern'), { chip: chips[item.key] })}>{chips[item.key]}</button>
+      </Cell>
+    ))}
+    <div class="cell span-full hm-today-board__foot">
+      <div class="hm-today-board__links">
+        <a href="/brief">{t('home.pass.link.brief')}</a>
+        <a href="#dashboard" data-scroll-dashboard>{t('home.hero.link.dashboard')}</a>
+      </div>
+      <Disclaimer compact class="hm-today-board__disclaimer" />
+    </div>
+  </Board>
+
+  <!-- 3. What does it cost? the membership row -->
+  <MembershipRow />
+
+  <!-- 4. What did last week's pass look like? the week strip, a knot matrix over the hero loop -->
+  <HeadingPass title={t('home.week.heading')} id="week" intro={t('home.week.framing')} aside={t('home.week.hover')} />
+  <section class="hm-week" id="week-strip" aria-labelledby="week-heading-sr" data-entrance="knots" data-entrance-items=".hm-week__knot" data-stagger="40" data-week data-week-data={JSON.stringify(weekData)}>
+    <h3 class="sr-only" id="week-heading-sr">{t('home.week.heading')}</h3>
+    <div class="hm-week__media graded" aria-hidden="true">
+      <video class="hm-week__video" muted playsinline loop preload="metadata" poster={heroVideo.poster} data-week-video data-present={isPresent('video.hero-loop') ? 'true' : 'false'}>
+        <source src={heroVideo.desktop} type="video/mp4" media="(min-width: 768px)" />
+        <source src={heroVideo.mobile} type="video/mp4" />
+      </video>
+      <img class="hm-week__poster" src={heroVideo.poster} alt="" width="1600" height="900" loading="lazy" decoding="async" data-week-poster />
+    </div>
+    <div class="hm-week__matrix" role="group" aria-label={t('home.week.framing')}>
+      <div class="hm-week__threads" aria-hidden="true">
+        <span class="hm-week__corner"></span>
+        {THREADS.map((th) => <span class="hm-week__thread"><Knot size={14} />{th.name}</span>)}
+      </div>
+      {weekData.map((d, di) => (
+        <div class="hm-week__day" data-day={di}>
+          <p class="hm-week__day-label">{d.label}</p>
+          {d.items.map((it, ti) => (
+            <button class="hm-week__knot" type="button" data-day={di} data-item={ti} aria-pressed={di === 0 && ti === 0 ? 'true' : 'false'} aria-controls="week-item"
+              aria-label={fill(t('home.week.knot.aria.pattern'), { weekday: d.weekday, date: d.date.replace(/^[A-Za-z]+, /, ''), thread: it.thread, headline: it.headline })}>
+              <Knot size={22} />
+            </button>
+          ))}
+        </div>
+      ))}
+    </div>
+    <div class="hm-week__item" id="week-item" role="region" aria-live="polite" aria-label={t('home.week.hover')} data-week-item>
+      <div class="hm-week__item-inner">
+        <p class="cell-head hm-week__item-head"><Knot size={16} /><span data-week-item-thread>{weekData[0].items[0].thread}</span><span class="hm-week__item-date muted" data-week-item-date>{weekData[0].date}</span></p>
+        <p class="hm-week__item-headline" data-week-item-headline>{weekData[0].items[0].headline}</p>
+        <p class="hm-week__item-summary" data-week-item-summary>{weekData[0].items[0].summary}</p>
+      </div>
+      <p class="hm-week__item-hint small muted">{t('home.week.hover')}</p>
+    </div>
+  </section>
+
+  <!-- 5. What's inside the dashboard? the three views, live, switched by a thread strip of three -->
+  <HeadingPass title={t('home.dashboard.heading')} id="dashboard" intro={t('home.dashboard.framing')} />
+  <Board id="dashboard-board" cells={5} entrance="populate" strip={false} label={t('home.dashboard.heading')} class="hm-dash" items=".hm-dash__module" data-product-group data-view="today" data-dash>
+    <div class="cell span-full hm-dash__control">
+      <p class="hm-dash__control-label" id="dash-switch-label">{t('home.dashboard.control')}</p>
+      <div class="hm-dash__switch" role="radiogroup" aria-label={t('home.dashboard.switch.aria')} aria-describedby="dash-switch-label" data-dash-switch>
+        {views.map((v, i) => (
+          <button class="hm-dash__opt" type="button" role="radio" aria-checked={i === 0 ? 'true' : 'false'} data-show-view={v.key} data-caption={v.caption} tabindex={i === 0 ? 0 : -1}>
+            <svg class="hm-dash__opt-thread" viewBox="0 0 24 40" width="24" height="40" aria-hidden="true" focusable="false"><path class="hm-dash__opt-warp" d="M12 0 Q13 14 12 24" fill="none" stroke="currentColor" stroke-width="2" /><g transform="translate(3 19) scale(0.75)" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 2V4.8M12 8.4V22"/><path d="M2.5 12H8.4C8.4 8.4 10 6.6 12 6.6C14 6.6 15.6 8.4 15.6 12H21.5"/><path d="M15.6 12C15.6 13.6 14.6 14.6 13.5 14.9M10.5 14.9C9.4 14.6 8.4 13.6 8.4 12"/></g></svg>
+            <span>{v.name}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+    <div class="cell span-3 hm-dash__desktop">
+      <div class="hm-dash__window" data-dash-window>
+        <ProductToday />
+        <ProductRates />
+        <ProductGoals />
+        <div class="hm-dash__pan" data-dash-pan hidden aria-hidden="true">
+          <video class="hm-dash__pan-video" muted playsinline preload="none" poster={pan.poster} data-dash-pan-video><source src={pan.src} type="video/mp4" /></video>
+        </div>
+      </div>
+      <p class="hm-dash__caption small muted" data-dash-caption aria-live="polite">{views[0].caption}</p>
+      <a class="hm-dash__demo" href="/sign-in">{t('add.home.dashboard.demo.link')}</a>
+    </div>
+    <div class="cell span-2 hm-dash__phone">
+      <div class="hm-dash__phone-frame">
+        <ProductToday phone />
+        <ProductRates phone />
+        <ProductGoals phone />
+      </div>
+      <p class="hm-dash__caption small muted">{t('home.dashboard.phone.caption')}</p>
+    </div>
+  </Board>
+
+  <!-- 6. Which threads should you pull first? the ranker, embedded (B2's component) -->
+  <HeadingPass title={t('home.ranker.heading')} id="ranker" intro={t('home.ranker.intro')} />
+  <RankerSection />
+
+  <!-- 7. What's free to read? this week's Roundup and three guides -->
+  <HeadingPass title={t('home.free.heading')} id="free" />
+  <Board id="free-board" cells={5} entrance="weft-alt" strip={false} label={t('home.free.heading')} class="hm-free" items=".hm-free__cell" stagger={120}>
+    <div class="cell span-2 hm-free__cell hm-free__roundup">
+      <p class="cell-head"><Icon name="roundup" size={18} />{t('home.free.roundup.label')}</p>
+      <div class="hm-free__roundup-body">
+        <p class="hm-free__framing">{t('home.free.roundup.framing')}</p>
+        <ul class="hm-free__moves">
+          {roundup.moves.map((m) => <li><Knot size={14} /><span>{m.headline}</span></li>)}
+        </ul>
+      </div>
+      <a class="hm-free__link" href="/roundup">{t('home.free.roundup.link')}</a>
+    </div>
+    <div class="cell hm-free__cell hm-free__guides-head">
+      <p class="cell-head"><Icon name="archive" size={18} />{t('home.free.guides.label')}</p>
+      <p class="hm-free__framing">{t('home.free.guides.framing')}</p>
+    </div>
+    {freeGuides.map((g, i) => (
+      <div class:list={['cell', 'hm-free__cell', 'hm-free__guide']} data-thread={g.thread.toLowerCase()}>
+        <div class="hm-free__guide-photo"><Picture slot={g.photoSlot} sizes="(max-width: 767px) 100vw, 20vw" decorative /></div>
+        <p class="cell-head"><Knot size={16} />{g.thread}</p>
+        <h3 class="hm-free__guide-title"><a href={g.url || `/guides/${g.slug}`}>{g.title}</a></h3>
+        <p class="hm-free__guide-dek">{g.dek}</p>
+        {i === 2 && <a class="hm-free__link" href="/guides">{t('home.free.guides.link')}</a>}
+      </div>
+    ))}
+  </Board>
+
+  <!-- 8. What do people ask before they join? an editorial index, ten pairs across five columns -->
+  <HeadingPass title={t('home.faq.heading')} id="faq" />
+  <Board id="faq-board" cells={5} entrance="pop" strip={false} label={t('home.faq.heading')} class="hm-faq" stagger={30}>
+    {faq.map((pair) => (
+      <div class="cell hm-faq__cell">
+        <h3 class="cell-head hm-faq__q"><Knot size={18} /><span>{pair.q}</span></h3>
+        <p class="hm-faq__a" set:html={linkify(escape(pair.a))} />
+      </div>
+    ))}
+  </Board>
+
+  <!-- 9. Join Our SMS List, the verbatim block as a full width inline row -->
+  <SmsOptIn />
+</Layout>
+
+<style is:global>
+  /* the page ground is the root's butter so the fixed loom layer (z-index -1) can sit under every flowing block */
+  body.home { background: transparent; }
+  body.home .site-main { position: relative; }
+
+  /* ---------------------------------------------------------------- the loom layer (desktop, fine pointer) */
+  .hm-loom { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; background: transparent; }
+  .hm-loom__poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; opacity: 1; transition: opacity var(--dur-base) var(--ease-shuttle); }
+  .hm-loom canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity var(--dur-base) var(--ease-shuttle); }
+  .hm-loom.is-live canvas { opacity: 1; }
+  .hm-loom.is-live .hm-loom__poster { opacity: 0; }
+  .hm-loom.is-fading canvas, .hm-loom.is-fading .hm-loom__poster { opacity: 0; }
+  .hm-loom__proxies { position: absolute; inset: 0; }
+  .hm-loom__proxy { position: absolute; top: 0; left: 0; width: 2px; height: 10px; background: var(--indigo); transform-origin: 50% 0; opacity: 0; }
+  .hm-loom__proxies.is-on .hm-loom__proxy { opacity: 1; }
+  @media (max-width: 899px), (pointer: coarse) { .hm-loom { display: none; } }
+
+  /* ---------------------------------------------------------------- 1. the hero */
+  .hm-hero { position: relative; min-height: calc(100vh - var(--band-h)); min-height: calc(100dvh - var(--band-h)); display: flex; flex-direction: column; }
+  /* below the knot labels the hero keeps a little more loom on show, so the handoff to the strip lands under the band, not behind it */
+  .hm-hero::after { content: ""; display: block; height: clamp(36px, 7vh, 80px); flex: none; }
+  .hm-hero__pass { flex: 1 1 auto; grid-template-rows: auto auto auto minmax(24px, 1fr) auto; row-gap: clamp(14px, 1.6vw, 24px); padding-top: clamp(28px, 5vh, 56px); padding-bottom: clamp(16px, 2.5vh, 32px); align-content: start; }
+  .hm-hero__h1 { grid-column: 1 / -1; font-size: var(--fs-h1); font-weight: 800; line-height: 0.98; color: var(--indigo); max-width: none; }
+  .hm-hero__h1-line { display: block; }
+  @media (min-width: 2200px), (max-width: 899px) { .hm-hero__h1-line { display: inline; } }
+  .hm-hero__standfirst { grid-column: 1 / span 2; font-size: var(--fs-standfirst); color: var(--ink); }
+  .hm-hero__audience { grid-column: 3 / span 1; align-self: end; font-size: var(--fs-body); color: var(--muted); }
+  .hm-hero__actions { grid-column: 1 / span 2; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+  .hm-hero__link { font-weight: 600; font-size: var(--fs-body); }
+  .hm-hero__knots { grid-column: 1 / -1; grid-row: 5; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: var(--gap); align-self: end; }
+  .hm-hero__knot { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; padding-left: clamp(16px, 1.4vw, 28px); }
+  .hm-hero__knot-glyph { color: var(--indigo-deep); }
+  .hm-hero__knot-label { font-family: var(--font-display); font-weight: 600; font-size: 17px; color: var(--indigo-deep); line-height: 1; }
+  .hm-hero__knot-headline { display: none; font-size: var(--fs-label); color: var(--muted); line-height: 1.35; padding-right: 8px; }
+  @media (min-width: 1900px) { .hm-hero__knot-headline { display: block; } }
+  .hm-hero__mobile { display: none; }
+  @media (max-width: 1279px) {
+    .hm-hero__pass { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .hm-hero__standfirst { grid-column: 1 / span 2; }
+    .hm-hero__audience { grid-column: 3; }
+    .hm-hero__knots { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  }
+  @media (max-width: 1023px) {
+    .hm-hero__pass { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .hm-hero__audience { grid-column: 2; }
+    .hm-hero__actions { grid-column: 1 / -1; }
+  }
+  /* under 900px or on a coarse pointer: the designed mobile hero (3.20) replaces the loom */
+  @media (max-width: 899px), (pointer: coarse) {
+    .hm-hero { min-height: 0; }
+    .hm-hero__pass { grid-template-rows: auto auto auto auto auto; }
+    .hm-hero__knots { display: none; }
+    .hm-hero__mobile { display: block; grid-column: 1 / -1; position: relative; margin-inline: calc(-1 * var(--gutter)); width: calc(100% + 2 * var(--gutter)); }
+    .hm-hero__mobile-canvas { display: block; width: 100%; height: 180px; touch-action: pan-x pinch-zoom; }
+    .hm-hero__mobile-labels { list-style: none; margin: 0; padding: 0 0 4px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .hm-hero__mobile-labels li { display: flex; flex-direction: column; align-items: center; gap: 2px; font-family: var(--font-display); font-weight: 600; font-size: 13px; color: var(--indigo-deep); line-height: 1; }
+    .hm-hero__mobile-labels .knot { color: var(--indigo); }
+    .hm-hero__mobile-hint { text-align: center; padding: 6px var(--gutter) 0; }
+    .hm-hero__mobile-card { margin: 12px var(--gutter) 0; background: var(--white); border-radius: var(--radius-card); box-shadow: 0 0 0 1px var(--butter-deep); padding: 16px; display: flex; flex-direction: column; gap: 8px; clip-path: inset(0 0 100% 0); transition: clip-path var(--dur-base) var(--ease-knot); }
+    .hm-hero__mobile-card.is-open { clip-path: inset(0 0 0 0); }
+    .hm-hero__mobile-card-headline { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-h3); color: var(--indigo); line-height: 1.15; }
+    .hm-hero__mobile-card-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .hm-hero__mobile-card-close { font-weight: 700; color: var(--indigo); text-decoration: underline; min-height: 44px; padding: 0 4px; }
+  }
+  @media (max-width: 767px) {
+    .hm-hero__pass { grid-template-columns: minmax(0, 1fr); padding-top: 16px; row-gap: 12px; }
+    .hm-hero__h1 { font-size: clamp(40px, 11.5vw, 48px); }
+    .hm-hero__standfirst { font-size: 16px; }
+    .hm-hero__standfirst, .hm-hero__audience, .hm-hero__actions { grid-column: 1 / -1; }
+    .hm-hero__audience { font-size: var(--fs-label); }
+  }
+
+  /* The Tightening lives on the hero H1 only; it arrives at 500 and pulls to 800 */
+  .hm-hero__h1.tighten:not(.is-tight) { font-variation-settings: "wght" var(--wght); }
+
+  /* the five column row boards hold their measure (0.2): about 15px at 1280, 16px at 1440, 17.5px from 1920, with a tighter cell padding */
+  body.home .board[data-cells="5"] > .cell, body.home .hm-week__item, body.home .hm-free__cell, body.home .hm-faq__cell { --cell-pad: clamp(12px, 0.9vw, 24px); --fs-body: clamp(15px, 0.6rem + 0.45 * var(--vwc), 17.5px); font-size: var(--fs-body); }
+  body.home .board[data-cells="5"] > .cell .chip, body.home .hm-faq__cell .chip { font-size: var(--fs-label); }
+  @media (min-width: 1900px) {
+    body.home .heading-pass__intro { grid-column: 1 / span 1; }
+    body.home .hm-hero__standfirst { grid-column: 1 / span 1; }
+    body.home .hm-hero__audience { grid-column: 2 / span 1; }
+  }
+
+  /* ---------------------------------------------------------------- 2. today's pass */
+  body.home .home-pass-heading { background: transparent; }
+  body.home .home-pass-heading .heading-pass__intro { background: color-mix(in srgb, var(--butter) 88%, transparent); box-shadow: 0 0 0 8px color-mix(in srgb, var(--butter) 88%, transparent); border-radius: 2px; }
+  .hm-today-cell__headline { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-h3); line-height: 1.12; color: var(--indigo); }
+  .hm-today-cell__summary { color: var(--ink); }
+  .hm-today-board__foot { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: var(--gap); row-gap: 12px; align-items: start; padding-top: 4px; }
+  .hm-today-board__links { grid-column: 1 / span 2; display: flex; flex-wrap: wrap; gap: 10px 24px; }
+  .hm-today-board__links a { font-weight: 700; }
+  .hm-today-board__disclaimer { grid-column: 3 / span 3; columns: 2; column-gap: var(--gap); }
+  @media (min-width: 1900px) { .hm-today-board__disclaimer { columns: 3; } }
+  @media (max-width: 1279px) { .hm-today-board__foot { grid-template-columns: repeat(3, minmax(0, 1fr)); } .hm-today-board__links { grid-column: 1; } .hm-today-board__disclaimer { grid-column: 2 / span 2; } }
+  @media (max-width: 1023px) { .hm-today-board__foot { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hm-today-board__links, .hm-today-board__disclaimer { grid-column: 1 / -1; columns: 1; } }
+  /* docking: the loom drives --dock-x, --dock-y and --dock-o on each cell per frame while the cloth lays flat; the white weft block fades in at the handoff */
+  .hm-today-board.is-loom-docking .cell.is-docking { animation: none !important; opacity: var(--dock-o, 1); transform: translate(var(--dock-x, 0px), var(--dock-y, 0px)); will-change: transform, opacity; }
+  .hm-today-board.is-loom-docking::before { opacity: var(--board-o, 1); transition: none; }
+  .hm-today-board.is-loom-docking .board__strip, .hm-today-board.is-loom-docking .board__edge { opacity: var(--board-o, 1); }
+  .hm-today-board .board__strip { position: relative; }
+  .hm-loom-twin { position: absolute; left: 0; top: 0; width: 100%; height: 36px; pointer-events: none; overflow: visible; }
+  .hm-loom-twin line { stroke: var(--indigo); stroke-width: 2; opacity: 0; }
+  .hm-loom-twin.is-on line { opacity: 1; }
+  .hm-today-board.is-loom-docking .threadstrip__canvas { opacity: var(--strip-o, 1); }
+
+  /* ---------------------------------------------------------------- 4. the week strip */
+  .hm-week { position: relative; width: 100%; isolation: isolate; padding: clamp(20px, 2.4vw, 40px) var(--gutter) clamp(16px, 2vw, 32px); margin-bottom: var(--reveal); overflow: hidden; }
+  .hm-week__media { position: absolute; inset: 0; z-index: -1; opacity: 0; background: var(--butter-pale); transition: opacity var(--dur-slow) var(--ease-shuttle); }
+  .hm-week.is-in .hm-week__media { opacity: 0.35; }
+  .hm-week__video, .hm-week__poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .hm-week__poster { display: none; }
+  .hm-week.is-reduced .hm-week__video, .hm-week[data-video="off"] .hm-week__video { display: none; }
+  .hm-week.is-reduced .hm-week__poster, .hm-week[data-video="off"] .hm-week__poster { display: block; }
+  .hm-week__matrix { display: grid; grid-template-columns: minmax(96px, 0.6fr) repeat(5, minmax(0, 1fr)); column-gap: var(--gap); align-items: stretch; }
+  .hm-week__threads { display: grid; grid-template-rows: 32px repeat(5, 48px); row-gap: 6px; }
+  .hm-week__thread { display: flex; align-items: center; gap: 6px; font-family: var(--font-display); font-weight: 600; font-size: 15px; color: var(--indigo-deep); }
+  .hm-week__thread .knot { color: var(--indigo); }
+  .hm-week__day { display: grid; grid-template-rows: 32px repeat(5, 48px); row-gap: 6px; justify-items: center; position: relative; }
+  .hm-week__day::before { content: ""; position: absolute; left: 50%; top: 40px; bottom: 8px; width: 2px; margin-left: -1px; background: color-mix(in srgb, var(--indigo) 30%, transparent); }
+  .hm-week__day-label { font-family: var(--font-display); font-weight: 600; font-size: 15px; color: var(--indigo-deep); line-height: 32px; text-align: center; }
+  .hm-week__knot { position: relative; width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; color: var(--indigo-deep); border-radius: 50%; background: var(--white); box-shadow: 0 0 0 1px var(--butter-deep); transition: transform var(--dur-base) var(--ease-knot), box-shadow var(--dur-fast) var(--ease-shuttle), background-color var(--dur-fast) var(--ease-shuttle); }
+  .hm-week__knot .knot { transition: transform var(--dur-base) var(--ease-knot); }
+  .hm-week__knot:hover, .hm-week__knot:focus-visible { transform: scale(1.12); box-shadow: 0 0 0 2px var(--indigo); }
+  .hm-week__knot[aria-pressed="true"] { background: var(--indigo); color: var(--butter); box-shadow: 0 0 0 2px var(--indigo); }
+  .hm-week__knot:active .knot { transform: scale(0.88); }
+  .hm-week__item { margin-top: clamp(14px, 1.6vw, 24px); background: var(--white); border-radius: var(--radius-board); box-shadow: 0 0 0 1px var(--butter-deep); padding-block: clamp(14px, 1.4vw, 22px); display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: var(--gap); row-gap: 8px; align-items: end; }
+  .hm-week__item-inner { grid-column: 1 / span 4; display: grid; grid-template-columns: subgrid; column-gap: var(--gap); row-gap: 6px; padding-inline: clamp(16px, 1.4vw, 28px); min-width: 0; align-items: start; }
+  .hm-week__item-head { grid-column: 1; }
+  .hm-week__item-headline { grid-column: 2 / span 2; }
+  .hm-week__item-summary { grid-column: 4; }
+  .hm-week__item-head { gap: 8px; }
+  .hm-week__item-date { font-family: var(--font-ui); font-weight: 600; font-size: 13px; }
+  .hm-week__item-headline { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-h3); color: var(--indigo); line-height: 1.12; }
+  .hm-week__item-summary { color: var(--ink); }
+  .hm-week__item-hint { grid-column: 5; padding-inline: clamp(16px, 1.4vw, 28px); text-align: right; }
+  .hm-week__item.is-wiping .hm-week__item-inner { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) both; }
+  @media (max-width: 1279px) { .hm-week__item { grid-template-columns: repeat(3, minmax(0, 1fr)); } .hm-week__item-inner { grid-column: 1 / span 3; } .hm-week__item-head { grid-column: 1 / -1; } .hm-week__item-headline { grid-column: 1 / span 2; } .hm-week__item-summary { grid-column: 3; } .hm-week__item-hint { grid-column: 1 / -1; text-align: left; } }
+  @media (max-width: 1023px) { .hm-week__item { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hm-week__item-inner { grid-column: 1 / -1; } .hm-week__item-headline { grid-column: 1; } .hm-week__item-summary { grid-column: 2; } .hm-week__thread span, .hm-week__thread { font-size: 13px; } }
+  @media (max-width: 767px) {
+    .hm-week { padding-inline: 0; }
+    .hm-week__matrix { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 0; padding-inline: var(--gutter); -webkit-overflow-scrolling: touch; }
+    .hm-week__threads { display: none; }
+    .hm-week__day { flex: 0 0 80vw; scroll-snap-align: start; grid-template-columns: minmax(0, 1fr); grid-template-rows: 32px repeat(5, 52px); justify-items: stretch; }
+    .hm-week__day::before { display: none; }
+    .hm-week__knot { width: 100%; height: 44px; border-radius: 22px; justify-content: flex-start; padding-left: 12px; gap: 10px; }
+    .hm-week__knot::after { content: attr(data-thread-name); font-family: var(--font-display); font-weight: 600; font-size: 15px; }
+    .hm-week__item { margin-inline: var(--gutter); grid-template-columns: minmax(0, 1fr); }
+    .hm-week__item-inner, .hm-week__item-hint, .hm-week__item-head, .hm-week__item-headline, .hm-week__item-summary { grid-column: 1 / -1; }
+  }
+
+  /* ---------------------------------------------------------------- 5. the dashboard */
+  .hm-dash__control { padding-bottom: 0; gap: 10px; }
+  .hm-dash__control-label { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-h3); color: var(--indigo); }
+  .hm-dash__switch { display: inline-flex; gap: 4px; align-items: flex-end; }
+  .hm-dash__opt { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; min-width: 88px; min-height: 44px; padding: 4px 12px 8px; border-radius: 4px; color: var(--indigo); font-family: var(--font-display); font-weight: 600; font-size: 17px; transition: background-color var(--dur-fast) var(--ease-shuttle), color var(--dur-fast) var(--ease-shuttle); }
+  .hm-dash__opt-thread { color: var(--indigo); transition: transform var(--dur-base) var(--ease-knot); transform-origin: 50% 0; }
+  .hm-dash__opt-warp { transition: d var(--dur-base) var(--ease-knot); }
+  .hm-dash__opt:hover .hm-dash__opt-thread, .hm-dash__opt:focus-visible .hm-dash__opt-thread { transform: translateY(2px); }
+  .hm-dash__opt[aria-checked="true"] { color: var(--butter); background: var(--indigo); }
+  .hm-dash__opt[aria-checked="true"] .hm-dash__opt-thread { color: var(--butter); transform: scaleY(1.08); }
+  .hm-dash__opt:active .hm-dash__opt-thread { transform: scaleY(0.92); }
+  .hm-dash__desktop, .hm-dash__phone { gap: 12px; }
+  .hm-dash__window { position: relative; }
+  .hm-dash__window .sb-app[hidden] { display: none; }
+  .hm-dash__pan { position: absolute; inset: 0; z-index: 2; border-radius: 12px; overflow: hidden; background: var(--white); transition: opacity var(--dur-base) var(--ease-shuttle); }
+  .hm-dash__pan.is-done { opacity: 0; pointer-events: none; }
+  .hm-dash__pan[hidden] { display: none; }
+  .hm-dash__pan-video { width: 100%; height: 100%; object-fit: contain; background: var(--white); }
+  .hm-dash__phone-frame { width: min(100%, 300px); margin-inline: 0; }
+  .hm-dash__phone-frame .sb-app[hidden] { display: none; }
+  .hm-dash__demo { font-weight: 700; align-self: flex-start; }
+  .hm-dash__caption { margin-top: 2px; }
+  /* populate: the modules of the shown view wipe in top to bottom at 40ms stagger, then one Texts toggle clicks */
+  [data-entrance="populate"] .sb-app:not([hidden]) :is(.bar, .main > *, .rail > *, .app-footer) { clip-path: inset(0 100% 0 0); }
+  [data-entrance="populate"].is-in .sb-app:not([hidden]) :is(.bar, .main > *, .rail > *, .app-footer) { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(var(--m, 0) * 40ms); }
+  [data-entrance="populate"].is-in.is-populated .sb-app :is(.bar, .main > *, .rail > *, .app-footer) { animation: none; clip-path: none; }
+  .hm-dash__control, .hm-dash__caption, .hm-dash__demo, .hm-dash__phone-frame { --m: 0; }
+  @media (max-width: 1279px) { .hm-dash__phone-frame { width: min(100%, 320px); } }
+  @media (max-width: 767px) { .hm-dash__phone { order: -1; } .hm-dash__phone-frame { width: min(100%, 320px); } }
+
+  /* ---------------------------------------------------------------- 7. free to read */
+  .hm-free__roundup { grid-row: 1 / span 2; }
+  .hm-free__guides-head { grid-column: 3 / span 3; grid-row: 1; padding-bottom: 0; }
+  .hm-free__guides-head .hm-free__framing { margin-bottom: 0; }
+  .hm-free__guide { grid-row: 2; }
+  @media (max-width: 1279px) { .hm-free__roundup { grid-row: auto; grid-column: 1 / -1; } .hm-free__guides-head { grid-column: 1 / -1; grid-row: auto; } .hm-free__guide { grid-row: auto; } }
+  @media (max-width: 1023px) { .hm-free__guide:last-child { grid-column: 1 / -1; } }
+  .hm-free__roundup-body { columns: 28ch; column-gap: var(--gap); }
+  .hm-free__roundup-body > * { break-inside: avoid; }
+  .hm-free__framing { color: var(--ink); margin-bottom: 10px; }
+  .hm-free__moves { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .hm-free__moves li { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 8px; align-items: start; font-family: var(--font-display); font-weight: 600; font-size: var(--fs-h3); line-height: 1.15; color: var(--indigo); }
+  .hm-free__moves .knot { margin-top: 4px; color: var(--indigo); }
+  .hm-free__link { font-weight: 700; margin-top: auto; }
+  .hm-free__guide-photo { aspect-ratio: 16 / 9; border-radius: 4px; overflow: hidden; }
+  .hm-free__guide-photo .picture { height: 100%; }
+  .hm-free__guide-title { font-size: var(--fs-h3); font-weight: 600; line-height: 1.12; }
+  .hm-free__guide-title a { text-decoration: none; }
+  .hm-free__guide-title a:hover, .hm-free__guide-title a:focus-visible { text-decoration: underline; }
+  .hm-free__guide-dek { color: var(--ink); }
+  [data-entrance="weft-alt"] .ent-item { clip-path: inset(0 100% 0 0); }
+  [data-entrance="weft-alt"] .ent-item:nth-child(even of .ent-item) { clip-path: inset(0 0 0 100%); }
+  [data-entrance="weft-alt"].is-in .ent-item { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(var(--i, 0) * var(--stagger, 120ms)); }
+  [data-entrance="weft-alt"].is-in .ent-item:nth-child(even of .ent-item) { animation-name: sb-weft-right; }
+
+  /* ---------------------------------------------------------------- 8. the questions */
+  .hm-faq__cell { gap: 8px; }
+  .hm-faq__q { font-size: var(--fs-h3); line-height: 1.12; align-items: flex-start; display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; }
+  .hm-faq__q .knot { margin-top: 3px; }
+  .hm-faq__a { color: var(--ink); font-size: var(--fs-body); }
+
+  /* reduced motion: static end states for everything above */
+  @media (prefers-reduced-motion: reduce) {
+    .hm-loom__poster, .hm-loom canvas, .hm-hero__mobile-card, .hm-week__knot, .hm-week__knot .knot, .hm-dash__opt-thread, .hm-dash__pan { transition: none; }
+    [data-entrance="weft-alt"] .ent-item, [data-entrance="populate"] .sb-app :is(.bar, .main > *, .rail > *, .app-footer) { clip-path: none !important; animation: none !important; }
+    .hm-week__item.is-wiping .hm-week__item-inner { animation: none; }
+  }
+  :root[data-motion="reduced"] :is(.hm-loom__poster, .hm-loom canvas, .hm-hero__mobile-card, .hm-week__knot, .hm-week__knot .knot, .hm-dash__opt-thread, .hm-dash__pan) { transition: none; }
+  :root[data-motion="reduced"] [data-entrance="weft-alt"] .ent-item, :root[data-motion="reduced"] [data-entrance="populate"] .sb-app :is(.bar, .main > *, .rail > *, .app-footer) { clip-path: none !important; animation: none !important; }
+  :root[data-motion="reduced"] .hm-week__item.is-wiping .hm-week__item-inner { animation: none; }
+  @media (prefers-reduced-motion: reduce) { .hm-week__media { opacity: 0.35; transition: none; } }
+  :root[data-motion="reduced"] .hm-week__media { opacity: 0.35; transition: none; }
+</style>
+<script>
+  import './home';
+</script>

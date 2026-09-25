@@ -1,0 +1,33 @@
+---
+// Home section 6, "Which threads should you pull first?": B2's ranker embed (the six toggles and the ranked top
+// four, the same component, strings, data and logic as /your-moves) with photo.ranker-edge as the row's edge
+// image in column five and the link line to /your-moves beneath. The heading pass is rendered by Home.astro.
+import RankerEmbed from '../../components/ranker/RankerEmbed.astro';
+import Picture from '../../components/Picture.astro';
+import { t } from '../../lib/copy';
+---
+<div class="hm-ranker-row" id="ranker-row">
+  <div class="hm-ranker-row__embed"><RankerEmbed /></div>
+  <section class="hm-ranker-row__foot board pass" id="ranker-foot" data-entrance="unroll" data-entrance-items=".ent" aria-label={t('home.ranker.heading')}>
+    <div class="hm-ranker-row__edge ent ent-item" style="--i:0"><Picture slot="photo.ranker-edge" sizes="(max-width: 767px) 100vw, 20vw" /></div>
+    <p class="hm-ranker-row__line span-4 ent ent-item" style="--i:1"><a href="/your-moves">{t('home.ranker.link')}</a></p>
+  </section>
+</div>
+<style is:global>
+  .hm-ranker-row__foot { row-gap: var(--gap); align-items: center; }
+  /* entrance: the edge image unrolls from the top like cloth off the bolt (Shuttle), then the line follows */
+  [data-entrance="unroll"] .ent { clip-path: inset(0 0 100% 0); }
+  [data-entrance="unroll"].is-in .ent { animation: sb-unroll var(--dur-slow) var(--ease-shuttle) both; animation-delay: calc(var(--i, 0) * 200ms); }
+  @keyframes sb-unroll { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+  @media (prefers-reduced-motion: reduce) { [data-entrance="unroll"] .ent { clip-path: none !important; animation: none !important; } }
+  :root[data-motion="reduced"] [data-entrance="unroll"] .ent { clip-path: none !important; animation: none !important; }
+  .hm-ranker-row__edge { grid-column: 5; grid-row: 1; padding-inline: 0 var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
+  .hm-ranker-row__edge .picture { aspect-ratio: 4 / 5; border-radius: var(--radius-card); }
+  .hm-ranker-row__edge .picture img { height: 100%; }
+  .hm-ranker-row__line { grid-column: 1 / span 4; grid-row: 1; padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); font-family: var(--font-display); font-weight: 600; font-size: var(--fs-h3); line-height: 1.15; }
+  .hm-ranker-row__line a { text-decoration: none; }
+  .hm-ranker-row__line a:hover, .hm-ranker-row__line a:focus-visible { text-decoration: underline; }
+  @media (max-width: 1279px) { .hm-ranker-row__edge { grid-column: 3; } .hm-ranker-row__line { grid-column: 1 / span 2; } }
+  @media (max-width: 1023px) { .hm-ranker-row__edge { grid-column: 2; } .hm-ranker-row__line { grid-column: 1; } }
+  @media (max-width: 767px) { .hm-ranker-row__edge, .hm-ranker-row__line { grid-column: 1 / -1; grid-row: auto; padding-inline: var(--cell-pad, 16px); } }
+</style>
