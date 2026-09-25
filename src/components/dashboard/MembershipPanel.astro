@@ -1,0 +1,142 @@
+---
+// The membership panel (design document 7.16 to 7.19, "The membership panel and the two click cancellation"):
+// click one, Membership in the avatar menu, opens this sheet from the right (weft pass, Shuttle); click two,
+// Cancel membership, cancels at once with no retention offer, no survey and no "are you sure": the panel then
+// shows the date access ends and Resume membership, which stays until that date. Also the cadence switch at
+// the next renewal, Update the card (the checkout's payment fields and errors), Move to the Daily for Two, and
+// for the Daily for Two the invite. All strings by id; dashboard.ts drives it from the demo session.
+import { t } from '../../lib/copy';
+import Bobbin from '../Bobbin.astro';
+import Knot from '../kit/Knot.astro';
+import Selvedge from '../kit/Selvedge.astro';
+const strings = {
+  summary: t('dash.membership.summary.pattern'), switchYearly: t('dash.membership.switch.yearly'), switchMonthly: t('dash.membership.switch.monthly'),
+  switchNote: t('dash.membership.switch.note.pattern'), cancelled: t('dash.membership.cancelled.pattern'), resumed: t('dash.membership.resumed.pattern'),
+  cardDone: t('add.dash.membership.card.done'), moved: t('add.dash.membership.two.moved.pattern'), resent: t('add.dash.membership.invite.resent.pattern'),
+  pending: t('dash.two.invite.pending'), inviteFormat: t('confirm.two.error.format'), inviteSame: t('confirm.two.error.same'),
+  numberEmpty: t('checkout.payment.number.error.empty'), numberFormat: t('checkout.payment.number.error.format'), numberCheck: t('checkout.payment.number.error.check'),
+  expiryEmpty: t('checkout.payment.expiry.error.empty'), expiryPast: t('checkout.payment.expiry.error.past'),
+  cvvEmpty: t('checkout.payment.cvv.error.empty'), cvvFormat: t('checkout.payment.cvv.error.format'), ccNameEmpty: t('checkout.payment.name.error.empty'),
+  errorSummary: t('checkout.error.summary')
+};
+const months = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
+const years = Array.from({ length: 11 }, (_, i) => String(2026 + i));
+---
+<div class="dash-panel" id="membership" data-membership-panel hidden role="dialog" aria-modal="true" aria-labelledby="membership-heading" tabindex="-1" data-strings={JSON.stringify(strings)}>
+  <div class="dash-panel__scrim" data-panel-close></div>
+  <aside class="dash-panel__sheet">
+    <div class="dash-panel__head">
+      <h2 class="dash-panel__heading" id="membership-heading" tabindex="-1">{t('dash.membership.heading')}</h2>
+      <button class="dash-panel__close" type="button" data-panel-close>{t('add.dash.membership.close')}</button>
+    </div>
+    <div class="dash-panel__body">
+      <p class="dash-panel__summary" data-mp-summary></p>
+      <p class="dash-panel__note" data-mp-note hidden aria-live="polite"></p>
+      <div class="dash-panel__edge"><Selvedge id="membership-panel-edge" /></div>
+
+      <div class="dash-panel__active" data-mp-active>
+        <div class="dash-panel__actions">
+          <button class="dash-panel__action" type="button" data-mp-switch></button>
+          <button class="dash-panel__action" type="button" data-mp-card-toggle aria-expanded="false" aria-controls="mp-card-form">{t('dash.membership.card.update')}</button>
+          <button class="dash-panel__action" type="button" data-mp-move hidden>{t('dash.membership.two.move')}</button>
+          <button class="dash-panel__action" type="button" data-mp-resend hidden>{t('dash.membership.two.resend')}</button>
+        </div>
+        <p class="dash-panel__pending small muted" data-mp-pending hidden>{strings.pending}</p>
+
+        <form class="dash-panel__form" id="mp-card-form" novalidate hidden data-mp-card-form>
+          <div class="error-summary" role="alert" tabindex="-1" hidden data-mp-card-errors>
+            <p class="error-summary__title">{strings.errorSummary}</p>
+            <ul data-mp-card-error-list></ul>
+          </div>
+          <div class="field">
+            <label class="field__label" for="mp-ccname">{t('checkout.payment.name.label')}</label>
+            <div class="field__control"><input class="field__input" id="mp-ccname" name="ccname" type="text" autocomplete="cc-name" aria-describedby="mp-ccname-error" /></div>
+            <p class="field__error" id="mp-ccname-error" hidden data-error-for="ccname"><Knot size={14} /><span data-error-text></span></p>
+          </div>
+          <div class="field">
+            <label class="field__label" for="mp-ccnumber">{t('checkout.payment.number.label')}</label>
+            <div class="field__control"><input class="field__input fig" id="mp-ccnumber" name="ccnumber" type="text" inputmode="numeric" autocomplete="cc-number" maxlength="23" aria-describedby="mp-ccnumber-error" /></div>
+            <p class="field__error" id="mp-ccnumber-error" hidden data-error-for="ccnumber"><Knot size={14} /><span data-error-text></span></p>
+          </div>
+          <div class="dash-panel__unit">
+            <div class="field" role="group" aria-labelledby="mp-expiry-label">
+              <span class="field__label" id="mp-expiry-label">{t('checkout.payment.expiry.label')}</span>
+              <div class="dash-panel__expiry">
+                <div class="field__control field__control--select">
+                  <label class="sr-only" for="mp-ccmm">{t('checkout.payment.expiry.mm.label')}</label>
+                  <select class="field__input field__select fig" id="mp-ccmm" name="ccmm" autocomplete="cc-exp-month" aria-describedby="mp-expiry-error"><option value="">{t('checkout.payment.expiry.mm.label')}</option>{months.map((m) => <option value={m}>{m}</option>)}</select>
+                </div>
+                <div class="field__control field__control--select">
+                  <label class="sr-only" for="mp-ccyyyy">{t('checkout.payment.expiry.yyyy.label')}</label>
+                  <select class="field__input field__select fig" id="mp-ccyyyy" name="ccyyyy" autocomplete="cc-exp-year" aria-describedby="mp-expiry-error"><option value="">{t('checkout.payment.expiry.yyyy.label')}</option>{years.map((y) => <option value={y}>{y}</option>)}</select>
+                </div>
+              </div>
+              <p class="field__error" id="mp-expiry-error" hidden data-error-for="expiry"><Knot size={14} /><span data-error-text></span></p>
+            </div>
+            <div class="field">
+              <label class="field__label" for="mp-cvv">{t('checkout.payment.cvv.label')}</label>
+              <div class="field__control"><input class="field__input fig" id="mp-cvv" name="cvv" type="text" inputmode="numeric" autocomplete="cc-csc" maxlength="4" aria-describedby="mp-cvv-error" /></div>
+              <p class="field__error" id="mp-cvv-error" hidden data-error-for="cvv"><Knot size={14} /><span data-error-text></span></p>
+            </div>
+          </div>
+          <Bobbin label={t('dash.membership.card.update')} type="submit" variant="secondary" />
+          <p class="small muted">{t('checkout.note')}</p>
+        </form>
+
+        <form class="dash-panel__form" novalidate hidden data-mp-invite-form>
+          <div class="field">
+            <label class="field__label" for="mp-invite">{t('add.dash.membership.invite.label')}</label>
+            <div class="field__control"><input class="field__input" id="mp-invite" name="invite" type="email" autocomplete="email" inputmode="email" aria-describedby="mp-invite-error" /></div>
+            <p class="field__error" id="mp-invite-error" hidden data-error-for="invite"><Knot size={14} /><span data-error-text></span></p>
+          </div>
+          <Bobbin label={t('add.dash.membership.invite.submit')} type="submit" variant="secondary" />
+        </form>
+
+        <div class="dash-panel__cancel">
+          <button class="dash-panel__cancel-btn" type="button" data-mp-cancel>{t('dash.membership.cancel')}</button>
+        </div>
+      </div>
+
+      <div class="dash-panel__cancelled" data-mp-cancelled hidden>
+        <p class="dash-panel__cancelled-line" data-mp-cancelled-line></p>
+        <dl class="dash-panel__ends"><dt>{t('dash.membership.ends.label')}</dt><dd class="fig" data-mp-ends></dd></dl>
+        <button class="dash-panel__resume" type="button" data-mp-resume>{t('dash.membership.resume')}</button>
+      </div>
+    </div>
+    <p class="live" aria-live="polite" data-mp-live></p>
+  </aside>
+</div>
+<style is:global>
+  .dash-panel { position: fixed; inset: 0; z-index: 50; }
+  .dash-panel[hidden] { display: none; }
+  .dash-panel__scrim { position: absolute; inset: 0; background: rgba(20, 22, 58, 0.28); opacity: 0; transition: opacity var(--dur-base) var(--ease-shuttle); }
+  .dash-panel.is-open .dash-panel__scrim { opacity: 1; }
+  .dash-panel__sheet { position: absolute; top: 0; right: 0; bottom: 0; width: min(100%, 460px); background: var(--white); display: flex; flex-direction: column; clip-path: inset(0 0 0 100%); transition: clip-path var(--dur-base) var(--ease-shuttle); overflow: auto; border-left: 1px solid var(--butter-deep); }
+  .dash-panel.is-open .dash-panel__sheet { clip-path: inset(0 0 0 0); }
+  .dash-panel__head { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 12px; }
+  .dash-panel__heading { font-size: clamp(28px, 2vw, 36px); font-weight: 700; }
+  .dash-panel__close { font-weight: 700; color: var(--indigo); min-height: 44px; padding: 0 8px; text-decoration: underline; }
+  .dash-panel__body { padding: 8px 24px 32px; display: flex; flex-direction: column; gap: 16px; }
+  .dash-panel__summary { font-weight: 600; font-size: var(--fs-standfirst); line-height: 1.4; }
+  .dash-panel__note { padding: 8px 10px; border-left: 2px solid var(--indigo); background: var(--butter-pale); font-weight: 600; }
+  .dash-panel__edge { height: 14px; }
+  .dash-panel__active, .dash-panel__cancelled { display: flex; flex-direction: column; gap: 16px; }
+  .dash-panel__actions { display: flex; flex-direction: column; gap: 4px; }
+  .dash-panel__action { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 0 4px; font-weight: 700; color: var(--indigo); text-align: left; border-bottom: 1px solid var(--hairline-soft); transition: background-color var(--dur-fast) var(--ease-shuttle), padding var(--dur-fast) var(--ease-knot); }
+  .dash-panel__action::after { content: ""; width: 8px; height: 8px; border-right: 2px solid var(--indigo); border-bottom: 2px solid var(--indigo); transform: rotate(-45deg); flex: none; transition: transform var(--dur-base) var(--ease-knot); }
+  .dash-panel__action:hover, .dash-panel__action:focus-visible { background: var(--butter-pale); padding-left: 8px; }
+  .dash-panel__action[aria-expanded="true"]::after { transform: rotate(45deg); }
+  .dash-panel__form { display: flex; flex-direction: column; gap: 14px; padding: 14px; border: 1px solid var(--butter-deep); border-radius: var(--radius-card); background: var(--butter-pale); }
+  .dash-panel__form[hidden] { display: none; }
+  .dash-panel__unit { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 12px; }
+  .dash-panel__expiry { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .dash-panel__cancel { margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--hairline); }
+  .dash-panel__cancel-btn, .dash-panel__resume { color: var(--indigo); font-weight: 700; text-decoration: underline; min-height: 44px; padding: 0; }
+  .dash-panel__cancelled-line { font-weight: 600; line-height: 1.5; }
+  .dash-panel__ends { display: flex; gap: 12px; }
+  .dash-panel__ends dt { font-weight: 700; }
+  .dash-panel__ends dd { margin: 0; }
+  body.panel-open { overflow: hidden; }
+  @media (prefers-reduced-motion: reduce) { .dash-panel__sheet, .dash-panel__scrim, .dash-panel__action, .dash-panel__action::after { transition: none; } }
+  :root[data-motion="reduced"] :is(.dash-panel__sheet, .dash-panel__scrim, .dash-panel__action, .dash-panel__action::after) { transition: none; }
+</style>

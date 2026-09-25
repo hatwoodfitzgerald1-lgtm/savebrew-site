@@ -1,0 +1,199 @@
+---
+// The dashboard shell (design document 7.16 to 7.19, Offering Spec 10.1 to 10.3): the product's own views
+// laid out as real pages inside the app's own frame (the 56px app bar is the top edge, radius 12, hairline
+// outline, on the butter ground; frameless at phone width), behind the demo sign in. It renders the imported
+// view in page mode, the thread strip as the tab indicator (dashboard.ts mounts it in the bar), the disclaimer
+// beneath the frame, the membership panel, the verbatim SMS block for the Texts card (moved into the card when
+// texts are off), and the templates the view scripts use. No session: the server rendered sign in prompt
+// shows and the client redirects to /sign-in.
+import Layout from '../../layouts/Layout.astro';
+import '../../styles/commerce.css';
+import ProductToday from '../product/ProductToday.astro';
+import ProductRates from '../product/ProductRates.astro';
+import ProductGoals from '../product/ProductGoals.astro';
+import ArchiveView from './ArchiveView.astro';
+import MembershipPanel from './MembershipPanel.astro';
+import SmsOptIn from '../SmsOptIn.astro';
+import Disclaimer from '../Disclaimer.astro';
+import Bobbin from '../Bobbin.astro';
+import Knot from '../kit/Knot.astro';
+import { t } from '../../lib/copy';
+import { guides } from '../../lib/longform';
+interface Props { view: 'today' | 'rates' | 'goals' | 'archive'; path: string }
+const { view } = Astro.props;
+const heads: Record<string, [string, string]> = {
+  today: ['head.today.title', 'head.today.meta'], rates: ['head.rates.title', 'head.rates.meta'], goals: ['head.goals.title', 'head.goals.meta'], archive: ['head.archive.title', 'head.archive.meta']
+};
+const [titleId, metaId] = heads[view];
+const patio = guides.find((g) => g.slug === 'why-patio-furniture-is-cheap-in-october');
+const waitSection = patio?.sections.find((s) => s.heading && /waiting on right now/i.test(s.heading));
+const strings = {
+  bellOn: t('dash.bell.on.label'), bellOnTip: t('dash.bell.on.tip.pattern'), bellOff: t('dash.bell.off.label'), bellOffTip: t('dash.bell.off.tip'),
+  membership: t('dash.appbar.membership'), signout: t('dash.signout'), signoutDone: t('dash.signout.done'), avatarMenu: t('add.dash.avatar.menu'),
+  endTexts: t('add.dash.texts.end'), footerLine: t('add.dash.footer.line'), weekend: t('dash.today.weekend'),
+  savedHeading: t('brief.members.saved.name'), savedEmpty: t('dash.saved.empty'), savedReminder: t('add.dash.saved.reminder.pattern'), savedCode: t('add.dash.saved.code.pattern'),
+  savedCashback: t('add.dash.saved.item.cashback'), savedCashbackDate: t('add.dash.saved.item.cashback.date'), savedCoupon: t('add.dash.saved.item.coupon'), savedCouponDate: t('add.dash.saved.item.coupon.date'),
+  ownEmpty: t('dash.rates.own.empty'), yesterdayAria: t('dash.today.yesterday.aria'),
+  show7: t('add.dash.rates.show7'), sortHigh: t('add.dash.rates.sort.high'), sortLow: t('add.dash.rates.sort.low'), sortChange: t('add.dash.rates.sort.change'), sortLabel: t('add.dash.rates.sort.label'), balanceLabel: t('add.dash.rates.balance.label'),
+  alertLabel: t('add.dash.rates.alert.label'), alertOn: t('add.dash.rates.alert.on.pattern'), alertOff: t('add.dash.rates.alert.off.pattern'), alertsEmpty: t('dash.rates.alerts.empty'),
+  goalsEmpty: t('dash.goals.empty'), addName: t('add.dash.goals.add.name.label'), addTarget: t('add.dash.goals.add.target.label'), addDate: t('add.dash.goals.add.date.label'), addDeposit: t('add.dash.goals.add.deposit.label'),
+  addSubmit: t('add.dash.goals.add.submit'), addCancel: t('add.dash.goals.add.cancel'), addErrName: t('add.dash.goals.add.error.name'), addErrTarget: t('add.dash.goals.add.error.target'), addErrDate: t('add.dash.goals.add.error.date'), addErrDeposit: t('add.dash.goals.add.error.deposit'), addFull: t('add.dash.goals.add.full'),
+  adjustLabel: t('add.dash.goals.adjust.label'), adjustSubmit: t('add.dash.goals.adjust.submit'), adjustDone: t('add.dash.goals.adjust.done.pattern'), applyLabel: t('add.dash.goals.apply.label'), applySubmit: t('add.dash.goals.apply.submit'), applyDone: t('add.dash.goals.apply.done.pattern'),
+  onTrack: t('add.dash.goals.status.ontrack'), behind: t('add.dash.goals.status.behind'), goalsSubline: t('add.dash.goals.subline.pattern'),
+  wsHeading: t('add.dash.worksheet.heading'), wsInput: t('add.dash.worksheet.input.label'), wsNeeds: t('add.dash.worksheet.needs'), wsWants: t('add.dash.worksheet.wants'), wsSaving: t('add.dash.worksheet.saving'), wsAbout: t('add.dash.worksheet.about'), wsQ1: t('add.dash.worksheet.q1'), wsQ2: t('add.dash.worksheet.q2'), wsQ3: t('add.dash.worksheet.q3'),
+  sheetClose: t('add.dash.sheet.close'), archiveEmpty: t('dash.archive.empty.search'), chipsNote: t('add.dash.archive.chips.note')
+};
+---
+<Layout title={t(titleId)} description={t(metaId)} route={`/${view}`} noindex hover="none" bodyClass="is-dashboard">
+  <Fragment slot="head">
+    <script is:inline>
+      (function () { try { document.documentElement.setAttribute('data-session', localStorage.getItem('savebrew.session') ? 'member' : 'none'); } catch (e) { document.documentElement.setAttribute('data-session', 'none'); } })();
+    </script>
+  </Fragment>
+  <section class="dash wide" data-dash data-view={view} data-strings={JSON.stringify(strings)} aria-label={t(titleId)}>
+    <div class="dash__gate" data-when-no-session>
+      <p class="dash__gate-line"><Knot size={18} />{t('add.dash.gate.line')}</p>
+      <Bobbin label={t('add.dash.gate.link')} href="/sign-in" />
+      <p class="small muted">{t('add.signin.preview')}</p>
+    </div>
+    <div class="dash__frame" data-when-session data-dash-frame>
+      {view === 'today' && <ProductToday page id="dash-app" />}
+      {view === 'rates' && <ProductRates page id="dash-app" />}
+      {view === 'goals' && <ProductGoals page id="dash-app" />}
+      {view === 'archive' && <ArchiveView />}
+    </div>
+    <div class="dash__below" data-when-session>
+      <Disclaimer class="dash__disclaimer" />
+    </div>
+    <div hidden data-sms-holder><SmsOptIn variant="card" id="sms-texts" /></div>
+    {view === 'today' && waitSection && (
+      <div class="dash-sheet" data-playbook-sheet hidden role="dialog" aria-modal="true" aria-labelledby="playbook-heading" tabindex="-1">
+        <div class="dash-sheet__scrim" data-sheet-close></div>
+        <aside class="dash-sheet__panel">
+          <div class="dash-sheet__head">
+            <h2 class="dash-sheet__heading" id="playbook-heading" tabindex="-1">{t('add.dash.playbook.heading')}</h2>
+            <button class="dash-sheet__close" type="button" data-sheet-close>{t('add.dash.sheet.close')}</button>
+          </div>
+          <div class="dash-sheet__body">
+            <p class="dash-sheet__lead" data-playbook-summary></p>
+            <h3 class="dash-sheet__sub">{waitSection.heading}</h3>
+            <div class="dash-sheet__prose" set:html={waitSection.html} />
+            <a class="dash-sheet__link" href={patio!.url}>{t('add.dash.playbook.link')}</a>
+          </div>
+        </aside>
+      </div>
+    )}
+    <MembershipPanel />
+    <p class="live" aria-live="polite" data-dash-live></p>
+  </section>
+</Layout>
+<style is:global>
+  html[data-session="none"] [data-when-session] { display: none; }
+  html[data-session="member"] [data-when-no-session] { display: none; }
+  .dash { padding-block: clamp(16px, 2vw, 32px) clamp(24px, 3vw, 48px); display: flex; flex-direction: column; gap: 14px; }
+  .dash__gate { background: var(--white); border-radius: var(--radius-board); box-shadow: 0 0 0 1px var(--butter-deep); padding: clamp(20px, 2.4vw, 40px); display: flex; flex-direction: column; gap: 14px; align-items: flex-start; min-height: 40vh; }
+  .dash__gate-line { display: flex; gap: 8px; align-items: center; font-family: var(--font-display); font-weight: 700; font-size: var(--fs-h3); color: var(--indigo); }
+  .dash__frame { width: 100%; }
+  .dash__below { padding-inline: 4px; }
+  /* the tab indicator is the thread strip drawn on a small canvas in the bar; the product's own underline steps aside in page mode */
+  .sb-app--page .bar .tabs { position: relative; }
+  .sb-app--page .bar .tab[aria-current="page"]::after { opacity: 0; }
+  .dash-strip { position: absolute; left: 0; right: 0; bottom: 0; height: 100%; pointer-events: none; }
+  .dash-strip canvas { display: block; width: 100%; height: 100%; }
+  .sb-app--page .bar .right { position: relative; }
+  .sb-app--page .bar .avatar { cursor: pointer; border: 0; padding: 0; transition: transform var(--dur-fast) var(--ease-knot); }
+  .sb-app--page .bar .avatar:hover, .sb-app--page .bar .avatar:focus-visible { transform: scale(1.06); }
+  .sb-app--page .bar .avatar:active { transform: scale(0.94); }
+  .sb-app--page .bar .bell { cursor: pointer; transition: background-color var(--dur-fast) var(--ease-shuttle); }
+  .sb-app--page .bar .bell:hover, .sb-app--page .bar .bell:focus-visible { background: var(--butter-pale); }
+  .dash-tip { position: absolute; right: 0; top: calc(100% + 8px); width: min(320px, 80vw); padding: 10px 12px; background: var(--ink); color: var(--white); font-size: 13px; line-height: 1.45; border-radius: 8px; z-index: 5; box-shadow: 0 4px 14px rgba(20, 22, 58, 0.18); }
+  .dash-tip[hidden] { display: none; }
+  .dash-menu { position: absolute; right: 0; top: calc(100% + 8px); min-width: 200px; background: var(--white); border: 1px solid var(--hairline); border-radius: 12px; padding: 6px; z-index: 6; box-shadow: 0 6px 18px rgba(20, 22, 58, 0.16); display: flex; flex-direction: column; clip-path: inset(0 0 100% 0); transition: clip-path var(--dur-base) var(--ease-shuttle); }
+  .dash-menu.is-open { clip-path: inset(0 0 0 0); }
+  .dash-menu[hidden] { display: none; }
+  .dash-menu__item { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px; border-radius: 8px; font-weight: 700; color: var(--indigo); text-decoration: none; background: none; border: 0; text-align: left; font: inherit; font-weight: 700; cursor: pointer; }
+  .dash-menu__item:hover, .dash-menu__item:focus-visible { background: var(--butter-pale); }
+  /* modules populate top to bottom at 40ms stagger (Shuttle) once the frame is ready */
+  .dash__frame .content > * { opacity: 0; }
+  .dash__frame.is-in .content > * { animation: sb-fade var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(var(--i, 0) * 40ms); }
+  .dash__frame .main > *, .dash__frame .rail > * { opacity: 0; }
+  .dash__frame.is-in .main > *, .dash__frame.is-in .rail > * { animation: sb-fade var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(0.08s + var(--i, 0) * 40ms); }
+  @media (prefers-reduced-motion: reduce) { .dash__frame .content > *, .dash__frame .main > *, .dash__frame .rail > * { opacity: 1; animation: none !important; } .dash-menu { transition: none; } }
+  :root[data-motion="reduced"] :is(.dash__frame .content > *, .dash__frame .main > *, .dash__frame .rail > *) { opacity: 1; animation: none !important; }
+  :root[data-motion="reduced"] .dash-menu { transition: none; }
+  /* the sheets (the playbook, the goal chooser): from the right, a weft pass wipe */
+  .dash-sheet { position: fixed; inset: 0; z-index: 50; }
+  .dash-sheet[hidden] { display: none; }
+  .dash-sheet__scrim { position: absolute; inset: 0; background: rgba(20, 22, 58, 0.28); opacity: 0; transition: opacity var(--dur-base) var(--ease-shuttle); }
+  .dash-sheet.is-open .dash-sheet__scrim { opacity: 1; }
+  .dash-sheet__panel { position: absolute; top: 0; right: 0; bottom: 0; width: min(100%, 520px); background: var(--white); display: flex; flex-direction: column; clip-path: inset(0 0 0 100%); transition: clip-path var(--dur-base) var(--ease-shuttle); overflow: auto; border-left: 1px solid var(--butter-deep); }
+  .dash-sheet.is-open .dash-sheet__panel { clip-path: inset(0 0 0 0); }
+  .dash-sheet__head { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 12px; }
+  .dash-sheet__heading { font-size: clamp(26px, 2vw, 34px); font-weight: 700; }
+  .dash-sheet__close { font-weight: 700; color: var(--indigo); min-height: 44px; padding: 0 8px; text-decoration: underline; }
+  .dash-sheet__body { padding: 8px 24px 32px; display: flex; flex-direction: column; gap: 14px; }
+  .dash-sheet__lead { font-weight: 600; font-size: var(--fs-standfirst); line-height: 1.4; }
+  .dash-sheet__sub { font-size: var(--fs-h3); }
+  .dash-sheet__prose { display: flex; flex-direction: column; gap: 10px; }
+  .dash-sheet__link { font-weight: 700; align-self: flex-start; }
+  body.sheet-open { overflow: hidden; }
+  @media (prefers-reduced-motion: reduce) { .dash-sheet__panel, .dash-sheet__scrim { transition: none; } }
+  :root[data-motion="reduced"] :is(.dash-sheet__panel, .dash-sheet__scrim) { transition: none; }
+  /* the verbatim SMS block inside the Texts card: the site's field rules, not the product's inline field */
+  .sb-app__stage .sms--card { border: 0; padding: 0; margin-top: 8px; }
+  .sb-app__stage .sms--card .sms__heading { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--indigo); }
+  .sb-app__stage .sms--card .field { flex-direction: column; gap: 6px; }
+  .sb-app__stage .sms--card .check span, .sb-app__stage .sms--card .check { font-size: 14px; }
+  .sb-app__stage .sms--card .bobbin { min-height: 44px; }
+  .sb-app__stage .sms--card .field__input { height: auto; border-radius: 0; }
+  /* injected modules use the product's own card language */
+  .sb-app__stage .dash-form { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; padding: 14px; border: 1px solid var(--hairline); border-radius: 12px; }
+  .sb-app__stage .dash-form .field { flex-direction: column; align-items: stretch; gap: 4px; height: auto; padding: 0; border: 0; border-radius: 0; }
+  .sb-app__stage .dash-form .field .label { font-size: 13px; }
+  .sb-app__stage .dash-form input, .sb-app__stage .dash-form select { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--hairline); border-radius: 10px; font: inherit; color: var(--ink); background: var(--white); }
+  .sb-app__stage .dash-form input:focus-visible, .sb-app__stage .dash-form select:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; border-color: var(--indigo); }
+  .sb-app__stage .dash-form .field.is-error input { border-color: var(--down); }
+  .sb-app__stage .dash-form .field-error { display: flex; gap: 6px; align-items: flex-start; color: var(--down); font-weight: 700; font-size: 13px; }
+  .sb-app__stage .dash-form .field-error svg { width: 14px; height: 14px; flex: none; margin-top: 2px; }
+  .sb-app__stage .dash-form .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .sb-app__stage .dash-form .actions .link { cursor: pointer; background: none; border: 0; padding: 0; font: inherit; font-weight: 600; font-size: 14px; color: var(--indigo); min-height: 40px; }
+  .sb-app__stage .dash-form .done { font-size: 14px; font-weight: 600; color: var(--up); }
+  .sb-app__stage .dash-inline { display: inline-flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .sb-app__stage .dash-inline input { width: 110px; height: 36px; padding: 0 10px; border: 1px solid var(--hairline); border-radius: 10px; font: inherit; color: var(--ink); }
+  .sb-app__stage .dash-inline .btn { height: 36px; }
+  .sb-app__stage .dash-note { font-size: 13px; color: var(--ink); font-weight: 600; margin-top: 8px; }
+  .sb-app__stage .tile input { width: 100%; font-size: 24px; font-weight: 700; color: var(--ink); line-height: 1.15; margin-top: 3px; border: 0; border-bottom: 2px solid var(--hairline); background: transparent; padding: 0; font-family: inherit; font-feature-settings: "tnum" 1; }
+  .sb-app__stage .tile input:focus-visible { outline: none; border-bottom-color: var(--indigo); }
+  .sb-app__stage .field input.dash-balance { width: 96px; border: 0; padding: 0; font: inherit; font-weight: 700; font-size: 15px; color: var(--ink); background: transparent; font-feature-settings: "tnum" 1; }
+  .sb-app__stage .field input.dash-balance:focus-visible { outline: none; border-bottom: 2px solid var(--indigo); }
+  .sb-app__stage .field select.dash-sort { border: 0; font: inherit; font-size: 14px; color: var(--ink); background: transparent; padding-right: 4px; cursor: pointer; }
+  .sb-app__stage .field select.dash-sort:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
+  .sb-app__stage .detail input.dash-alert { width: 90px; border: 0; padding: 0; font: inherit; font-weight: 700; font-size: 15px; color: var(--ink); background: transparent; font-feature-settings: "tnum" 1; text-align: right; }
+  .sb-app__stage .detail input.dash-alert:focus-visible { outline: none; border-bottom: 2px solid var(--indigo); }
+  .sb-app__stage tbody tr[tabindex] { cursor: pointer; }
+  .sb-app__stage tbody tr[tabindex]:focus-visible td:first-child { outline: 2px solid var(--indigo); outline-offset: -2px; }
+  .sb-app__stage tbody tr[tabindex]:hover td { background: var(--butter-pale); }
+  .sb-app__stage tbody tr[hidden] { display: none; }
+  .sb-app__stage .chart path.dash-line { stroke-dasharray: 600; stroke-dashoffset: 600; animation: sb-line var(--dur-slow) var(--ease-shuttle) forwards; }
+  @keyframes sb-line { to { stroke-dashoffset: 0; } }
+  .sb-app__stage .bar-fill.dash-fill { animation: sb-fill var(--dur-slow) var(--ease-shuttle) both; }
+  @keyframes sb-fill { from { width: 0; } }
+  .sb-app__stage .saved-list { display: flex; flex-direction: column; }
+  .sb-app__stage .saved-list .row { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .sb-app__stage .saved-list .row .stamp { font-size: 12px; }
+  .sb-app__stage .weekend-line { padding: 10px 12px; border: 1px solid var(--butter-deep); background: var(--butter-pale); border-radius: 10px; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+  .sb-app__stage .worksheet .cells { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+  .sb-app__stage .worksheet .cells .stat { border: 1px solid var(--hairline); border-radius: 12px; padding: 10px 12px; }
+  .sb-app__stage .worksheet .cells .label { font-size: 12px; font-weight: 600; color: var(--muted); }
+  .sb-app__stage .worksheet .cells .val { font-size: 18px; font-weight: 700; margin-top: 2px; }
+  .sb-app__stage .worksheet .questions { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .sb-app__stage .worksheet .questions li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; align-items: start; font-size: 14px; color: var(--ink); }
+  .sb-app__stage .worksheet .questions svg { width: 18px; height: 18px; color: var(--indigo); }
+  .sb-app__stage.is-phone .worksheet .cells { grid-template-columns: minmax(0, 1fr); }
+  @media (max-width: 767px) { .dash { padding-inline: 0; padding-top: 0; } .dash__below { padding-inline: var(--gutter); } .dash__gate { border-radius: 0; margin-inline: 0; } }
+  @media (prefers-reduced-motion: reduce) { .sb-app__stage .chart path.dash-line, .sb-app__stage .bar-fill.dash-fill { animation: none; stroke-dashoffset: 0; } }
+  :root[data-motion="reduced"] :is(.sb-app__stage .chart path.dash-line, .sb-app__stage .bar-fill.dash-fill) { animation: none; stroke-dashoffset: 0; }
+</style>
+<script>
+  import '../../scripts/dashboard';
+</script>

@@ -1,0 +1,129 @@
+---
+// The archive view (/archive, design document 7.19), built in the product's own system (the app bar, the
+// content grid, the cards and chips of the three imported views) since the asset engine shipped no archive
+// screen. Nine dated entries, newest first, each with the date in words, the five headlines with their knots
+// and the morning's count; a search by topic and a date select; each entry opens that morning's whole pass in
+// the Today layout, inline. The shell CSS is emitted once per page, exactly as ProductView does it.
+import data from '../../data/product-ui.json';
+import { t } from '../../lib/copy';
+import { brief } from '../../lib/longform';
+const locals = Astro.locals as any;
+const emitShared = !locals.sbProductShared;
+locals.sbProductShared = true;
+const reset = '.sb-app__stage :is(h1,h2,h3,h4){font-family:inherit;font-size:inherit;font-weight:inherit;line-height:inherit;color:inherit;letter-spacing:0;margin:0}.sb-app__stage :is(ul,ol){list-style:none}.sb-app__stage a{text-decoration:none}';
+const shared = emitShared ? `<style>${reset}.sb-app__stage{${(data as any).shellCss}}</style>${(data as any).symbols}` : '';
+
+interface Entry { id: string; date: string; short: string; items: { thread: string; key: string; headline: string; summary: string; chip: string | null }[] }
+const dayNum = (s: string) => Number((s.match(/September (\d+)/) || [])[1] || 0);
+const idFor = (s: string) => `2026-09-${String(dayNum(s)).padStart(2, '0')}`;
+const withYear = (s: string) => (/\d{4}/.test(s) ? s : `${s}, 2026`);
+const entries: Entry[] = [];
+entries.push({ id: idFor(brief.today.date), date: withYear(brief.today.date), short: brief.today.dateShort, items: brief.today.items });
+entries.push({ id: idFor(brief.yesterday.date), date: withYear(brief.yesterday.date), short: brief.yesterday.date, items: brief.yesterday.items });
+for (const d of [...brief.thisWeek.days].reverse()) { if (d.reusesYesterday || entries.some((e) => e.id === idFor(d.date))) continue; entries.push({ id: idFor(d.date), date: withYear(d.date), short: d.date, items: d.items }); }
+for (const d of [...brief.lastWeek.days].reverse()) { if (entries.some((e) => e.id === idFor(d.date))) continue; entries.push({ id: idFor(d.date), date: withYear(d.date), short: d.date, items: d.items }); }
+const count = (n: number) => t('add.dash.archive.count.pattern').replace('{n}', String(n));
+const tabs = [['Today', '/today', 'today'], ['Rates', '/rates', 'rates'], ['Goals', '/goals', 'goals'], ['Archive', '/archive', 'archive']];
+---
+{emitShared && <Fragment set:html={shared} />}
+<div class="sb-app sb-app--page" data-product="archive" data-page="true" data-interactive="true" data-phone="false">
+  <div class="sb-app__stage" data-view="archive">
+    <div class="app" data-id="app">
+      <header class="bar">
+        <a class="lockup" href="/today" aria-label={t('global.wordmark.alt')}><svg class="mark" aria-hidden="true"><use href="#knot"/></svg><span class="wordmark">{t('global.brand')}</span></a>
+        <nav class="tabs" aria-label="Sections">
+          {tabs.map(([name, href, key]) => <a class="tab" href={href} data-tab={key} aria-current={key === 'archive' ? 'page' : undefined}>{name}</a>)}
+        </nav>
+        <div class="right">
+          <span class="datepill">{t('dash.appbar.datepill')}</span>
+          <button class="bell" type="button" title={t('dash.bell.on.tip.example')}><svg aria-hidden="true"><use href="#i-bell"/></svg><span>{t('dash.bell.on.label')}</span></button>
+          <span class="avatar" title="Jordan, member since 2026">JM</span>
+        </div>
+      </header>
+      <nav class="tabs phone" aria-label="Sections">
+        {tabs.map(([name, href, key]) => <a class="tab" href={href} data-tab={key} aria-current={key === 'archive' ? 'page' : undefined}>{name}</a>)}
+      </nav>
+      <div class="content one">
+        <div class="head">
+          <div>
+            <h1>{t('brief.members.archive.name')}</h1>
+            <div class="subline"><span>{t('head.archive.meta')}</span><span class="pill">{t('add.dash.archive.updated')}</span></div>
+          </div>
+        </div>
+        <div class="controls arch-controls">
+          <label class="field arch-field"><span class="label">{t('add.dash.archive.search.label')}</span><input type="search" name="q" placeholder={t('notfound.search.placeholder')} autocomplete="off" data-arch-search /></label>
+          <label class="field arch-field"><span class="label">{t('add.dash.archive.date.label')}</span>
+            <select data-arch-date>
+              <option value=""></option>
+              {entries.map((e) => <option value={e.id}>{e.date}</option>)}
+            </select>
+          </label>
+        </div>
+        <main class="main">
+          <p class="arch-empty" role="status" aria-live="polite" hidden data-arch-empty data-pattern={t('dash.archive.empty.search')}></p>
+          <ol class="arch-list" data-arch-list>
+            {entries.map((e) => (
+              <li class="arch-entry" id={e.id} data-date={e.id} data-text={e.items.map((it) => [it.thread, it.headline, it.summary].join(' ')).join(' ').toLowerCase()}>
+                <div class="arch-row">
+                  <div class="arch-when">
+                    <span class="arch-date">{e.date}</span>
+                    <span class="stamp">{count(e.items.length)} · {brief.today.published}</span>
+                  </div>
+                  <ul class="arch-heads">
+                    {e.items.map((it) => <li><span class="thread"><svg aria-hidden="true"><use href="#knot"/></svg>{it.thread}</span><span class="arch-head">{it.headline}</span></li>)}
+                  </ul>
+                  <button class="chip arch-open" type="button" aria-expanded="false" aria-controls={`pass-${e.id}`} data-arch-open data-open={t('add.dash.archive.open')} data-close={t('add.dash.archive.close')}>{t('add.dash.archive.open')}</button>
+                </div>
+                <div class="arch-pass" id={`pass-${e.id}`} hidden>
+                  <div class="brief-head">
+                    <div class="subline"><span>{e.date}</span><span class="status">{brief.today.published}</span></div>
+                  </div>
+                  <section class="items" aria-label={e.date}>
+                    {e.items.map((it) => (
+                      <article class="item" data-thread={it.key}>
+                        <span class="thread"><svg aria-hidden="true"><use href="#knot"/></svg>{it.thread}</span>
+                        <div><h3>{it.headline}</h3><p>{it.summary}</p></div>
+                        {it.chip && <button class="chip" type="button" title={t('add.dash.archive.chips.note')}>{it.chip}</button>}
+                      </article>
+                    ))}
+                  </section>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </main>
+      </div>
+      <footer class="app-footer">{t('add.dash.footer.line')}</footer>
+    </div>
+  </div>
+</div>
+<style is:global>
+  .sb-app__stage[data-view="archive"] .arch-controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+  .sb-app__stage[data-view="archive"] .arch-field { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 240px; }
+  .sb-app__stage[data-view="archive"] .arch-field .label { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .sb-app__stage[data-view="archive"] .arch-field input, .sb-app__stage[data-view="archive"] .arch-field select { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--hairline); border-radius: 10px; font: inherit; color: var(--ink); background: var(--white); }
+  .sb-app__stage[data-view="archive"] .arch-field input:focus-visible, .sb-app__stage[data-view="archive"] .arch-field select:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; border-color: var(--indigo); }
+  .sb-app__stage[data-view="archive"] .arch-list { display: flex; flex-direction: column; border-top: 1px solid var(--hairline); }
+  .sb-app__stage[data-view="archive"] .arch-entry { border-bottom: 1px solid var(--hairline); }
+  .sb-app__stage[data-view="archive"] .arch-entry[hidden] { display: none; }
+  .sb-app__stage[data-view="archive"] .arch-row { display: grid; grid-template-columns: 220px minmax(0, 1fr) auto; column-gap: 20px; align-items: start; padding: 14px 0; }
+  .sb-app__stage[data-view="archive"] .arch-when { display: flex; flex-direction: column; gap: 4px; }
+  .sb-app__stage[data-view="archive"] .arch-date { font-family: var(--font-display); font-weight: 700; font-size: 20px; color: var(--indigo); line-height: 1.1; }
+  .sb-app__stage[data-view="archive"] .arch-heads { display: flex; flex-direction: column; gap: 4px; }
+  .sb-app__stage[data-view="archive"] .arch-heads li { display: grid; grid-template-columns: 92px minmax(0, 1fr); column-gap: 10px; align-items: baseline; font-size: 14px; }
+  .sb-app__stage[data-view="archive"] .arch-heads .arch-head { color: var(--ink); }
+  .sb-app__stage[data-view="archive"] .arch-open { align-self: start; }
+  .sb-app__stage[data-view="archive"] .arch-pass { padding: 4px 0 20px; display: flex; flex-direction: column; gap: 14px; }
+  .sb-app__stage[data-view="archive"] .arch-pass[hidden] { display: none; }
+  .sb-app__stage[data-view="archive"] .arch-entry.is-open .arch-row { background: var(--butter-pale); margin: 0 -12px; padding-inline: 12px; border-radius: 10px; }
+  .sb-app__stage[data-view="archive"] .items { display: flex; flex-direction: column; border-top: 1px solid var(--hairline); }
+  .sb-app__stage[data-view="archive"] .item { display: grid; grid-template-columns: 92px minmax(0, 1fr) auto; column-gap: 14px; align-items: start; padding: 11px 0; border-bottom: 1px solid var(--hairline); }
+  .sb-app__stage[data-view="archive"] .item h3 { font-size: 16.5px; font-weight: 700; line-height: 1.3; color: var(--ink); }
+  .sb-app__stage[data-view="archive"] .item p { font-size: 16px; line-height: 1.35; color: var(--muted); margin-top: 2px; }
+  .sb-app__stage[data-view="archive"] .arch-empty { font-size: 15px; color: var(--ink); padding: 12px 0; }
+  .sb-app__stage[data-view="archive"].is-phone .arch-row { grid-template-columns: minmax(0, 1fr); row-gap: 8px; }
+  .sb-app__stage[data-view="archive"].is-phone .arch-heads li { grid-template-columns: minmax(0, 1fr); }
+  .sb-app__stage[data-view="archive"].is-phone .item { grid-template-columns: minmax(0, 1fr); row-gap: 6px; }
+  .sb-app__stage[data-view="archive"].is-phone .arch-controls { flex-direction: column-reverse; align-items: stretch; }
+  .sb-app__stage[data-view="archive"].is-phone .arch-field { min-width: 0; }
+</style>
