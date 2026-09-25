@@ -1,0 +1,162 @@
+---
+// /contact (design document 7.12): the address, phone, email and hours, and a form a person reads. Support,
+// not capture. The heading pass "How do I reach a person?", the address, phone and email in three columns
+// with the support hours in the fourth and photo.contact-side in the fifth, the form (name, email, order number,
+// message; CUR-010 stitch underlines; GOV.UK errors; "Send my message"; a real client side validation and a
+// success state). Text hover: dash. Scene: contact-knot (the foundation's knot tied at the address line).
+import Layout from '../layouts/Layout.astro';
+import HeadingPass from '../components/HeadingPass.astro';
+import Board from '../components/Board.astro';
+import Bobbin from '../components/Bobbin.astro';
+import Disclaimer from '../components/Disclaimer.astro';
+import PageScene from '../components/PageScene.astro';
+import Picture from '../components/Picture.astro';
+import Knot from '../components/kit/Knot.astro';
+import Icon from '../components/kit/Icon.astro';
+import { t } from '../lib/copy';
+interface Props { path: string; }
+const { path } = Astro.props;
+const strings = {
+  name: t('contact.form.error.name'), emailEmpty: t('contact.form.error.email.empty'), emailFormat: t('contact.form.error.email.format'),
+  message: t('contact.form.error.message'), summary: t('contact.form.error.summary'), sending: t('contact.form.sending'),
+  success: t('contact.form.success.pattern'), system: t('contact.form.error.system'), preview: t('add.contact.form.preview')
+};
+---
+<Layout title={t('head.contact.title')} description={t('head.contact.meta')} route={path} hover="dash">
+  <HeadingPass title={t('contact.heading')} id="contact-heading" level={1} intro={t('contact.intro')} entrance="stitch" />
+
+  <Board id="contact-where" cells={5} entrance="wipe-cells" strip={false} label={t('contact.heading')} class="ct-where">
+    <div class="ct-where__scene span-full"><PageScene kind="contact-knot" height="72px" data-anchor="0.09" /></div>
+    <address class="cell ct-cell ct-cell--address">
+      <p class="cell-head"><Knot size={16} />{t('contact.address.entity')}</p>
+      <p class="ct-line">{t('contact.address.street')}<br />{t('contact.address.city')}</p>
+    </address>
+    <div class="cell ct-cell">
+      <p class="cell-head"><Icon name="texts" size={18} />{t('contact.phone.label')}</p>
+      <p class="ct-line"><a href={t('contact.phone.href')}>{t('contact.phone')}</a></p>
+    </div>
+    <div class="cell ct-cell">
+      <p class="cell-head"><Icon name="membership" size={18} />{t('contact.email.label')}</p>
+      <p class="ct-line"><a href={`mailto:${t('contact.email')}`}>{t('contact.email')}</a></p>
+    </div>
+    <div class="cell ct-cell">
+      <p class="cell-head"><Icon name="archive" size={18} />{t('contact.hours.label')}</p>
+      <p class="ct-line">{t('contact.hours')}</p>
+      <p class="ct-line small muted">{t('contact.reply')}</p>
+    </div>
+    <div class="cell ct-cell ct-cell--photo">
+      <Picture slot="photo.contact-side" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 33vw, 20vw" class="ct-photo" />
+    </div>
+  </Board>
+
+  <Board id="contact-form" cells={5} entrance="stitches" strip={true} label={t('contact.form.heading')} class="ct-form-board" tag="section">
+    <h2 class="ct-form__heading span-full">{t('contact.form.heading')}</h2>
+    <form class="ct-form span-full" novalidate data-contact-form data-strings={JSON.stringify(strings)} action="/contact" method="post">
+      <div class="ct-form__fields">
+        <div class="field ct-field ct-field--name ent-item" style="--i:0" data-field="name">
+          <label class="field__label" for="ct-name">{t('contact.form.name.label')}</label>
+          <div class="field__control"><input class="field__input" id="ct-name" name="name" type="text" autocomplete="name" placeholder={t('contact.form.name.placeholder')} aria-describedby="ct-name-error" required /></div>
+          <p class="field__error" id="ct-name-error" hidden><Knot size={14} /><span data-error-text></span></p>
+        </div>
+        <div class="field ct-field ct-field--email ent-item" style="--i:1" data-field="email">
+          <label class="field__label" for="ct-email">{t('contact.form.email.label')}</label>
+          <p class="field__hint" id="ct-email-hint">{t('contact.form.email.hint')}</p>
+          <div class="field__control"><input class="field__input" id="ct-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder={t('contact.form.email.placeholder')} aria-describedby="ct-email-hint ct-email-error" required /></div>
+          <p class="field__error" id="ct-email-error" hidden><Knot size={14} /><span data-error-text></span></p>
+        </div>
+        <div class="field ct-field ct-field--order ent-item" style="--i:2" data-field="order">
+          <label class="field__label" for="ct-order">{t('contact.form.order.label')}</label>
+          <p class="field__hint" id="ct-order-hint">{t('contact.form.order.hint')}</p>
+          <div class="field__control"><input class="field__input" id="ct-order" name="order" type="text" autocomplete="off" inputmode="numeric" aria-describedby="ct-order-hint" /></div>
+        </div>
+        <div class="field ct-field ent-item" style="--i:3" data-field="message">
+          <label class="field__label" for="ct-message">{t('contact.form.message.label')}</label>
+          <div class="field__control"><textarea class="field__input" id="ct-message" name="message" rows="6" placeholder={t('contact.form.message.placeholder')} aria-describedby="ct-message-error" required></textarea></div>
+          <p class="field__error" id="ct-message-error" hidden><Knot size={14} /><span data-error-text></span></p>
+        </div>
+      </div>
+      <div class="ct-form__action">
+        <div class="error-summary ct-form__summary" role="alert" tabindex="-1" hidden data-summary>
+          <p class="error-summary__title">{t('contact.form.error.summary')}</p>
+          <ul data-summary-list></ul>
+        </div>
+        <Bobbin label={t('contact.form.submit')} type="submit" class="ct-form__submit" data-submit="" />
+        <p class="ct-form__system" role="alert" hidden data-system></p>
+      </div>
+    </form>
+    <div class="ct-form__success span-full" role="status" aria-live="polite" hidden data-success>
+      <p class="ct-form__success-line"><span class="ct-form__tick" aria-hidden="true"><Knot size={22} /></span><span data-success-text></span></p>
+      <p class="small muted" data-success-preview></p>
+    </div>
+    <div class="ct-form__disclaimer span-full"><Disclaimer compact /></div>
+  </Board>
+</Layout>
+<style is:global>
+  .ct-where { row-gap: var(--gap); }
+  .ct-where__scene { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
+  .ct-line { font-size: var(--fs-body); }
+  .ct-photo { aspect-ratio: 4 / 5; border-radius: var(--radius-card); }
+  .ct-photo img { height: 100%; }
+  .ct-form__heading { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); font-size: var(--fs-h3); font-weight: 700; }
+  .ct-form { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: var(--gap); row-gap: var(--gap); padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
+  .ct-form__fields { grid-column: 1 / span 3; display: flex; flex-direction: column; gap: 18px; }
+  .ct-form__action { grid-column: 4 / span 2; display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+  .ct-field--name .field__control { max-width: 30ch; }
+  .ct-field--email .field__control { max-width: 36ch; }
+  .ct-field--order .field__control { max-width: 16ch; }
+  /* the stitch underline runs while the field has focus (CUR-010) */
+  .ct-form .field__control:focus-within::after { animation: sb-stitch-run var(--dur-slow) linear infinite; }
+  .ct-form__system { color: var(--down); font-weight: 700; }
+  .ct-form__success { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); display: flex; flex-direction: column; gap: 8px; }
+  .ct-form__success-line { display: flex; align-items: flex-start; gap: 10px; font-weight: 700; font-size: var(--fs-standfirst); }
+  .ct-form__tick { color: var(--indigo); flex: none; margin-top: 2px; }
+  .ct-form__disclaimer { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); padding-top: 8px; }
+
+  /* entrances built from the primitives: wipe-cells (the knot ties at the address, then the cells wipe in left to right and the still's clip opens), stitches (the fields' stitch underlines draw one after another) */
+  [data-entrance="wipe-cells"] .ct-cell { clip-path: inset(0 100% 0 0); }
+  [data-entrance="wipe-cells"].is-in .ct-cell { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) both; }
+  [data-entrance="wipe-cells"].is-in .ct-cell:nth-of-type(1) { animation-delay: 0.35s; }
+  [data-entrance="wipe-cells"].is-in .ct-cell:nth-of-type(2) { animation-delay: 0.45s; }
+  [data-entrance="wipe-cells"].is-in .ct-cell:nth-of-type(3) { animation-delay: 0.55s; }
+  [data-entrance="wipe-cells"].is-in .ct-cell:nth-of-type(4) { animation-delay: 0.65s; }
+  [data-entrance="wipe-cells"].is-in .ct-cell:nth-of-type(5) { animation-delay: 0.75s; }
+  [data-entrance="wipe-cells"] .ct-cell--photo .picture { clip-path: inset(0 0 100% 0); }
+  [data-entrance="wipe-cells"].is-in .ct-cell--photo .picture { animation: sb-open-down-ct var(--dur-base) var(--ease-shuttle) 0.9s both; }
+  @keyframes sb-open-down-ct { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+  [data-entrance="stitches"] .ent-item .field__input { border-bottom-color: transparent; }
+  [data-entrance="stitches"] .ent-item .field__control::after { transform: scaleX(0); }
+  [data-entrance="stitches"].is-in .ent-item .field__input { transition: border-bottom-color var(--dur-fast) var(--ease-shuttle); transition-delay: calc(0.3s + var(--i, 0) * 60ms); border-bottom-color: var(--muted); }
+  [data-entrance="stitches"].is-in .ent-item .field__control::after { animation: sb-stitch-draw var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(var(--i, 0) * 60ms); }
+  [data-entrance="stitches"].is-in .ent-item .field__control:focus-within::after { animation: none; transform: scaleX(1); }
+  @keyframes sb-stitch-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  [data-entrance="stitches"] .ent-item :is(.field__label, .field__hint) { opacity: 0; }
+  [data-entrance="stitches"].is-in .ent-item :is(.field__label, .field__hint) { animation: sb-fade var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(0.1s + var(--i, 0) * 60ms); }
+  @media (prefers-reduced-motion: reduce) {
+    [data-entrance="wipe-cells"] .ct-cell, [data-entrance="wipe-cells"] .ct-cell--photo .picture, [data-entrance="stitches"] .ent-item :is(.field__label, .field__hint) { animation: none !important; clip-path: none !important; opacity: 1 !important; }
+    [data-entrance="stitches"] .ent-item .field__input { border-bottom-color: var(--muted) !important; transition: none !important; }
+    [data-entrance="stitches"] .ent-item .field__control::after { animation: none !important; }
+    .ct-form .field__control:focus-within::after { animation: none !important; }
+  }
+  :root[data-motion="reduced"] :is([data-entrance="wipe-cells"] .ct-cell, [data-entrance="wipe-cells"] .ct-cell--photo .picture, [data-entrance="stitches"] .ent-item :is(.field__label, .field__hint)) { animation: none !important; clip-path: none !important; opacity: 1 !important; }
+  :root[data-motion="reduced"] [data-entrance="stitches"] .ent-item .field__input { border-bottom-color: var(--muted) !important; transition: none !important; }
+  :root[data-motion="reduced"] [data-entrance="stitches"] .ent-item .field__control::after { animation: none !important; }
+  :root[data-motion="reduced"] .ct-form .field__control:focus-within::after { animation: none !important; }
+
+  @media (max-width: 1279px) {
+    .ct-form { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .ct-form__fields { grid-column: 1 / span 2; }
+    .ct-form__action { grid-column: 3; }
+  }
+  @media (max-width: 1023px) {
+    .ct-form { grid-template-columns: minmax(0, 1fr); }
+    .ct-form__fields, .ct-form__action { grid-column: 1 / -1; }
+  }
+  @media (max-width: 767px) {
+    .ct-where__scene, .ct-form__heading, .ct-form, .ct-form__success, .ct-form__disclaimer { padding-inline: 16px; }
+    .ct-field--name .field__control, .ct-field--email .field__control, .ct-field--order .field__control { max-width: none; }
+    .ct-form__submit { width: 100%; }
+  }
+</style>
+<script>
+  import '../scripts/contact-form';
+</script>

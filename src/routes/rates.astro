@@ -1,0 +1,6 @@
+---
+// /rates: a dashboard route (design document 7.16 to 7.19), rendered by the shared dashboard shell in page mode.
+import DashboardShell from '../components/dashboard/DashboardShell.astro';
+interface Props { path: string }
+---
+<DashboardShell view="rates" path={Astro.props.path} />

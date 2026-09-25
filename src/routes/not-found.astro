@@ -1,0 +1,135 @@
+---
+// The designed 404 (design document 7.23): served by the catch all with a 404 status for any unknown path.
+// "This thread isn't on the loom." across the five columns with the line, the loose thread (the kit's
+// 404-loose-thread.svg with photo.404 behind it), a client side search of the guides and the Roundup, and
+// the three links on one thread. Text hover: the thread curls under the hovered link (a wavy underline).
+// Scene: notfound-thread (a loose thread that curls). noindex; the catch all also sets x-robots-tag.
+import Layout from '../layouts/Layout.astro';
+import Board from '../components/Board.astro';
+import PageScene from '../components/PageScene.astro';
+import Picture from '../components/Picture.astro';
+import Bobbin from '../components/Bobbin.astro';
+import Knot from '../components/kit/Knot.astro';
+import WeftPass from '../components/kit/WeftPass.astro';
+import { t } from '../lib/copy';
+import { guides, roundup, brief } from '../lib/longform';
+import looseRaw from '../../public/assets/kit/404-loose-thread.svg?raw';
+import { inlineSvg } from '../lib/svg';
+interface Props { path: string; }
+const { path } = Astro.props;
+const loose = inlineSvg(looseRaw, { class: 'nf-loose', width: '100%' });
+// the search index: the four guides (title, dek, body), the Roundup (its heading, the three headlines and their text) and today's five items (so a thread word finds the thread's item)
+const index = [
+  ...guides.map((g) => ({ title: g.title, dek: g.dek, url: g.url, text: g.bodyMarkdown, thread: g.thread })),
+  { title: `${roundup.heading} ${roundup.date}`, dek: roundup.past.entries[0]?.title || t('nav.roundup'), url: '/roundup', text: roundup.moves.map((m) => `${m.headline} ${m.paragraphs.map((p) => p.text).join(' ')}`).join(' '), thread: t('nav.roundup') },
+  ...brief.today.items.map((it) => ({ title: it.headline, dek: it.summary, url: `/brief#${it.key}`, text: '', thread: `${it.thread}, ${t('footer.col.1.link.brief')}` }))
+].map((e) => ({ ...e, haystack: `${e.title} ${e.dek} ${e.text}`.toLowerCase() }));
+const links = [
+  { label: t('notfound.link.home'), href: '/' },
+  { label: t('notfound.link.roundup'), href: '/roundup' },
+  { label: t('notfound.link.membership'), href: '/membership' }
+];
+---
+<Layout title={t('head.notfound.title')} description={t('head.notfound.meta')} route={path} hover="none" bodyClass="hv-curl" noindex>
+  <section class="heading-pass nf-head" id="notfound-head" data-entrance="curl" aria-labelledby="notfound-title">
+    <h1 class="heading-pass__title nf-head__title" id="notfound-title">{t('notfound.heading')}</h1>
+    <p class="nf-head__line">{t('notfound.line')}</p>
+    <div class="nf-head__scene"><PageScene kind="notfound-thread" height="120px" /></div>
+    <div class="heading-pass__weft"><WeftPass /></div>
+  </section>
+
+  <Board id="notfound-board" cells={5} entrance="stitch" strip={false} label={t('notfound.search.label')} class="nf-board" tag="section">
+    <div class="cell span-3 nf-search">
+      <form class="nf-search__form" role="search" data-guide-search novalidate>
+        <div class="field">
+          <label class="field__label" for="nf-query">{t('notfound.search.label')}</label>
+          <div class="nf-search__row">
+            <div class="field__control nf-search__control"><input class="field__input" id="nf-query" name="q" type="search" placeholder={t('notfound.search.placeholder')} autocomplete="off" aria-describedby="nf-results-label" /></div>
+            <Bobbin label={t('notfound.search.submit')} type="submit" variant="secondary" compact class="nf-search__submit" />
+          </div>
+        </div>
+      </form>
+      <p class="sr-only" id="nf-results-label">{t('notfound.search.label')}</p>
+      <ul class="nf-results" data-guide-results aria-live="polite" aria-labelledby="nf-results-label"></ul>
+      <p class="nf-results__empty small muted" data-guide-empty hidden></p>
+    </div>
+    <div class="cell span-2 nf-art">
+      <div class="nf-art__still"><Picture slot="photo.404" sizes="(max-width: 767px) 100vw, 40vw" /></div>
+      <div class="nf-art__kit" aria-hidden="true"><Fragment set:html={loose} /></div>
+    </div>
+    <nav class="nf-links span-full" aria-label={t('global.brand')}>
+      <span class="nf-links__thread" aria-hidden="true"></span>
+      <ul class="nf-links__list">
+        {links.map((l, i) => (
+          <li class="nf-links__item ent-item" style={`--i:${i}`}><a class="nf-links__link" href={l.href}><span class="nf-links__knot"><Knot size={26} /></span><span>{l.label}</span></a></li>
+        ))}
+      </ul>
+    </nav>
+  </Board>
+</Layout>
+<script define:vars={{ index: index.map(({ title, dek, url, thread, haystack }) => ({ title, dek, url, thread, haystack })), empty: t('add.notfound.search.empty') }}>
+  // a client side search over the four guides and the Roundup: titles, deks and bodies
+  const form = document.querySelector('[data-guide-search]');
+  const results = document.querySelector('[data-guide-results]');
+  const emptyLine = document.querySelector('[data-guide-empty]');
+  const input = document.getElementById('nf-query');
+  const knot = document.querySelector('.nf-links__knot')?.innerHTML || '';
+  function search(q) {
+    const query = q.trim().toLowerCase();
+    results.innerHTML = '';
+    emptyLine.hidden = true;
+    if (!query) return;
+    const words = query.split(/\s+/).filter(Boolean);
+    const hits = index.filter((e) => words.every((w) => e.haystack.includes(w)));
+    if (!hits.length) { emptyLine.textContent = empty.replace('{query}', q.trim()); emptyLine.hidden = false; return; }
+    for (const h of hits) {
+      const li = document.createElement('li');
+      li.className = 'nf-results__item';
+      li.innerHTML = `<a class="nf-results__link" href="${h.url}"><span class="nf-results__knot" aria-hidden="true">${knot}</span><span class="nf-results__body"><span class="nf-results__thread">${h.thread}</span><span class="nf-results__title"></span><span class="nf-results__dek"></span></span></a>`;
+      li.querySelector('.nf-results__title').textContent = h.title;
+      li.querySelector('.nf-results__dek').textContent = h.dek;
+      results.appendChild(li);
+    }
+  }
+  form?.addEventListener('submit', (e) => { e.preventDefault(); search(input.value); });
+  input?.addEventListener('input', () => { if (!input.value.trim()) search(''); });
+</script>
+<style is:global>
+  .nf-head { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .nf-head__title { grid-column: 1 / -1; }
+  .nf-head__line { grid-column: 1 / span 2; font-size: var(--fs-standfirst); }
+  .nf-head__scene { grid-column: 3 / span 3; align-self: end; }
+  .nf-board { row-gap: var(--gap); }
+  .nf-search__row { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+  .nf-search__control { flex: 1 1 240px; }
+  .nf-results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .nf-results__link { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; text-decoration: none; color: var(--ink); }
+  .nf-results__knot { color: var(--indigo); }
+  .nf-results__body { display: flex; flex-direction: column; gap: 2px; }
+  .nf-results__thread { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-cell-head); color: var(--indigo-deep); }
+  .nf-results__title { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-h3); color: var(--indigo); line-height: 1.12; }
+  .nf-results__dek { font-size: var(--fs-body); }
+  .nf-art { position: relative; }
+  .nf-art__still { border-radius: var(--radius-card); overflow: hidden; }
+  .nf-art__still .picture { aspect-ratio: 1 / 1; }
+  .nf-art__still .picture img { height: 100%; }
+  .nf-art__kit { position: absolute; inset: var(--cell-pad, clamp(16px, 1.4vw, 28px)); display: flex; align-items: center; pointer-events: none; }
+  .nf-art__kit svg { width: 100%; height: auto; opacity: 0.92; border-radius: var(--radius-card); }
+  .nf-links { position: relative; padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); padding-top: 12px; }
+  .nf-links__thread { position: absolute; left: var(--cell-pad, clamp(16px, 1.4vw, 28px)); right: var(--cell-pad, clamp(16px, 1.4vw, 28px)); top: 25px; height: 2px; background: var(--indigo); }
+  .nf-links__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--gap); position: relative; }
+  .nf-links__link { display: flex; flex-direction: column; gap: 6px; text-decoration: none; font-family: var(--font-display); font-weight: 700; font-size: var(--fs-h3); color: var(--indigo); }
+  .nf-links__knot { display: block; width: 26px; background: var(--white); color: var(--indigo); transition: transform var(--dur-base) var(--ease-knot); }
+  .nf-links__link:hover .nf-links__knot, .nf-links__link:focus-visible .nf-links__knot { transform: scale(1.12); }
+  /* the thread curls under the hovered link: a wavy underline drawn on Shuttle */
+  .hv-curl a:not(.bobbin):not(.chip):not(.sb-app *) { text-decoration: none; background-image: linear-gradient(var(--indigo), var(--indigo)); background-repeat: no-repeat; background-size: 0% 2px; background-position: 0 100%; transition: background-size var(--dur-base) var(--ease-shuttle), text-decoration-color var(--dur-base) var(--ease-shuttle); }
+  .hv-curl a:not(.bobbin):not(.chip):not(.sb-app *):is(:hover, :focus-visible, :active) { background-size: 0% 2px; text-decoration: underline wavy var(--indigo); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+  /* entrance built from the primitives: curl (the thread curls, the heading arrives tight, the line wipes in) */
+  [data-entrance="curl"] .nf-head__line { clip-path: inset(0 100% 0 0); }
+  [data-entrance="curl"].is-in .nf-head__line { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) 0.2s both; }
+  @media (prefers-reduced-motion: reduce) { [data-entrance="curl"] .nf-head__line { animation: none !important; clip-path: none !important; } }
+  :root[data-motion="reduced"] [data-entrance="curl"] .nf-head__line { animation: none !important; clip-path: none !important; }
+  @media (max-width: 1279px) { .nf-head { grid-template-columns: repeat(3, minmax(0, 1fr)); } .nf-head__line { grid-column: 1 / span 2; } .nf-head__scene { grid-column: 1 / -1; } .nf-search, .nf-art { grid-column: 1 / -1; } }
+  @media (max-width: 1023px) { .nf-head { grid-template-columns: repeat(2, minmax(0, 1fr)); } .nf-head__line { grid-column: 1 / -1; } }
+  @media (max-width: 767px) { .nf-head { grid-template-columns: minmax(0, 1fr); } .nf-links__list { grid-template-columns: minmax(0, 1fr); row-gap: 14px; } .nf-links__thread { display: none; } .nf-links { padding-inline: 16px; } }
+</style>

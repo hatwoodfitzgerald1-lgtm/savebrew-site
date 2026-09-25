@@ -1,0 +1,213 @@
+---
+// /roundup and /roundup/2026-09-19 (design document 7.4): the free Saturday page. The header band over
+// photo.roundup-header with "What moved this week?", the date, the covers line, the intro and the disclaimer
+// beside the date; the three moves spanning columns one to two, three, four to five; where the tracked rates
+// ended the week as a table beside the knot matrix (Recipe 08); Past Saturdays with the one real entry and
+// the RSS link; the compact membership strip. Text hover: knot (the first letter knots). Scene: roundup-thread.
+// The dated URL is the issue's stable address; /roundup shows the latest issue (this one).
+import Layout from '../layouts/Layout.astro';
+import Board from '../components/Board.astro';
+import Cell from '../components/Cell.astro';
+import Disclaimer from '../components/Disclaimer.astro';
+import CompactMembership from '../components/CompactMembership.astro';
+import PageScene from '../components/PageScene.astro';
+import Picture from '../components/Picture.astro';
+import HeadingPass from '../components/HeadingPass.astro';
+import Knot from '../components/kit/Knot.astro';
+import Icon from '../components/kit/Icon.astro';
+import WeftPass from '../components/kit/WeftPass.astro';
+import { t, fmt } from '../lib/copy';
+import { roundup } from '../lib/longform';
+interface Props { path: string; issue?: string; }
+const { path, issue } = Astro.props;
+const canonicalRoute = issue ? path : '/roundup';
+const threadKey = (name: string) => name.toLowerCase();
+const spanOf = (s: string) => (s === 'span-2' ? 2 : s === 'span-3' ? 3 : 1);
+// the lead in of the arithmetic and worth doing paragraphs is set in bold; the text stays verbatim
+const lead = (text: string) => { const i = text.indexOf(':'); return i > 0 && i < 40 ? [text.slice(0, i + 1), text.slice(i + 1)] : ['', text]; };
+// the knot matrix (Recipe 08): each tracked account as a row of five daily knots, knot size following the APY,
+// butter where the rate moved that morning. The mornings come from the issue's own copy (Bank B on Tuesday,
+// Bank D on Thursday, Bank C and Bank E on Friday).
+const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+const dayShort = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+const movedOn: Record<string, number> = { 'Bank B': 1, 'Bank C': 4, 'Bank D': 3, 'Bank E': 4 };
+const apys = roundup.rates.rows.map((r) => parseFloat(r.apy));
+const minApy = Math.min(...apys), maxApy = Math.max(...apys);
+const knotSize = (apy: number) => Math.round(11 + ((apy - minApy) / Math.max(0.01, maxApy - minApy)) * 9);
+const rowKey = (account: string) => account.replace(/\s*\(illustrative\)\s*/, '');
+const arrow = (dir: string) => (dir === 'up' ? '↑' : dir === 'down' ? '↓' : '');
+const pastEntry = roundup.past.entries[0];
+const pastDate = pastEntry ? fmt('roundup.past.entry.pattern', { date: pastEntry.date.replace(/^Saturday,\s*/, '') }) : '';
+---
+<Layout title={t('head.roundup.title')} description={t('head.roundup.meta')} route={canonicalRoute} hover="knot" rss={[{ title: 'The Weekly Roundup', href: '/roundup/feed.xml' }]}>
+  <section class="ru-header" id="roundup-header" data-entrance="open-left" aria-labelledby="roundup-title">
+    <div class="ru-header__band">
+      <Picture slot="photo.roundup-header" sizes="100vw" loading="eager" fetchpriority="high" class="ru-header__photo" decorative />
+      <h1 class="ru-header__title" id="roundup-title"><span class="ru-header__titlebox"><Icon name="roundup" size={28} class="ru-header__icon" />{roundup.heading}</span></h1>
+    </div>
+    <div class="ru-header__pass heading-pass">
+      <p class="ru-header__date heading-pass__intro"><span class="ru-header__chip chip is-on">{roundup.date}</span><span class="ru-header__covers small muted">{roundup.covers}</span></p>
+      <p class="ru-header__intro">{t('roundup.intro')}</p>
+      <div class="ru-header__disclaimer"><Disclaimer id="disclaimer-roundup" /></div>
+      <div class="heading-pass__weft"><WeftPass /></div>
+    </div>
+  </section>
+
+  <Board id="roundup-moves" cells={5} entrance="pop" stagger={90} strip={false} label={roundup.heading} class="ru-moves">
+    <div class="ru-moves__scene span-full"><PageScene kind="roundup-thread" height="56px" data-moves="roundup-moves" data-items=".ru-move" data-stops="0.2,0.5,0.8" /></div>
+    {roundup.moves.map((m) => (
+      <Cell thread={threadKey(m.thread) as any} span={spanOf(m.span) as any} class="ru-move" tag="article">
+        <h2 class="ru-move__headline">{m.headline}</h2>
+        {m.paragraphs.map((p) => {
+          if (p.kind === 'body') return <p class="ru-move__body">{p.text}</p>;
+          const [l, rest] = lead(p.text);
+          return <p class:list={['ru-move__para', `ru-move__para--${p.kind}`]}>{l && <strong>{l}</strong>}{rest}</p>;
+        })}
+      </Cell>
+    ))}
+  </Board>
+
+  <HeadingPass title={roundup.rates.heading} id="roundup-rates" intro={roundup.rates.intro} entrance="dock" />
+  <Board id="roundup-rates-row" cells={5} entrance="rows-knots" strip={false} label={roundup.rates.heading} class="ru-rates">
+    <div class="cell span-3 ru-rates__table-cell">
+      <table class="ru-table">
+        <thead>
+          <tr>{roundup.rates.columns.map((c) => <th scope="col">{c}</th>)}</tr>
+        </thead>
+        <tbody>
+          {roundup.rates.rows.map((r, i) => (
+            <tr class="ru-table__row ent-item" style={`--i:${i}`}>
+              <th scope="row">{r.account}</th>
+              <td>{r.product}</td>
+              <td class="fig ru-table__apy">{r.apy}</td>
+              <td class:list={['ru-table__change', `is-${r.direction}`]}><span class="ru-table__arrow" aria-hidden="true">{arrow(r.direction)}</span>{r.change}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div class="cell span-2 ru-rates__matrix-cell">
+      <div class="ru-matrix" role="img" aria-label={t('roundup.rates.note')}>
+        <div class="ru-matrix__head" aria-hidden="true"><span></span>{dayShort.map((d) => <span class="ru-matrix__day">{d}</span>)}</div>
+        {roundup.rates.rows.map((r, i) => (
+          <div class="ru-matrix__row" aria-hidden="true">
+            <span class="ru-matrix__account">{rowKey(r.account)}</span>
+            {days.map((d, di) => (
+              <span class:list={['ru-matrix__cell', movedOn[rowKey(r.account)] === di ? 'is-moved' : '']} style={`--i:${di}; --size:${knotSize(apys[i])}px`}>
+                <Knot size={knotSize(apys[i])} class="ru-matrix__knot" />
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+      <p class="small muted ru-rates__note">{t('roundup.rates.note')}</p>
+    </div>
+    <p class="ru-rates__line span-full">{roundup.rates.line}</p>
+  </Board>
+
+  <HeadingPass title={roundup.past.heading} id="roundup-past" entrance="knots" />
+  <Board id="roundup-past-row" cells={5} entrance="along" strip={true} label={roundup.past.heading} class="ru-past">
+    {pastEntry && (
+      <div class="cell ru-past__entry ent-item" style="--i:0">
+        <p class="cell-head"><Knot size={16} />{pastDate}</p>
+        <a class="ru-past__link" href={pastEntry.url} aria-current={issue ? 'page' : undefined}>{pastEntry.title}</a>
+      </div>
+    )}
+    <div class="cell span-3 ru-past__note ent-item" style="--i:1">
+      <p class="ru-past__note-text">{roundup.past.note}</p>
+    </div>
+    <div class="cell ru-past__rss ent-item" style="--i:2">
+      <p class="cell-head"><Icon name="roundup" size={18} />{t('nav.roundup')}</p>
+      <a class="ru-past__rsslink" href="/roundup/feed.xml" type="application/rss+xml">{t('roundup.rss.label')}</a>
+    </div>
+  </Board>
+
+  <CompactMembership line={t('roundup.compact.line')} entrance="weft-left" />
+</Layout>
+<style is:global>
+  .ru-header { width: 100%; }
+  .ru-header__band { position: relative; width: 100%; height: clamp(200px, 30vh, 380px); overflow: hidden; background: var(--butter-pale); }
+  .ru-header__band .picture { position: absolute; inset: 0; height: 100%; }
+  .ru-header__band .picture picture, .ru-header__band .picture img { width: 100%; height: 100%; object-fit: cover; }
+  .ru-header__title { position: absolute; left: var(--gutter); bottom: 0; margin: 0; font-size: var(--fs-h2); font-weight: 700; }
+  .ru-header__titlebox { display: inline-flex; align-items: center; gap: 12px; background: var(--butter); color: var(--indigo); padding: 14px clamp(14px, 1.4vw, 24px) 0; border-radius: var(--radius-board) var(--radius-board) 0 0; }
+  .ru-header__icon { color: var(--indigo); }
+  .ru-header__pass { padding-top: clamp(10px, 1.2vw, 18px); align-items: start; }
+  .ru-header__date { grid-column: 1 / span 2; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+  .ru-header__chip { cursor: default; }
+  .ru-header__intro { grid-column: 1 / span 2; font-size: var(--fs-standfirst); line-height: 1.4; }
+  .ru-header__disclaimer { grid-column: 3 / span 3; grid-row: 1 / span 2; background: var(--white); border-radius: var(--radius-board); padding: 12px 14px; box-shadow: 0 0 0 1px var(--butter-deep); align-self: start; }
+  .ru-moves__scene { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
+  .ru-move__headline { font-size: var(--fs-h3); font-weight: 600; line-height: 1.15; }
+  .ru-move__para--arithmetic strong, .ru-move__para--worth strong { font-weight: 700; color: var(--indigo-deep); }
+  .ru-move__para--worth { border-top: 2px solid var(--butter-deep); padding-top: 8px; }
+  .ru-table { width: 100%; font-size: var(--fs-body); }
+  .ru-table th, .ru-table td { text-align: left; padding: 8px 10px 8px 0; border-bottom: 1px solid var(--hairline); vertical-align: top; }
+  .ru-table thead th { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-cell-head); color: var(--indigo-deep); border-bottom: 2px solid var(--indigo); }
+  .ru-table tbody th { font-weight: 600; }
+  .ru-table__apy { font-variant-numeric: tabular-nums; }
+  .ru-table__change { font-weight: 700; white-space: nowrap; }
+  .ru-table__change.is-up { color: var(--up); }
+  .ru-table__change.is-down { color: var(--down); }
+  .ru-table__change.is-unchanged { color: var(--unchanged); font-weight: 500; }
+  .ru-table__arrow { display: inline-block; width: 1em; }
+  .ru-matrix { display: flex; flex-direction: column; gap: 4px; }
+  .ru-matrix__head, .ru-matrix__row { display: grid; grid-template-columns: minmax(60px, 1.2fr) repeat(5, minmax(0, 1fr)); align-items: center; column-gap: 4px; }
+  .ru-matrix__day { font-family: var(--font-display); font-weight: 600; font-size: 13px; color: var(--muted); text-align: center; }
+  .ru-matrix__account { font-size: var(--fs-label); font-weight: 600; color: var(--indigo-deep); }
+  .ru-matrix__cell { position: relative; display: flex; align-items: center; justify-content: center; height: 30px; color: var(--indigo); }
+  .ru-matrix__cell::before { content: ""; position: absolute; width: calc(var(--size, 14px) + 10px); height: calc(var(--size, 14px) + 10px); border-radius: 50%; background: var(--butter); transform: scale(0); transition: transform var(--dur-base) var(--ease-knot); }
+  .ru-matrix__cell.is-moved::before { transform: scale(1); }
+  .ru-matrix__cell.is-moved { color: var(--indigo-deep); }
+  .ru-matrix__knot { position: relative; transition: transform var(--dur-base) var(--ease-knot); }
+  .ru-matrix__cell:hover .ru-matrix__knot { transform: scale(1.12); }
+  .ru-rates__note { margin-top: 8px; }
+  .ru-rates__line { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); padding-top: 4px; }
+  .ru-past__link { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-h3); line-height: 1.15; display: inline-block; }
+  .ru-past__note-text { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-h3); color: var(--indigo-deep); line-height: 1.2; }
+  .ru-past__rsslink { font-weight: 700; }
+
+  /* entrances built from the primitives: open-left (the band's clip opens from the left, the date pops), rows-knots (the table's rows wipe in top to bottom, then the matrix knots tie column by column), along (the entries slide in along the thread) */
+  [data-entrance="open-left"] .ru-header__band { clip-path: inset(0 100% 0 0); }
+  [data-entrance="open-left"].is-in .ru-header__band { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) both; }
+  [data-entrance="open-left"] .ru-header__chip { transform: scale(0.6); opacity: 0; }
+  [data-entrance="open-left"].is-in .ru-header__chip { animation: sb-knots var(--dur-base) var(--ease-knot) 0.5s both; }
+  [data-entrance="rows-knots"] .ent-item { clip-path: inset(0 100% 0 0); }
+  [data-entrance="rows-knots"].is-in .ent-item { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(var(--i, 0) * 70ms); }
+  [data-entrance="rows-knots"] .ru-matrix__knot { transform: scale(0); }
+  [data-entrance="rows-knots"].is-in .ru-matrix__knot { animation: sb-pop var(--dur-base) var(--ease-knot) both; animation-delay: calc(0.5s + var(--i, 0) * 90ms); }
+  [data-entrance="rows-knots"] .ru-matrix__cell.is-moved::before { transform: scale(0); }
+  [data-entrance="rows-knots"].is-in .ru-matrix__cell.is-moved::before { transform: scale(1); transition-delay: calc(0.7s + var(--i, 0) * 90ms); }
+  [data-entrance="along"] .ent-item { opacity: 0; transform: translateX(-40px); }
+  [data-entrance="along"].is-in .ent-item { animation: sb-along var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(var(--i, 0) * 80ms); }
+  @keyframes sb-along { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    [data-entrance="open-left"] .ru-header__band, [data-entrance="open-left"] .ru-header__chip, [data-entrance="rows-knots"] .ru-matrix__knot { animation: none !important; clip-path: none !important; opacity: 1 !important; transform: none !important; }
+    [data-entrance="rows-knots"] .ru-matrix__cell.is-moved::before { transform: scale(1); transition: none; }
+  }
+  :root[data-motion="reduced"] :is([data-entrance="open-left"] .ru-header__band, [data-entrance="open-left"] .ru-header__chip, [data-entrance="rows-knots"] .ru-matrix__knot) { animation: none !important; clip-path: none !important; opacity: 1 !important; transform: none !important; }
+  :root[data-motion="reduced"] [data-entrance="rows-knots"] .ru-matrix__cell.is-moved::before { transform: scale(1); transition: none; }
+
+  @media (max-width: 1279px) {
+    .ru-header__date, .ru-header__intro { grid-column: 1 / span 2; }
+    .ru-header__disclaimer { grid-column: 3; grid-row: 1 / span 2; }
+    .ru-rates__table-cell, .ru-rates__matrix-cell { grid-column: 1 / -1; }
+    .ru-past__note { grid-column: 1 / -1; }
+  }
+  @media (max-width: 1023px) {
+    .ru-header__date, .ru-header__intro, .ru-header__disclaimer { grid-column: 1 / -1; grid-row: auto; }
+    .ru-move { grid-column: 1 / -1; }
+  }
+  @media (max-width: 767px) {
+    .ru-header__band { height: min(100vw, 320px); }
+    .ru-header__title { font-size: clamp(30px, 9vw, 40px); }
+    .ru-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .ru-table tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--hairline); }
+    .ru-table th, .ru-table td { border: 0; padding: 0; }
+    .ru-table tbody th { grid-column: 1; }
+    .ru-table td:nth-child(2) { grid-column: 1; font-size: var(--fs-label); color: var(--muted); }
+    .ru-table td:nth-child(3) { grid-column: 2; grid-row: 1; text-align: right; }
+    .ru-table td:nth-child(4) { grid-column: 2; grid-row: 2; text-align: right; font-size: var(--fs-label); }
+    .ru-moves__scene, .ru-rates__line { padding-inline: 16px; }
+  }
+</style>

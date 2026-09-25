@@ -1,0 +1,292 @@
+---
+// /checkout (design document 7.14, checkout_spec.md): the complete guest checkout for a digital membership.
+// The plainest page on the site: one white board across the full width, the form in the first three warp
+// columns with the selvedge stitch advancing down the left gutter one section at a time, the live order
+// summary beside it in columns four and five (sticky), the one unchecked age and terms box, the one primary
+// action "Pay $7.99 now" with the amount live from the cart, and the honest note that no live charge is taken.
+// Top aligned labels, required and optional both marked, autocomplete tokens on every field, GOV.UK errors.
+// No account step, no shipping (digital), no SMS consent. Scene: the advancing stitch. Text hover: none.
+import Layout from '../layouts/Layout.astro';
+import '../styles/commerce.css';
+import Bobbin from '../components/Bobbin.astro';
+import PageScene from '../components/PageScene.astro';
+import Knot from '../components/kit/Knot.astro';
+import Selvedge from '../components/kit/Selvedge.astro';
+import { t } from '../lib/copy';
+interface Props { path: string }
+const strings = {
+  membershipPattern: t('checkout.summary.membership.pattern'), renewalMonthly: t('cart.renewal.monthly.pattern'), renewalYearly: t('cart.renewal.yearly.pattern'),
+  submitPattern: t('checkout.submit.pattern'), processing: t('checkout.processing'),
+  firstEmpty: t('checkout.contact.first.error.empty'), lastEmpty: t('checkout.contact.last.error.empty'),
+  emailEmpty: t('checkout.contact.email.error.empty'), emailFormat: t('checkout.contact.email.error.format'),
+  phoneEmpty: t('checkout.contact.phone.error.empty'), phoneFormat: t('checkout.contact.phone.error.format'),
+  countryEmpty: t('checkout.billing.country.error.empty'), line1Empty: t('checkout.billing.line1.error.empty'), cityEmpty: t('checkout.billing.city.error.empty'),
+  stateEmpty: t('checkout.billing.state.error.empty'), stateEmptyIntl: t('checkout.billing.state.error.empty.international'),
+  stateLabel: t('checkout.billing.state.label'), stateLabelIntl: t('checkout.billing.state.label.international'),
+  zipEmpty: t('checkout.billing.zip.error.empty'), zipFormat: t('checkout.billing.zip.error.format'), zipEmptyIntl: t('checkout.billing.zip.error.empty.international'),
+  zipLabel: t('checkout.billing.zip.label'), zipLabelIntl: t('checkout.billing.zip.label.international'),
+  ccNameEmpty: t('checkout.payment.name.error.empty'), numberEmpty: t('checkout.payment.number.error.empty'), numberFormat: t('checkout.payment.number.error.format'), numberCheck: t('checkout.payment.number.error.check'),
+  expiryEmpty: t('checkout.payment.expiry.error.empty'), expiryPast: t('checkout.payment.expiry.error.past'),
+  cvvEmpty: t('checkout.payment.cvv.error.empty'), cvvFormat: t('checkout.payment.cvv.error.format'), termsError: t('checkout.terms.error')
+};
+const year = 2026;
+const years = Array.from({ length: 11 }, (_, i) => String(year + i));
+const months = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
+const states: [string, string][] = [['AL', 'Alabama'], ['AK', 'Alaska'], ['AZ', 'Arizona'], ['AR', 'Arkansas'], ['CA', 'California'], ['CO', 'Colorado'], ['CT', 'Connecticut'], ['DE', 'Delaware'], ['DC', 'District of Columbia'], ['FL', 'Florida'], ['GA', 'Georgia'], ['HI', 'Hawaii'], ['ID', 'Idaho'], ['IL', 'Illinois'], ['IN', 'Indiana'], ['IA', 'Iowa'], ['KS', 'Kansas'], ['KY', 'Kentucky'], ['LA', 'Louisiana'], ['ME', 'Maine'], ['MD', 'Maryland'], ['MA', 'Massachusetts'], ['MI', 'Michigan'], ['MN', 'Minnesota'], ['MS', 'Mississippi'], ['MO', 'Missouri'], ['MT', 'Montana'], ['NE', 'Nebraska'], ['NV', 'Nevada'], ['NH', 'New Hampshire'], ['NJ', 'New Jersey'], ['NM', 'New Mexico'], ['NY', 'New York'], ['NC', 'North Carolina'], ['ND', 'North Dakota'], ['OH', 'Ohio'], ['OK', 'Oklahoma'], ['OR', 'Oregon'], ['PA', 'Pennsylvania'], ['RI', 'Rhode Island'], ['SC', 'South Carolina'], ['SD', 'South Dakota'], ['TN', 'Tennessee'], ['TX', 'Texas'], ['UT', 'Utah'], ['VT', 'Vermont'], ['VA', 'Virginia'], ['WA', 'Washington'], ['WV', 'West Virginia'], ['WI', 'Wisconsin'], ['WY', 'Wyoming'], ['AS', 'American Samoa'], ['GU', 'Guam'], ['MP', 'Northern Mariana Islands'], ['PR', 'Puerto Rico'], ['VI', 'U.S. Virgin Islands']];
+const countries: [string, string][] = [['US', t('checkout.billing.country.default')], ['AU', 'Australia'], ['AT', 'Austria'], ['BE', 'Belgium'], ['BR', 'Brazil'], ['CA', 'Canada'], ['CL', 'Chile'], ['CO', 'Colombia'], ['CZ', 'Czechia'], ['DK', 'Denmark'], ['FI', 'Finland'], ['FR', 'France'], ['DE', 'Germany'], ['GR', 'Greece'], ['HK', 'Hong Kong'], ['HU', 'Hungary'], ['IN', 'India'], ['ID', 'Indonesia'], ['IE', 'Ireland'], ['IL', 'Israel'], ['IT', 'Italy'], ['JP', 'Japan'], ['MY', 'Malaysia'], ['MX', 'Mexico'], ['NL', 'Netherlands'], ['NZ', 'New Zealand'], ['NO', 'Norway'], ['PH', 'Philippines'], ['PL', 'Poland'], ['PT', 'Portugal'], ['SG', 'Singapore'], ['ZA', 'South Africa'], ['KR', 'South Korea'], ['ES', 'Spain'], ['SE', 'Sweden'], ['CH', 'Switzerland'], ['TW', 'Taiwan'], ['TH', 'Thailand'], ['TR', 'Turkey'], ['AE', 'United Arab Emirates'], ['GB', 'United Kingdom'], ['VN', 'Vietnam']];
+const sectionHead = (n: number, id: string) => `${n}. ${t(id)}`;
+const marks = ['Visa', 'Mastercard', 'American Express', 'Discover'];
+---
+<Layout title={t('head.checkout.title')} description={t('head.checkout.meta')} route="/checkout" noindex hover="none" tabstrip={false} bodyClass="is-checkout">
+  <Fragment slot="head">
+    <script is:inline>
+      (function () { try { document.documentElement.setAttribute('data-cart', localStorage.getItem('savebrew.cart') ? 'full' : 'empty'); } catch (e) { document.documentElement.setAttribute('data-cart', 'empty'); } })();
+    </script>
+  </Fragment>
+  <form class="checkout pass" id="checkout-form" novalidate data-checkout data-strings={JSON.stringify(strings)} aria-labelledby="checkout-heading">
+    <div class="checkout__stitch" aria-hidden="true"><PageScene kind="checkout-stitch" height="100%" class="checkout__stitch-scene" /></div>
+
+    <header class="checkout__head span-full">
+      <h1 class="checkout__heading" id="checkout-heading">{t('checkout.heading')}</h1>
+      <p class="checkout__intro standfirst" data-when-full>{t('checkout.intro')}</p>
+      <div class="checkout__empty" data-when-empty>
+        <p class="standfirst">{t('checkout.empty')}</p>
+        <Bobbin label={t('checkout.empty.link')} href="/membership" variant="secondary" />
+      </div>
+    </header>
+
+    <div class="checkout__form span-3" data-when-full data-entrance="stitch" data-entrance-items=".checkout__section" data-stagger="80">
+      <div class="error-summary checkout__summary-errors" role="alert" tabindex="-1" hidden data-error-summary>
+        <h2 class="error-summary__title">{t('checkout.error.summary')}</h2>
+        <p class="checkout__summary-hint">{t('checkout.error.summary.hint')}</p>
+        <ul data-error-summary-list></ul>
+      </div>
+
+      <fieldset class="checkout__section" data-section="1">
+        <legend class="checkout__legend"><h2 class="checkout__section-head" data-checkout-section>{sectionHead(1, 'checkout.section.contact')}</h2></legend>
+        <div class="checkout__two">
+          <div class="field">
+            <label class="field__label" for="co-first">{t('checkout.contact.first.label')}</label>
+            <div class="field__control"><input class="field__input" id="co-first" name="first" type="text" autocomplete={t('checkout.contact.first.autocomplete')} aria-describedby="co-first-error" required /></div>
+            <p class="field__error" id="co-first-error" hidden data-error-for="first"><Knot size={14} /><span data-error-text></span></p>
+          </div>
+          <div class="field">
+            <label class="field__label" for="co-last">{t('checkout.contact.last.label')}</label>
+            <div class="field__control"><input class="field__input" id="co-last" name="last" type="text" autocomplete={t('checkout.contact.last.autocomplete')} aria-describedby="co-last-error" required /></div>
+            <p class="field__error" id="co-last-error" hidden data-error-for="last"><Knot size={14} /><span data-error-text></span></p>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field__label" for="co-email">{t('checkout.contact.email.label')}</label>
+          <p class="field__hint" id="co-email-hint">{t('checkout.contact.email.hint')}</p>
+          <div class="field__control"><input class="field__input" id="co-email" name="email" type="email" autocomplete={t('checkout.contact.email.autocomplete')} inputmode="email" spellcheck="false" aria-describedby="co-email-hint co-email-error" required /></div>
+          <p class="field__error" id="co-email-error" hidden data-error-for="email"><Knot size={14} /><span data-error-text></span></p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="co-phone">{t('checkout.contact.phone.label')}</label>
+          <p class="field__hint" id="co-phone-hint">{t('checkout.contact.phone.hint')}</p>
+          <div class="field__control"><input class="field__input" id="co-phone" name="phone" type="tel" autocomplete={t('checkout.contact.phone.autocomplete')} inputmode="tel" aria-describedby="co-phone-hint co-phone-error" required /></div>
+          <p class="field__error" id="co-phone-error" hidden data-error-for="phone"><Knot size={14} /><span data-error-text></span></p>
+        </div>
+      </fieldset>
+
+      <fieldset class="checkout__section" data-section="2">
+        <legend class="checkout__legend"><h2 class="checkout__section-head" data-checkout-section>{sectionHead(2, 'checkout.section.billing')}</h2></legend>
+        <div class="field">
+          <label class="field__label" for="co-country">{t('checkout.billing.country.label')}</label>
+          <div class="field__control field__control--select">
+            <select class="field__input field__select" id="co-country" name="country" autocomplete={t('checkout.billing.country.autocomplete')} aria-describedby="co-country-error" required>
+              {countries.map(([code, name]) => <option value={code} selected={code === 'US'}>{name}</option>)}
+            </select>
+          </div>
+          <p class="field__error" id="co-country-error" hidden data-error-for="country"><Knot size={14} /><span data-error-text></span></p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="co-line1">{t('checkout.billing.line1.label')}</label>
+          <div class="field__control"><input class="field__input" id="co-line1" name="line1" type="text" autocomplete={t('checkout.billing.line1.autocomplete')} aria-describedby="co-line1-error" required /></div>
+          <p class="field__error" id="co-line1-error" hidden data-error-for="line1"><Knot size={14} /><span data-error-text></span></p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="co-line2">{t('checkout.billing.line2.label')}</label>
+          <div class="field__control"><input class="field__input" id="co-line2" name="line2" type="text" autocomplete={t('checkout.billing.line2.autocomplete')} /></div>
+        </div>
+        <div class="checkout__three">
+          <div class="field checkout__city">
+            <label class="field__label" for="co-city">{t('checkout.billing.city.label')}</label>
+            <div class="field__control"><input class="field__input" id="co-city" name="city" type="text" autocomplete={t('checkout.billing.city.autocomplete')} aria-describedby="co-city-error" required /></div>
+            <p class="field__error" id="co-city-error" hidden data-error-for="city"><Knot size={14} /><span data-error-text></span></p>
+          </div>
+          <div class="field checkout__state">
+            <label class="field__label" for="co-state" data-state-label>{t('checkout.billing.state.label')}</label>
+            <div class="field__control field__control--select">
+              <select class="field__input field__select" id="co-state" name="state" autocomplete={t('checkout.billing.state.autocomplete')} aria-describedby="co-state-error" required>
+                <option value=""></option>
+                {states.map(([code, name]) => <option value={code}>{name}</option>)}
+              </select>
+              <input class="field__input" id="co-state-intl" name="state-intl" type="text" autocomplete={t('checkout.billing.state.autocomplete')} aria-describedby="co-state-error" hidden disabled />
+            </div>
+            <p class="field__error" id="co-state-error" hidden data-error-for="state"><Knot size={14} /><span data-error-text></span></p>
+          </div>
+          <div class="field checkout__zip">
+            <label class="field__label" for="co-zip" data-zip-label>{t('checkout.billing.zip.label')}</label>
+            <div class="field__control"><input class="field__input" id="co-zip" name="zip" type="text" inputmode="numeric" autocomplete={t('checkout.billing.zip.autocomplete')} aria-describedby="co-zip-error" required /></div>
+            <p class="field__error" id="co-zip-error" hidden data-error-for="zip"><Knot size={14} /><span data-error-text></span></p>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="checkout__section" data-section="3">
+        <legend class="checkout__legend"><h2 class="checkout__section-head" data-checkout-section>{sectionHead(3, 'checkout.section.payment')}</h2></legend>
+        <div class="checkout__marks" aria-label={t('checkout.payment.marks.caption')}>
+          <ul class="checkout__mark-list" aria-hidden="true">
+            {marks.map((m) => <li class="checkout__mark"><svg viewBox="0 0 24 16" width="24" height="16" focusable="false"><rect x="1" y="1" width="22" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.75" /><path d="M1 5.5h22" stroke="currentColor" stroke-width="1.75" /><path d="M4 11h6" stroke="currentColor" stroke-width="1.75" /></svg><span>{m}</span></li>)}
+          </ul>
+          <p class="checkout__marks-caption small muted">{t('checkout.payment.marks.caption')}</p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="co-ccname">{t('checkout.payment.name.label')}</label>
+          <div class="field__control"><input class="field__input" id="co-ccname" name="ccname" type="text" autocomplete={t('checkout.payment.name.autocomplete')} aria-describedby="co-ccname-error" required /></div>
+          <p class="field__error" id="co-ccname-error" hidden data-error-for="ccname"><Knot size={14} /><span data-error-text></span></p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="co-ccnumber">{t('checkout.payment.number.label')}</label>
+          <div class="field__control"><input class="field__input fig" id="co-ccnumber" name="ccnumber" type="text" inputmode="numeric" autocomplete={t('checkout.payment.number.autocomplete')} maxlength="23" spellcheck="false" aria-describedby="co-ccnumber-error" required /></div>
+          <p class="field__error" id="co-ccnumber-error" hidden data-error-for="ccnumber"><Knot size={14} /><span data-error-text></span></p>
+        </div>
+        <div class="checkout__two checkout__two--expiry">
+          <div class="field checkout__expiry" role="group" aria-labelledby="co-expiry-label">
+            <span class="field__label" id="co-expiry-label">{t('checkout.payment.expiry.label')}</span>
+            <div class="checkout__expiry-unit">
+              <div class="field__control field__control--select">
+                <label class="sr-only" for="co-ccmm">{t('checkout.payment.expiry.mm.label')}</label>
+                <select class="field__input field__select fig" id="co-ccmm" name="ccmm" autocomplete={t('checkout.payment.expiry.mm.autocomplete')} aria-describedby="co-expiry-error" required>
+                  <option value="">{t('checkout.payment.expiry.mm.label')}</option>
+                  {months.map((m) => <option value={m}>{m}</option>)}
+                </select>
+              </div>
+              <div class="field__control field__control--select">
+                <label class="sr-only" for="co-ccyyyy">{t('checkout.payment.expiry.yyyy.label')}</label>
+                <select class="field__input field__select fig" id="co-ccyyyy" name="ccyyyy" autocomplete={t('checkout.payment.expiry.yyyy.autocomplete')} aria-describedby="co-expiry-error" required>
+                  <option value="">{t('checkout.payment.expiry.yyyy.label')}</option>
+                  {years.map((y) => <option value={y}>{y}</option>)}
+                </select>
+              </div>
+            </div>
+            <p class="field__error" id="co-expiry-error" hidden data-error-for="expiry"><Knot size={14} /><span data-error-text></span></p>
+          </div>
+          <div class="field checkout__cvv">
+            <label class="field__label" for="co-cvv">{t('checkout.payment.cvv.label')}</label>
+            <div class="field__control"><input class="field__input fig" id="co-cvv" name="cvv" type="text" inputmode="numeric" autocomplete={t('checkout.payment.cvv.autocomplete')} maxlength="4" aria-describedby="co-cvv-help co-cvv-error" required /></div>
+            <button class="checkout__help" type="button" aria-expanded="false" aria-controls="co-cvv-help" data-cvv-help>{t('checkout.payment.cvv.help.label')}</button>
+            <p class="field__hint checkout__help-text" id="co-cvv-help" hidden data-cvv-help-text>{t('checkout.payment.cvv.help.text')}</p>
+            <p class="field__error" id="co-cvv-error" hidden data-error-for="cvv"><Knot size={14} /><span data-error-text></span></p>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+
+    <aside class="checkout__aside span-2" data-when-full data-entrance="stitch" data-entrance-items=".checkout__aside-part" data-stagger="80">
+      <div class="checkout__order checkout__aside-part" data-section="4">
+        <h2 class="checkout__section-head" data-checkout-section>{sectionHead(4, 'checkout.section.summary')}</h2>
+        <dl class="checkout__lines">
+          <div class="checkout__line"><dt>{t('checkout.summary.membership.label')}</dt><dd data-sum-membership></dd></div>
+          <div class="checkout__line"><dt>{t('checkout.summary.charge.label')}</dt><dd class="fig" data-sum-charge></dd></div>
+          <div class="checkout__line"><dt>{t('checkout.summary.renewal.label')}</dt><dd data-sum-renewal></dd></div>
+          <div class="checkout__line"><dt>{t('checkout.summary.tax.label')}</dt><dd>{t('checkout.summary.tax')}</dd></div>
+          <div class="checkout__line checkout__line--total"><dt>{t('checkout.summary.total.label')}</dt><dd class="fig" data-sum-total></dd></div>
+        </dl>
+        <button class="checkout__edit" type="button" data-cart-open>{t('checkout.summary.edit')}</button>
+        <div class="checkout__edge"><Selvedge id="checkout-summary-edge" /></div>
+        <div class="check-field">
+          <label class="check checkout__terms" for="co-terms">
+            <input type="checkbox" id="co-terms" name="terms" value="1" aria-describedby="co-terms-error" required />
+            <span>{t('checkout.terms.label').split('Terms of Service')[0]}<a href="/terms">Terms of Service</a>{t('checkout.terms.label').split('Terms of Service')[1].split('Privacy Policy')[0]}<a href="/privacy">Privacy Policy</a>{t('checkout.terms.label').split('Privacy Policy')[1]}</span>
+          </label>
+          <p class="field__error" id="co-terms-error" hidden data-error-for="terms"><Knot size={14} /><span data-error-text></span></p>
+        </div>
+        <Bobbin label={t('checkout.submit.example')} type="submit" wide class="checkout__submit" data-checkout-submit="" />
+        <p class="checkout__note small muted">{t('checkout.note')}</p>
+      </div>
+    </aside>
+  </form>
+</Layout>
+<style is:global>
+  body.is-checkout { background: var(--white); }
+  .checkout { position: relative; width: 100%; max-width: none; background: var(--white); padding-block: clamp(20px, 2.6vw, 48px) clamp(40px, 5vw, 96px); row-gap: clamp(16px, 2vw, 32px); align-items: start; min-height: 70vh; }
+  .checkout__stitch { position: absolute; left: 0; top: 0; bottom: 0; width: var(--gutter); pointer-events: none; }
+  .checkout__stitch-scene { height: 100%; }
+  .checkout__head { display: flex; flex-direction: column; gap: 10px; }
+  .checkout__heading { font-size: var(--fs-h2); }
+  .checkout__intro { color: var(--ink); }
+  .checkout__empty { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+  html[data-cart="full"] [data-when-empty] { display: none; }
+  html[data-cart="empty"] [data-when-full] { display: none; }
+  .checkout__form { display: flex; flex-direction: column; gap: clamp(20px, 2.4vw, 40px); min-width: 0; }
+  .checkout__section { border: 0; padding: 0; margin: 0; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+  .checkout__legend { padding: 0; margin-bottom: 4px; }
+  .checkout__section-head { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-h3); color: var(--indigo); }
+  .checkout__section .field, .checkout__section .checkout__two, .checkout__section .checkout__three, .checkout__section .checkout__marks { width: 100%; }
+  .checkout__section .field { max-width: 40rem; }
+  .checkout__two, .checkout__three { display: grid; gap: 16px; }
+  /* fields stay a readable width on wide screens: the unit rows cap through their tracks, single fields through .field */
+  .checkout__two { grid-template-columns: repeat(2, minmax(0, 19.5rem)); }
+  .checkout__three { grid-template-columns: minmax(0, 15rem) minmax(0, 15rem) minmax(0, 8rem); }
+  .checkout__two .field, .checkout__three .field { max-width: none; }
+  .checkout__expiry-unit { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .checkout__two--expiry { grid-template-columns: minmax(0, 23rem) minmax(0, 15rem); align-items: start; }
+  .checkout__help { align-self: flex-start; color: var(--indigo); font-weight: 600; text-decoration: underline; min-height: 32px; padding: 0; font-size: var(--fs-label); }
+  .checkout__help[aria-expanded="true"] { text-decoration: none; }
+  .checkout__marks { display: flex; flex-direction: column; gap: 6px; }
+  .checkout__mark-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 14px; }
+  .checkout__mark { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-label); font-weight: 600; color: var(--indigo-deep); }
+  .checkout__mark svg { color: var(--indigo); flex: none; }
+  .checkout__summary-errors { margin-bottom: 4px; }
+  .checkout__summary-hint { color: var(--ink); margin-bottom: 8px; }
+  .checkout__aside { position: sticky; top: calc(var(--band-h) + 16px); min-width: 0; }
+  .checkout__order { display: flex; flex-direction: column; gap: 14px; padding: clamp(16px, 1.6vw, 28px); border: 1px solid var(--butter-deep); border-radius: var(--radius-card); background: var(--butter-pale); }
+  .checkout__lines { display: flex; flex-direction: column; gap: 8px; }
+  .checkout__line { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--butter-deep); }
+  .checkout__line dt { font-weight: 700; }
+  .checkout__line dd { margin: 0; }
+  .checkout__line--total { border-bottom: 0; padding-top: 4px; }
+  .checkout__line--total dt, .checkout__line--total dd { font-weight: 800; }
+  .checkout__edit { align-self: flex-start; color: var(--indigo); font-weight: 600; text-decoration: underline; min-height: 44px; padding: 0; }
+  .checkout__edge { height: 14px; }
+  .checkout__terms span { font-weight: 600; }
+  .checkout__note { line-height: 1.5; }
+  @media (min-width: 1920px) {
+    /* full width rule: at 1920 and up the three sections share the form's tracks as a two column pass, so the board
+       carries fields from the left gutter to the order summary with no empty middle */
+    .checkout__form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--gap); row-gap: clamp(20px, 2.4vw, 40px); align-items: start; }
+    .checkout__summary-errors, .checkout__section[data-section="3"] { grid-column: 1 / -1; }
+    .checkout__section[data-section="3"] { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--gap); row-gap: 16px; align-items: start; }
+    .checkout__section[data-section="3"] > .checkout__legend, .checkout__section[data-section="3"] > .checkout__marks, .checkout__section[data-section="3"] > .checkout__help { grid-column: 1 / -1; }
+    .checkout__section .field { max-width: none; }
+    .checkout__two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .checkout__three { grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(0, 1fr); }
+    .checkout__two--expiry { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+  }
+  @media (max-width: 1279px) {
+    .checkout__form { grid-column: span 2; }
+    .checkout__aside { grid-column: span 1; }
+    .checkout__three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .checkout__three .checkout__city { grid-column: 1 / -1; }
+  }
+  @media (max-width: 1023px) {
+    .checkout__form, .checkout__aside { grid-column: 1 / -1; }
+    .checkout__aside { position: static; }
+    .checkout__section .field, .checkout__two, .checkout__three, .checkout__marks { max-width: none; }
+  }
+  @media (max-width: 767px) {
+    .checkout { padding-block: 16px 48px; }
+    .checkout__two, .checkout__three { grid-template-columns: minmax(0, 1fr); }
+    .checkout__two--expiry { grid-template-columns: minmax(0, 1fr); }
+    .checkout__expiry-unit { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .checkout__three .checkout__city { grid-column: auto; }
+    .checkout__line { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+    .checkout__order { padding: 16px; }
+  }
+</style>
+<script>
+  import '../scripts/checkout';
+</script>

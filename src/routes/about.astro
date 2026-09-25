@@ -1,0 +1,149 @@
+---
+// /about (design document 7.11): who checks the threads and where. The hero band over photo.about-hero with
+// the hero loop beneath it at 35 percent (poster first), the heading pass "Who checks the threads?", the About
+// copy verbatim in multicolumn beside the woven seal (the scene), "How are items chosen?" in its no claim
+// variant (the referral fee variant ships only on the owner's confirmation: set referralFeesConfirmed in the
+// route map), "Where are we?" as a row, the compact membership strip. Text hover: dye. Scene: about-seal.
+import Layout from '../layouts/Layout.astro';
+import HeadingPass from '../components/HeadingPass.astro';
+import Board from '../components/Board.astro';
+import Bobbin from '../components/Bobbin.astro';
+import Disclaimer from '../components/Disclaimer.astro';
+import CompactMembership from '../components/CompactMembership.astro';
+import PageScene from '../components/PageScene.astro';
+import Picture from '../components/Picture.astro';
+import Knot from '../components/kit/Knot.astro';
+import Icon from '../components/kit/Icon.astro';
+import { t } from '../lib/copy';
+import { about } from '../lib/longform';
+import { file, ALT } from '../lib/assets';
+interface Props { path: string; referralFeesConfirmed?: boolean; }
+const { path, referralFeesConfirmed = false } = Astro.props;
+// the "How are items chosen?" variant: the no referral fees line ships only on the owner's confirmation (offering spec 17.4)
+const chosen = referralFeesConfirmed ? about.chosen.noReferralFees.html : about.chosen.noClaim.html;
+const loop = { desktop: file('video.hero-loop', 'desktop'), mobile: file('video.hero-loop', 'mobile'), poster: file('video.hero-loop', 'poster') };
+const where = about.where;
+---
+<Layout title={t('head.about.title')} description={t('head.about.meta')} route={path} hover="dye">
+  <section class="ab-hero" id="about-hero" data-entrance="open-centre" aria-labelledby="about-title">
+    <div class="ab-hero__band">
+      <video class="ab-hero__loop graded" muted loop playsinline preload="none" poster={loop.poster} aria-label={ALT['video.hero-loop']} data-hero-loop>
+        <source src={loop.mobile} type="video/mp4" media="(max-width: 767px)" />
+        <source src={loop.desktop} type="video/mp4" />
+      </video>
+      <Picture slot="photo.about-hero" sizes="100vw" loading="eager" fetchpriority="high" class="ab-hero__still" decorative />
+    </div>
+    <HeadingPass title={about.heading} id="about-pass" level={1} entrance="stitch" class="ab-hero__pass" />
+  </section>
+
+  <Board id="about-body" cells={5} entrance="weave-columns" strip={false} label={about.heading} class="ab-body" tag="section">
+    <div class="ab-body__copy span-3">
+      <div class="prose-cols ab-body__prose" set:html={about.bodyHtml} />
+      <div class="ab-body__cta"><Bobbin label={about.button || t('home.hero.cta')} sku="SB101" class="ab-body__bobbin" /></div>
+    </div>
+    <div class="ab-body__seal span-2">
+      <div class="ab-body__seal-sticky">
+        <PageScene kind="about-seal" height="340px" data-progress="about-body" label={t('footer.seal.alt')} />
+        <p class="small muted ab-body__seal-line">{t('footer.brand')}</p>
+      </div>
+    </div>
+  </Board>
+
+  <section class="board pass ab-chosen" id="about-chosen" data-entrance="weft-right" aria-labelledby="about-chosen-heading">
+    <h2 class="ab-chosen__heading span-2" id="about-chosen-heading"><Knot size={22} class="ab-chosen__knot" />{about.chosen.heading}</h2>
+    <div class="ab-chosen__text span-3" set:html={chosen} />
+  </section>
+
+  <HeadingPass title={where.heading} id="about-where" entrance="dock" />
+  <Board id="about-where-row" cells={5} entrance="knot-row" strip={true} label={where.heading} class="ab-where">
+    <address class="cell ab-where__cell ab-where__entity">
+      <p class="cell-head"><Knot size={16} class="ab-where__knot" />{where.entity}</p>
+      <p class="ab-where__line">{where.street}<br />{where.city}</p>
+    </address>
+    <div class="cell ab-where__cell">
+      <p class="cell-head"><Icon name="texts" size={18} />{t('contact.phone.label')}</p>
+      <p class="ab-where__line"><a href={where.phoneHref}>{where.phone}</a></p>
+    </div>
+    <div class="cell ab-where__cell">
+      <p class="cell-head"><Icon name="membership" size={18} />{t('contact.email.label')}</p>
+      <p class="ab-where__line"><a href={`mailto:${where.email}`}>{where.email}</a></p>
+    </div>
+    <div class="cell ab-where__cell span-2">
+      <p class="cell-head"><Icon name="archive" size={18} />{t('contact.hours.label')}</p>
+      <p class="ab-where__line">{where.hoursLine}</p>
+    </div>
+    <div class="ab-where__disclaimer span-full"><Disclaimer compact /></div>
+  </Board>
+
+  <CompactMembership line={t('add.about.compact.line')} entrance="weft-left" />
+</Layout>
+<style is:global>
+  .ab-hero__band { position: relative; width: 100%; height: clamp(220px, 38vh, 520px); overflow: hidden; background: var(--butter-pale); }
+  .ab-hero__loop { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.35; }
+  .ab-hero__still { position: absolute; inset: 0; height: 100%; }
+  .ab-hero__still picture, .ab-hero__still img { width: 100%; height: 100%; object-fit: cover; }
+  .ab-hero__still[data-present="false"] { background: transparent; }
+  .ab-body { row-gap: var(--gap); }
+  .ab-body__copy { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); display: flex; flex-direction: column; gap: 20px; }
+  .ab-body__prose { font-size: var(--fs-body); }
+  .ab-body__prose h3 { font-size: var(--fs-h3); font-weight: 700; margin-top: 1.4em; line-height: 1.15; display: inline-block; }
+  .ab-body__seal { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
+  .ab-body__seal .scene { width: 100%; }
+  .ab-body__seal-sticky { position: sticky; top: calc(var(--band-h) + 16px); display: flex; flex-direction: column; gap: 10px; }
+  .ab-body__seal-line { text-align: center; }
+  .ab-chosen { row-gap: 12px; align-items: start; }
+  .ab-chosen__heading { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); font-size: var(--fs-h3); font-weight: 700; display: flex; gap: 8px; align-items: center; }
+  .ab-chosen__knot { color: var(--indigo); }
+  .ab-chosen__text { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); font-size: var(--fs-body); columns: 34ch; column-gap: var(--gap); }
+  .ab-where__line { font-size: var(--fs-body); }
+  .ab-where__disclaimer { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); padding-top: 8px; }
+
+  /* entrances built from the primitives: open-centre (the band's clip opens from the centre outward), weave-columns (the columns wipe in one after another while the seal weaves), knot-row (a knot ties at the address, then the row wipes in) */
+  [data-entrance="open-centre"] .ab-hero__band { clip-path: inset(0 50% 0 50%); }
+  [data-entrance="open-centre"].is-in .ab-hero__band { animation: sb-open-centre var(--dur-base) var(--ease-shuttle) both; }
+  @keyframes sb-open-centre { from { clip-path: inset(0 50% 0 50%); } to { clip-path: inset(0 0 0 0); } }
+  [data-entrance="weave-columns"] .ab-body__copy { clip-path: inset(0 100% 0 0); }
+  [data-entrance="weave-columns"].is-in .ab-body__copy { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) both; }
+  [data-entrance="weave-columns"] .ab-body__seal { opacity: 0; transform: translateY(12px); }
+  [data-entrance="weave-columns"].is-in .ab-body__seal { animation: sb-dock var(--dur-base) var(--ease-knot) 0.2s both; }
+  [data-entrance="knot-row"] .ab-where__knot { transform: scale(0); transform-origin: 50% 50%; }
+  [data-entrance="knot-row"].is-in .ab-where__knot { animation: sb-pop var(--dur-base) var(--ease-knot) both; }
+  [data-entrance="knot-row"] .ab-where__cell { clip-path: inset(0 100% 0 0); }
+  [data-entrance="knot-row"].is-in .ab-where__cell { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) 0.3s both; }
+  @media (prefers-reduced-motion: reduce) {
+    [data-entrance="open-centre"] .ab-hero__band, [data-entrance="weave-columns"] .ab-body__copy, [data-entrance="weave-columns"] .ab-body__seal, [data-entrance="knot-row"] .ab-where__knot, [data-entrance="knot-row"] .ab-where__cell { animation: none !important; clip-path: none !important; opacity: 1 !important; transform: none !important; }
+    .ab-hero__loop { display: none; }
+  }
+  :root[data-motion="reduced"] :is([data-entrance="open-centre"] .ab-hero__band, [data-entrance="weave-columns"] .ab-body__copy, [data-entrance="weave-columns"] .ab-body__seal, [data-entrance="knot-row"] .ab-where__knot, [data-entrance="knot-row"] .ab-where__cell) { animation: none !important; clip-path: none !important; opacity: 1 !important; transform: none !important; }
+  :root[data-motion="reduced"] .ab-hero__loop { display: none; }
+
+  @media (max-width: 1279px) {
+    .ab-body__copy { grid-column: 1 / span 2; }
+    .ab-body__seal { grid-column: 3; }
+    .ab-chosen__heading, .ab-chosen__text { grid-column: 1 / -1; }
+  }
+  @media (max-width: 1023px) {
+    .ab-body__copy, .ab-body__seal { grid-column: 1 / -1; }
+    .ab-body__seal .scene { height: 240px; }
+  }
+  @media (max-width: 767px) {
+    .ab-hero__band { height: min(100vw, 360px); }
+    .ab-body__copy, .ab-body__seal, .ab-chosen__heading, .ab-chosen__text, .ab-where__disclaimer { padding-inline: 16px; }
+    .ab-body { display: flex; flex-direction: column; }
+    .ab-body__seal { order: -1; }
+    .ab-body__seal-sticky { position: static; }
+    .ab-body__seal .scene { height: 120px; }
+    .ab-chosen__text { columns: 1; }
+  }
+</style>
+<script>
+  import { motionReduced } from '../scripts/ease';
+  // the hero loop plays under the still at 35 percent once in view, muted, paused offscreen; never under reduced motion
+  const v = document.querySelector<HTMLVideoElement>('[data-hero-loop]');
+  if (v && !motionReduced() && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) { if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); }
+    }, { threshold: 0.2 });
+    io.observe(v);
+  }
+</script>

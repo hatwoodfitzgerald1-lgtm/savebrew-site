@@ -1,0 +1,169 @@
+---
+// /confirmation (design document 7.15): a real order confirmation. The order number, what was bought, what
+// was charged (and the honest preview line), the renewal date and amount, the first pass, the support contact;
+// "What happens now?" with the dashboard ready for the checkout email, the optional password, the verbatim
+// SMS block as its own optional step, and the Bobbin "Open my dashboard" (the one primary action) which sets
+// the demo session and opens /today; for the Daily for Two, "Invite your second reader". Without an order the
+// route shows the empty state with the membership link. Scene: the seal's last stitch tying off.
+import Layout from '../layouts/Layout.astro';
+import Bobbin from '../components/Bobbin.astro';
+import SmsOptIn from '../components/SmsOptIn.astro';
+import PageScene from '../components/PageScene.astro';
+import HeadingPass from '../components/HeadingPass.astro';
+import Board from '../components/Board.astro';
+import Seal from '../components/kit/Seal.astro';
+import WeftPass from '../components/kit/WeftPass.astro';
+import Knot from '../components/kit/Knot.astro';
+import { t } from '../lib/copy';
+interface Props { path: string }
+const strings = {
+  orderPattern: t('confirm.order.pattern'), boughtPattern: t('confirm.bought.pattern'), chargedPattern: t('confirm.charged.pattern'),
+  renewalMonthly: t('cart.renewal.monthly.pattern'), renewalYearly: t('cart.renewal.yearly.pattern'), firstPassPattern: t('confirm.first.pass.pattern'),
+  readyPattern: t('confirm.dashboard.ready.pattern'), passwordShort: t('confirm.password.error.short'),
+  inviteFormat: t('confirm.two.error.format'), inviteSame: t('confirm.two.error.same'), inviteDone: t('confirm.two.done.pattern')
+};
+const support = t('confirm.support');
+const supportParts = support.split('support@savebrew.com');
+const phoneParts = supportParts[1].split('(888) 338 8809');
+---
+<Layout title={t('head.confirmation.title')} description={t('head.confirmation.meta')} route="/confirmation" noindex hover="none">
+  <Fragment slot="head">
+    <script is:inline>
+      (function () { try { document.documentElement.setAttribute('data-order', localStorage.getItem('savebrew.order') ? 'full' : 'none'); } catch (e) { document.documentElement.setAttribute('data-order', 'none'); } })();
+    </script>
+  </Fragment>
+  <div class="confirm" data-confirmation data-strings={JSON.stringify(strings)}>
+    <section class="heading-pass confirm__head" data-entrance="weft-left" aria-labelledby="confirm-heading">
+      <h1 class="heading-pass__title confirm__title" id="confirm-heading" data-when-order>{t('confirm.heading')}</h1>
+      <h1 class="heading-pass__title confirm__title" data-when-no-order>{t('checkout.empty')}</h1>
+      <p class="heading-pass__intro confirm__order-line" data-order-line data-when-order></p>
+      <div class="heading-pass__intro confirm__empty" data-when-no-order>
+        <Bobbin label={t('checkout.empty.link')} href="/membership" variant="secondary" />
+      </div>
+      <div class="heading-pass__aside confirm__seal" data-when-order>
+        <div class="confirm__seal-box">
+          <Seal size={160} animate={false} />
+          <PageScene kind="confirm-tie" class="confirm__tie" height="100%" />
+        </div>
+      </div>
+      <div class="heading-pass__weft"><WeftPass /></div>
+    </section>
+
+    <div data-when-order>
+    <Board id="confirm-order" cells={5} entrance="weft-right" strip={true} label={t('confirm.heading')} class="confirm__board">
+      <div class="cell confirm__cell">
+        <p class="label">{t('confirm.bought.label')}</p>
+        <p class="confirm__value fig" data-order-bought></p>
+      </div>
+      <div class="cell confirm__cell">
+        <p class="label">{t('confirm.charged.label')}</p>
+        <p class="confirm__value fig" data-order-charged></p>
+        <p class="small muted">{t('confirm.charged.preview')}</p>
+      </div>
+      <div class="cell confirm__cell">
+        <p class="label">{t('confirm.renewal.label')}</p>
+        <p class="confirm__value" data-order-renewal></p>
+      </div>
+      <div class="cell span-2 confirm__cell confirm__next">
+        <p class="confirm__first"><Knot size={16} /><span data-order-first-pass></span></p>
+        <p class="confirm__support">{supportParts[0]}<a href="mailto:support@savebrew.com">support@savebrew.com</a>{phoneParts[0]}<a href={t('footer.phone.href')}>(888) 338 8809</a>{phoneParts[1]}</p>
+      </div>
+    </Board>
+    </div>
+
+    <div data-when-order>
+      <HeadingPass title={t('confirm.dashboard.heading')} id="confirm-now" entrance="pop" />
+    </div>
+    <div data-when-order>
+    <Board id="confirm-dashboard" cells={5} entrance="stitch" stagger={90} strip={false} label={t('confirm.dashboard.heading')} class="confirm__board confirm__board--now">
+      <div class="cell span-2 confirm__cell">
+        <p class="confirm__ready" data-order-ready></p>
+        <form class="confirm__form" novalidate data-password-form>
+          <div class="field">
+            <label class="field__label" for="confirm-password">{t('confirm.password.label')}</label>
+            <p class="field__hint" id="confirm-password-hint">{t('confirm.password.hint')}</p>
+            <div class="field__control"><input class="field__input" id="confirm-password" name="password" type="password" autocomplete="new-password" minlength="10" aria-describedby="confirm-password-hint confirm-password-error" /></div>
+            <p class="field__error" id="confirm-password-error" hidden data-error-for="password"><Knot size={14} /><span data-error-text></span></p>
+          </div>
+          <Bobbin label={t('confirm.password.submit')} type="submit" variant="secondary" data-password-submit="" />
+          <p class="confirm__done" role="status" aria-live="polite" hidden data-password-done>{t('confirm.password.done')}</p>
+        </form>
+      </div>
+      <div class="cell span-2 confirm__cell confirm__sms">
+        <p class="confirm__sms-intro">{t('confirm.sms.intro')}</p>
+        <SmsOptIn variant="card" id="sms-confirm" />
+      </div>
+      <div class="cell confirm__cell confirm__open">
+        <Bobbin label={t('confirm.open')} href="/today" wide data-open-dashboard="" />
+        <p class="small muted"><span data-order-first-pass></span></p>
+      </div>
+    </Board>
+    </div>
+
+    <div class="confirm__two" data-when-order data-when-two>
+      <HeadingPass title={t('confirm.two.heading')} id="confirm-two" entrance="knots" />
+      <Board id="confirm-invite" cells={5} entrance="weft-left" strip={false} label={t('confirm.two.heading')} class="confirm__board">
+        <div class="cell span-3 confirm__cell">
+          <p>{t('confirm.two.line')}</p>
+        </div>
+        <div class="cell span-2 confirm__cell">
+          <form class="confirm__form" novalidate data-invite-form>
+            <div class="field">
+              <label class="field__label" for="confirm-invite">{t('confirm.two.email.label')}</label>
+              <div class="field__control"><input class="field__input" id="confirm-invite" name="invite" type="email" autocomplete="email" inputmode="email" spellcheck="false" aria-describedby="confirm-invite-error" /></div>
+              <p class="field__error" id="confirm-invite-error" hidden data-error-for="invite"><Knot size={14} /><span data-error-text></span></p>
+            </div>
+            <Bobbin label={t('confirm.two.submit')} type="submit" variant="secondary" />
+            <p class="confirm__done" role="status" aria-live="polite" hidden data-invite-done></p>
+          </form>
+        </div>
+      </Board>
+    </div>
+  </div>
+</Layout>
+<style is:global>
+  html[data-order="none"] [data-when-order] { display: none; }
+  html[data-order="full"] [data-when-no-order] { display: none; }
+  .confirm [data-when-two] { display: none; }
+  .confirm[data-two="true"] [data-when-two] { display: block; }
+  .confirm__head { align-items: start; }
+  .confirm__title { grid-column: 1 / span 3; }
+  .confirm__order-line { grid-column: 1 / span 3; font-size: var(--fs-standfirst); }
+  .confirm__empty { grid-column: 1 / span 3; }
+  .confirm__seal { grid-column: 4 / span 2; grid-row: 1 / span 2; align-self: start; justify-self: end; }
+  .confirm__seal-box { position: relative; width: 184px; height: 184px; display: flex; align-items: center; justify-content: center; }
+  .confirm__seal-box .seal { width: 160px; height: 160px; }
+  .confirm__tie { position: absolute; inset: 0; }
+  .confirm__cell { gap: 8px; }
+  .confirm__value { font-size: var(--fs-standfirst); line-height: 1.35; }
+  .confirm__next { gap: 12px; }
+  .confirm__first { display: flex; gap: 8px; align-items: flex-start; font-weight: 700; }
+  .confirm__first .knot { margin-top: 3px; color: var(--indigo); flex: none; }
+  .confirm__support { color: var(--ink); }
+  .confirm__ready { font-size: var(--fs-standfirst); line-height: 1.4; font-weight: 600; }
+  .confirm__form { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; width: 100%; }
+  .confirm__form .field { width: 100%; max-width: 30rem; }
+  .confirm__done { font-weight: 700; color: var(--up); }
+  .confirm__sms-intro { font-weight: 600; }
+  .confirm__sms .sms--card { width: 100%; }
+  .confirm__sms .sms__submit { --bobbin-fill: var(--white); --bobbin-ink: var(--indigo); --bobbin-stitch: var(--indigo); box-shadow: inset 0 0 0 1px var(--indigo); }
+  .confirm__open { justify-content: flex-start; }
+  .confirm__board--now .cell { border-top: 2px solid var(--butter-deep); padding-top: 18px; }
+  @media (max-width: 1279px) {
+    .confirm__title, .confirm__order-line, .confirm__empty { grid-column: 1 / span 2; }
+    .confirm__seal { grid-column: 3 / span 1; }
+    .confirm__open { grid-column: 1 / -1; }
+  }
+  @media (max-width: 1023px) {
+    .confirm__title, .confirm__order-line, .confirm__empty { grid-column: 1 / -1; }
+    .confirm__seal { grid-column: 1 / -1; grid-row: auto; justify-self: start; }
+  }
+  @media (max-width: 767px) {
+    .confirm__seal-box { width: 112px; height: 112px; }
+    .confirm__seal-box .seal { width: 96px; height: 96px; }
+    .confirm__open .bobbin { width: 100%; }
+  }
+</style>
+<script>
+  import '../scripts/confirmation';
+</script>

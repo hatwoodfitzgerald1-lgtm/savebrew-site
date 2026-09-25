@@ -1,0 +1,6 @@
+---
+// /privacy: the legal page (design document 7.21 and section 8), rendered by the shared LegalPage component.
+import LegalPage from '../components/legal/LegalPage.astro';
+interface Props { path: string }
+---
+<LegalPage doc="privacy" path={Astro.props.path} />

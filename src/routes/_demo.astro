@@ -1,0 +1,116 @@
+---
+// The foundation demo at /_demo (not in the nav): the chrome, one heading pass, one row board, the Bobbin
+// variants, the kit, the product views, a page scene, the SMS block and the compact membership strip, so the
+// foundation can be screenshotted at 1280, 1440, 1920, 2560 and 375 (scripts/shoot.mjs /_demo).
+import Layout from '../layouts/Layout.astro';
+import HeadingPass from '../components/HeadingPass.astro';
+import Board from '../components/Board.astro';
+import Cell from '../components/Cell.astro';
+import Bobbin from '../components/Bobbin.astro';
+import Disclaimer from '../components/Disclaimer.astro';
+import CompactMembership from '../components/CompactMembership.astro';
+import SmsOptIn from '../components/SmsOptIn.astro';
+import PageScene from '../components/PageScene.astro';
+import Picture from '../components/Picture.astro';
+import Knot from '../components/kit/Knot.astro';
+import Seal from '../components/kit/Seal.astro';
+import ThreadStrip from '../components/kit/ThreadStrip.astro';
+import WeftPass from '../components/kit/WeftPass.astro';
+import Icon from '../components/kit/Icon.astro';
+import Selvedge from '../components/kit/Selvedge.astro';
+import Twill from '../components/kit/Twill.astro';
+import ProductToday from '../components/product/ProductToday.astro';
+import ProductRates from '../components/product/ProductRates.astro';
+import ProductGoals from '../components/product/ProductGoals.astro';
+import { t, THREADS } from '../lib/copy';
+import { brief, guides, about } from '../lib/longform';
+const icons = ['rates', 'cashback', 'coupons', 'seasonal', 'paycheck', 'goals', 'texts', 'archive', 'your-moves', 'roundup', 'membership'];
+const chips: Record<string, string> = { rates: t('home.pass.chip.rates'), cashback: t('home.pass.chip.cashback'), coupons: t('home.pass.chip.coupons'), seasonal: t('home.pass.chip.seasonal'), paycheck: t('home.pass.chip.paycheck') };
+---
+<Layout title="The foundation, a demo · SaveBrew" description="The SaveBrew foundation: chrome, tokens, layout, kit, motion and the product views, laid out for a screenshot." route="/_demo" hover="pluck" noindex>
+  <HeadingPass title={t('home.pass.heading')} id="pass" intro={t('home.pass.intro')} aside={t('brief.items.chip.note')} />
+  <Board id="today" cells={5} entrance="dock" stagger={70} label={t('home.pass.heading')}>
+    {brief.today.items.map((item) => (
+      <Cell thread={item.key as any}>
+        <h4 class="demo-headline">{item.headline}</h4>
+        <p>{item.summary}</p>
+        <button class="chip" type="button" title={t('home.pass.chip.tip.pattern').replace('{chip}', chips[item.key])}>{chips[item.key]}</button>
+      </Cell>
+    ))}
+  </Board>
+
+  <HeadingPass title={t('home.cost.heading')} id="cost" />
+  <Board id="bobbins" cells={5} entrance="knots" strip={false} label="The Bobbin">
+    <Cell head="Primary"><Bobbin label={t('home.hero.cta')} sku="SB101" /><p class="small muted">{t('home.hero.link')}</p></Cell>
+    <Cell head="Secondary"><Bobbin label={t('home.hero.link')} href="/roundup" variant="secondary" /></Cell>
+    <Cell head="Compact"><Bobbin label={t('nav.cta.compact')} sku="SB101" variant="secondary" compact /></Cell>
+    <Cell head="Wide"><Bobbin label={t('cart.checkout')} href="/checkout" wide /></Cell>
+    <Cell head="Chips and switches">
+      <div class="demo-row"><button class="chip" type="button">{t('home.pass.chip.rates')}</button><button class="chip is-on" type="button">{t('home.pass.chip.coupons')}</button></div>
+      <div class="switch"><button class="switch__track" type="button" role="switch" aria-checked="true" aria-labelledby="demo-sw"></button><span class="switch__label" id="demo-sw">{t('moves.toggle.3')}</span><span class="switch__state">{t('moves.toggle.state.on')}</span></div>
+      <div class="field"><label class="field__label" for="demo-email">{t('contact.form.email.label')}</label><p class="field__hint">{t('contact.form.email.hint')}</p><div class="field__control"><input class="field__input" id="demo-email" type="email" placeholder={t('contact.form.email.placeholder')} /></div></div>
+    </Cell>
+  </Board>
+
+  <HeadingPass title={t('home.week.heading')} id="kit" intro={t('home.week.framing')} />
+  <Board id="kit-board" cells={5} entrance="pop" strip={false} label="The kit">
+    <Cell head="The knot"><div class="demo-row"><Knot size={24} draw /><Knot size={48} draw /><Knot size={96} draw /></div></Cell>
+    <Cell head="The seal"><div class="demo-row"><Seal size={160} /><Seal size={96} /></div></Cell>
+    <Cell head="The thread strip"><ThreadStrip /></Cell>
+    <Cell head="The weft pass and the selvedge"><WeftPass /><Selvedge id="demo-selvedge" /><Selvedge id="demo-selvedge-two" /></Cell>
+    <Cell head="The eleven icons"><div class="demo-icons">{icons.map((n) => <span class="demo-icon"><Icon name={n} /><span>{n}</span></span>)}</div></Cell>
+  </Board>
+
+  <HeadingPass title={t('home.dashboard.heading')} id="dashboard" intro={t('home.dashboard.framing')} />
+  <Board id="product" cells={5} entrance="weft-left" strip={false} label={t('home.dashboard.heading')}>
+    <div class="cell span-3" data-product-group data-view="today">
+      <div class="demo-row" role="tablist" aria-label={t('home.dashboard.switch.aria')}>
+        <button class="chip" type="button" role="tab" data-show-view="today" aria-selected="true">{t('home.dashboard.view.today.name')}</button>
+        <button class="chip" type="button" role="tab" data-show-view="rates" aria-selected="false">{t('home.dashboard.view.rates.name')}</button>
+        <button class="chip" type="button" role="tab" data-show-view="goals" aria-selected="false">{t('home.dashboard.view.goals.name')}</button>
+      </div>
+      <ProductToday />
+      <ProductRates />
+      <ProductGoals />
+      <p class="small muted">{t('home.dashboard.view.today.caption')}</p>
+    </div>
+    <div class="cell span-2">
+      <div class="demo-phones"><ProductToday phone /><ProductGoals phone /></div>
+      <p class="small muted">{t('home.dashboard.phone.caption')}</p>
+    </div>
+  </Board>
+
+  <HeadingPass title={t('contact.heading')} id="scene" intro={t('contact.intro')} />
+  <Board id="scene-board" cells={5} entrance="stitch" strip={false} label={t('contact.heading')}>
+    <div class="cell span-3">
+      <PageScene kind="contact-knot" height="120px" data-anchor="0.34" />
+      <address class="demo-address"><strong>{t('contact.address.entity')}</strong><br />{t('contact.address.street')}<br />{t('contact.address.city')}</address>
+    </div>
+    <div class="cell"><p class="label">{t('contact.phone.label')}</p><a href={t('contact.phone.href')}>{t('contact.phone')}</a><p class="label">{t('contact.email.label')}</p><a href={`mailto:${t('contact.email')}`}>{t('contact.email')}</a></div>
+    <div class="cell"><Picture slot="photo.contact-side" sizes="(max-width: 767px) 100vw, 20vw" /></div>
+  </Board>
+
+  <HeadingPass title={t('guides.heading')} id="prose" intro={t('guides.intro')} />
+  <Twill tag="section" class="wide demo-prose">
+    <div class="demo-prose__inner">
+      <h3>{about.heading}</h3>
+      <div class="prose-cols" set:html={about.bodyHtml} />
+      <p class="pull-thread demo-pull">{guides[0].pull_thread}</p>
+      <Disclaimer />
+    </div>
+  </Twill>
+
+  <SmsOptIn />
+  <CompactMembership line={t('brief.compact.line')} />
+</Layout>
+<style is:global>
+  .demo-headline { font-family: var(--font-ui); font-size: var(--fs-body); font-weight: 700; color: var(--ink); }
+  .demo-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .demo-icons { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .demo-icon { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); }
+  .demo-phones { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); }
+  .demo-address { line-height: 1.5; }
+  .demo-prose { padding-block: clamp(24px, 3vw, 48px); }
+  .demo-prose__inner { background: var(--white); border-radius: var(--radius-board); padding: clamp(20px, 2vw, 36px); box-shadow: 0 0 0 1px var(--butter-deep); display: flex; flex-direction: column; gap: 18px; }
+  .demo-pull { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-h3); color: var(--indigo); border-top: 2px solid var(--indigo); border-bottom: 2px solid var(--indigo); padding: 12px 0; }
+</style>

@@ -1,0 +1,107 @@
+---
+// /cart (design document 7.13): the cart drawer rendered as a full page for the footer link and for visitors
+// who land here directly. The heading pass "Your cart", the line item, today's charge, the renewal sentence,
+// the tax line, the cadence switch (Knot), Remove, the Bobbin "Go to checkout", and the empty state with the
+// membership link. Scene: the knot sliding along a thread into the spool glyph. Text hover: standard.
+// Entrance: the line item wipes in, then the summary lines fade in inside the clip, the Bobbin's stitch draws.
+import Layout from '../layouts/Layout.astro';
+import HeadingPass from '../components/HeadingPass.astro';
+import Bobbin from '../components/Bobbin.astro';
+import PageScene from '../components/PageScene.astro';
+import Selvedge from '../components/kit/Selvedge.astro';
+import ThreadStrip from '../components/kit/ThreadStrip.astro';
+import Knot from '../components/kit/Knot.astro';
+import { t } from '../lib/copy';
+interface Props { path: string }
+const strings = {
+  line: t('cart.line.pattern'), renewalMonthly: t('cart.renewal.monthly.pattern'), renewalYearly: t('cart.renewal.yearly.pattern'),
+  noteMonthly: t('cart.cadence.note.monthly.pattern'), noteYearly: t('cart.cadence.note.yearly.pattern'),
+  added: t('cart.added.pattern'), replaced: t('cart.replace.pattern'), removed: t('cart.removed')
+};
+---
+<Layout title={t('head.cart.title')} description={t('head.cart.meta')} route="/cart" noindex hover="none">
+  <Fragment slot="head">
+    <script is:inline>
+      // the cart's state is known before paint so the page never flashes the wrong block
+      (function () { try { document.documentElement.setAttribute('data-cart', localStorage.getItem('savebrew.cart') ? 'full' : 'empty'); } catch (e) { document.documentElement.setAttribute('data-cart', 'empty'); } })();
+    </script>
+  </Fragment>
+  <HeadingPass title={t('cart.heading')} level={1} id="cart-heading-pass" intro={t('cart.quantity.note')} entrance="stitch" />
+  <section class="board pass cart-page" id="cart-board" data-cells="5" data-entrance="weft-left" data-entrance-items=".cart-page__part" aria-label={t('cart.heading')} data-cart-view data-strings={JSON.stringify(strings)}>
+    <div class="board__strip"><ThreadStrip compact /></div>
+    <div class="cell span-2 cart-page__item cart-page__part" data-cart-item hidden>
+      <p class="cart-page__message small" data-cart-message hidden></p>
+      <h2 class="cart-page__line" data-cart-line tabindex="-1" data-cart-focus></h2>
+      <dl class="cart-page__facts">
+        <div class="cart-page__fact"><dt>{t('cart.charge.label')}</dt><dd class="fig" data-cart-charge></dd></div>
+      </dl>
+      <p class="cart-page__renewal" data-cart-renewal></p>
+      <p class="cart-page__tax small muted">{t('cart.tax')}</p>
+      <fieldset class="cart-page__cadence" role="radiogroup" aria-label={t('cart.cadence.aria')}>
+        <legend class="label">{t('cart.cadence.aria')}</legend>
+        <div class="cadence" data-cart-cadence>
+          <button type="button" class="cadence__opt" role="radio" aria-checked="true" data-cadence="monthly">{t('cart.cadence.monthly')}</button>
+          <button type="button" class="cadence__opt" role="radio" aria-checked="false" data-cadence="yearly">{t('cart.cadence.yearly')}</button>
+          <span class="cadence__thread" aria-hidden="true"></span>
+        </div>
+        <p class="cart-page__cadence-note small" data-cart-cadence-note aria-live="polite"></p>
+      </fieldset>
+      <div class="cart-page__edge"><Selvedge id="cart-page-edge" /></div>
+      <div class="cart-page__actions">
+        <Bobbin label={t('cart.checkout')} href="/checkout" wide />
+        <button class="cart-page__remove" type="button" data-cart-remove>{t('cart.remove')}</button>
+      </div>
+    </div>
+    <div class="cell span-2 cart-page__empty cart-page__part" data-cart-empty>
+      <p class="cart-page__message small" data-cart-message hidden></p>
+      <h2 class="cart-page__line" tabindex="-1" data-cart-focus>{t('cart.empty.line')}</h2>
+      <p class="muted">{t('cart.quantity.note')}</p>
+      <Bobbin label={t('cart.empty.link')} href="/membership" variant="secondary" />
+    </div>
+    <div class="cell span-3 cart-page__aside cart-page__part">
+      <PageScene kind="cart-spool" height="150px" />
+      <p class="cart-page__next"><Knot size={16} />{t('checkout.intro')}</p>
+      <p class="small muted">{t('cart.tax')}</p>
+    </div>
+    <p class="live" aria-live="polite" data-cart-live></p>
+    <div class="board__edge"><Selvedge id="cart-board-edge" /></div>
+  </section>
+</Layout>
+<style is:global>
+  .cart-page { min-height: 40vh; }
+  .cart-page__item, .cart-page__empty { gap: 14px; }
+  html[data-cart="full"] .cart-page__empty[data-cart-empty] { display: none; }
+  html[data-cart="empty"] .cart-page__item[data-cart-item] { display: none; }
+  .cart-page__line { font-size: var(--fs-h3); font-weight: 700; color: var(--indigo); }
+  .cart-page__message { color: var(--ink); font-weight: 600; padding: 8px 10px; border-left: 2px solid var(--indigo); background: var(--butter-pale); }
+  .cart-page__facts { display: flex; flex-direction: column; gap: 6px; }
+  .cart-page__fact { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--hairline-soft); padding-bottom: 6px; }
+  .cart-page__fact dt { font-weight: 600; }
+  .cart-page__fact dd { margin: 0; }
+  .cart-page__cadence { border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  .cart-page__cadence legend { padding: 0; margin-bottom: 6px; }
+  .cart-page__edge { height: 14px; }
+  .cart-page__actions { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; width: 100%; }
+  .cart-page__remove { color: var(--indigo); font-weight: 600; text-decoration: underline; min-height: 44px; }
+  .cart-page__aside { gap: 14px; justify-content: flex-start; }
+  .cart-page__next { display: flex; gap: 8px; align-items: flex-start; font-weight: 600; }
+  .cart-page__next .knot { margin-top: 3px; color: var(--indigo); }
+  /* the entrance inside the clip: the summary lines fade in one after another once the row is in (Shuttle) */
+  .cart-page__item > *, .cart-page__empty > * { opacity: 0; }
+  .cart-page.is-in .cart-page__item > *, .cart-page.is-in .cart-page__empty > * { animation: sb-fade var(--dur-base) var(--ease-shuttle) both; }
+  .cart-page.is-in .cart-page__item > :nth-child(1), .cart-page.is-in .cart-page__empty > :nth-child(1) { animation-delay: 0.05s; }
+  .cart-page.is-in .cart-page__item > :nth-child(2), .cart-page.is-in .cart-page__empty > :nth-child(2) { animation-delay: 0.12s; }
+  .cart-page.is-in .cart-page__item > :nth-child(3), .cart-page.is-in .cart-page__empty > :nth-child(3) { animation-delay: 0.19s; }
+  .cart-page.is-in .cart-page__item > :nth-child(4), .cart-page.is-in .cart-page__empty > :nth-child(4) { animation-delay: 0.26s; }
+  .cart-page.is-in .cart-page__item > :nth-child(5) { animation-delay: 0.33s; }
+  .cart-page.is-in .cart-page__item > :nth-child(6) { animation-delay: 0.4s; }
+  .cart-page.is-in .cart-page__item > :nth-child(7) { animation-delay: 0.47s; }
+  .cart-page.is-in .cart-page__item > :nth-child(8) { animation-delay: 0.54s; }
+  @media (prefers-reduced-motion: reduce) { .cart-page__item > *, .cart-page__empty > * { opacity: 1; animation: none !important; } }
+  :root[data-motion="reduced"] :is(.cart-page__item > *, .cart-page__empty > *) { opacity: 1; animation: none !important; }
+  @media (max-width: 1279px) { .cart-page__aside { grid-column: 1 / -1; } }
+  @media (max-width: 767px) { .cart-page__actions .bobbin { width: 100%; } }
+</style>
+<script>
+  import '../scripts/cart-view';
+</script>

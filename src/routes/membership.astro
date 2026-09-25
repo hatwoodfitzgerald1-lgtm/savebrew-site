@@ -1,0 +1,185 @@
+---
+// /membership (design document 7.3): the storefront. The heading pass "What does it cost?" with the cadence
+// control beneath it (inside B1's MembershipRow), the two cards and the free column, the compact "What's inside
+// the dashboard?" row with the product pan and the three views, "How do I cancel?" as two knots on a thread
+// with the email path, the five pricing questions as an index, the disclaimer, the footer.
+// Text hover: stitch (the running stitch underline). Scene: membership-ply (two threads plied into one cord).
+// No badge, no giant numeral, no $0 card, no stepper, no TOTAL line.
+import Layout from '../layouts/Layout.astro';
+import HeadingPass from '../components/HeadingPass.astro';
+import Board from '../components/Board.astro';
+import Disclaimer from '../components/Disclaimer.astro';
+import PageScene from '../components/PageScene.astro';
+import MembershipRow from '../components/MembershipRow.astro';
+import Knot from '../components/kit/Knot.astro';
+import ProductToday from '../components/product/ProductToday.astro';
+import ProductRates from '../components/product/ProductRates.astro';
+import ProductGoals from '../components/product/ProductGoals.astro';
+import { t } from '../lib/copy';
+import { file } from '../lib/assets';
+interface Props { path: string; }
+const { path } = Astro.props;
+const faq = [1, 2, 3, 4, 5].map((n) => ({ q: t(`membership.faq.q${n}`), a: t(`membership.faq.a${n}`) }));
+const views = ['today', 'rates', 'goals'] as const;
+const email = t('contact.email');
+const emailLine = t('membership.cancel.email');
+const emailAt = emailLine.indexOf(email);
+const pan = file('video.product-pan', 'desktop');
+const panPoster = file('video.product-pan', 'poster');
+---
+<Layout title={t('head.membership.title')} description={t('head.membership.meta')} route={path} hover="stitch">
+  <HeadingPass title={t('membership.heading')} id="cost" level={1} entrance="stitch" />
+  <div class="wide mship-scene" aria-hidden="true"><PageScene kind="membership-ply" height="56px" data-card="daily-for-two" /></div>
+  <MembershipRow heading={false} id="cost" />
+
+  <HeadingPass title={t('home.dashboard.heading')} id="dashboard" intro={t('home.dashboard.framing')} entrance="dock" />
+  <Board id="dashboard-row" cells={5} entrance="populate" strip={false} label={t('home.dashboard.heading')} class="mship-dash">
+    <div class="mship-dash__group" data-product-group data-view="today">
+      <div class="cell span-3 mship-dash__desk">
+        <div class="mship-dash__switch" role="tablist" aria-label={t('home.dashboard.switch.aria')}>
+          {views.map((v, i) => <button class="chip" type="button" role="tab" data-show-view={v} aria-selected={i === 0 ? 'true' : 'false'}>{t(`home.dashboard.view.${v}.name`)}</button>)}
+        </div>
+        <div class="mship-dash__window" data-pan-window>
+          <video class="mship-dash__pan" data-pan muted playsinline preload="none" poster={panPoster} aria-hidden="true" tabindex="-1">
+            <source src={pan} type="video/mp4" />
+          </video>
+          <ProductToday />
+          <ProductRates />
+          <ProductGoals />
+        </div>
+        {views.map((v, i) => <p class="small muted mship-dash__caption" data-caption-for={v} hidden={i !== 0}>{t(`home.dashboard.view.${v}.caption`)}</p>)}
+      </div>
+      <div class="cell span-2 mship-dash__phone">
+        <div class="mship-dash__phones">
+          <ProductToday phone />
+          <ProductRates phone />
+          <ProductGoals phone />
+        </div>
+        <p class="small muted">{t('home.dashboard.phone.caption')}</p>
+      </div>
+    </div>
+  </Board>
+
+  <HeadingPass title={t('membership.cancel.heading')} id="cancel" entrance="knots" />
+  <Board id="cancel-row" cells={5} entrance="thread-knots" strip={false} label={t('membership.cancel.heading')} class="mship-cancel">
+    <div class="cell span-3 mship-cancel__path">
+      <div class="mship-cancel__knots-wrap">
+      <span class="mship-cancel__thread" aria-hidden="true"></span>
+      <ol class="mship-cancel__knots" aria-label={t('membership.cancel.heading')}>
+        <li class="mship-cancel__knot ent-item" style="--i:0"><Knot size={32} /><span class="mship-cancel__label">{t('membership.cancel.knot.1')}</span></li>
+        <li class="mship-cancel__knot ent-item" style="--i:1"><Knot size={32} /><span class="mship-cancel__label">{t('membership.cancel.knot.2')}</span></li>
+      </ol>
+      </div>
+      <p class="mship-cancel__text">{t('membership.cancel.path')}</p>
+      <p class="mship-cancel__text muted">{t('membership.cancel.after')}</p>
+    </div>
+    <div class="cell span-2 mship-cancel__email">
+      <p class="mship-cancel__text">
+        {emailAt >= 0 ? (<Fragment>{emailLine.slice(0, emailAt)}<a href={`mailto:${email}`}>{email}</a>{emailLine.slice(emailAt + email.length)}</Fragment>) : emailLine}
+      </p>
+    </div>
+  </Board>
+
+  <HeadingPass title={t('membership.faq.heading')} id="faq" entrance="pop" />
+  <Board id="faq-row" cells={5} entrance="pop-right" stagger={50} strip={true} label={t('membership.faq.heading')} class="mship-faq">
+    {faq.map((f, i) => (
+      <div class="cell mship-faq__cell ent-item" style={`--i:${i}`}>
+        <h3 class="mship-faq__q"><Knot size={18} class="mship-faq__knot" /><span>{f.q}</span></h3>
+        <p class="mship-faq__a">{f.a}</p>
+      </div>
+    ))}
+    <div class="mship-faq__disclaimer span-full"><Disclaimer compact /></div>
+  </Board>
+</Layout>
+<style is:global>
+  .mship-scene { background: var(--butter); padding-block: 0 clamp(8px, 1vw, 16px); margin-bottom: var(--reveal); }
+  .mship-dash__group { display: contents; }
+  .mship-dash__switch { display: flex; flex-wrap: wrap; gap: 8px; }
+  .mship-dash__window { position: relative; width: 100%; }
+  .mship-dash__pan { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 12px; z-index: 2; opacity: 0; pointer-events: none; transition: opacity var(--dur-base) var(--ease-shuttle); background: var(--butter-pale); }
+  .mship-dash__pan.is-playing { opacity: 1; }
+  .mship-dash__phones { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--gap); }
+  .mship-dash__phones .sb-app--phone { width: min(100%, 320px); margin-inline: 0; box-shadow: 0 0 0 1px var(--hairline); }
+  .mship-dash__caption { min-height: 1.5em; }
+  .mship-cancel__knots-wrap { position: relative; }
+  .mship-cancel__knots { list-style: none; margin: 0; padding: 0; position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--gap); padding-top: 4px; }
+  .mship-cancel__thread { position: absolute; left: 16px; right: 16px; top: 20px; height: 2px; background: var(--indigo); transform-origin: left; }
+  .mship-cancel__knot { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; color: var(--indigo-deep); }
+  .mship-cancel__knot .knot { background: var(--white); color: var(--indigo); }
+  .mship-cancel__label { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-h3); color: var(--indigo); }
+  .mship-cancel__text { font-size: var(--fs-body); }
+  .mship-faq__q { display: flex; align-items: flex-start; gap: 8px; font-size: var(--fs-h3); font-weight: 600; line-height: 1.15; }
+  .mship-faq__knot { margin-top: 3px; color: var(--indigo); }
+  .mship-faq__a { font-size: var(--fs-body); }
+  .mship-faq__disclaimer { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); padding-top: 8px; }
+
+  /* entrances built from the primitives: populate (the desktop window's modules populate top to bottom, then the phone slides in from the right), thread-knots (the thread draws left to right, the two knots tie in turn), pop-right (the knots pop, then the answers wipe in from the right one column at a time) */
+  [data-entrance="populate"] .mship-dash__desk { clip-path: inset(0 0 100% 0); }
+  [data-entrance="populate"].is-in .mship-dash__desk { animation: sb-populate var(--dur-base) var(--ease-shuttle) both; }
+  @keyframes sb-populate { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+  [data-entrance="populate"] .mship-dash__phone { opacity: 0; transform: translateX(40px); }
+  [data-entrance="populate"].is-in .mship-dash__phone { animation: sb-slide-in var(--dur-base) var(--ease-shuttle) 0.6s both; }
+  @keyframes sb-slide-in { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
+  [data-entrance="thread-knots"] .mship-cancel__thread { transform: scaleX(0); }
+  [data-entrance="thread-knots"].is-in .mship-cancel__thread { animation: sb-thread var(--dur-slow) var(--ease-shuttle) both; }
+  @keyframes sb-thread { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  [data-entrance="thread-knots"] .ent-item { opacity: 0; transform: scale(0.6); transform-origin: 16px 20px; }
+  [data-entrance="thread-knots"].is-in .ent-item { animation: sb-knots var(--dur-base) var(--ease-knot) both; animation-delay: calc(0.5s + var(--i, 0) * 0.35s); }
+  [data-entrance="thread-knots"] .mship-cancel__text, [data-entrance="thread-knots"] .mship-cancel__email { opacity: 0; }
+  [data-entrance="thread-knots"].is-in .mship-cancel__text, [data-entrance="thread-knots"].is-in .mship-cancel__email { animation: sb-fade var(--dur-base) var(--ease-shuttle) 1.1s both; }
+  [data-entrance="pop-right"] .ent-item { clip-path: inset(0 0 0 100%); }
+  [data-entrance="pop-right"] .ent-item .knot { transform: scale(0); transform-origin: 50% 50%; }
+  [data-entrance="pop-right"].is-in .ent-item { animation: sb-weft-right var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(0.2s + var(--i, 0) * var(--stagger, 50ms)); }
+  [data-entrance="pop-right"].is-in .ent-item .knot { animation: sb-pop var(--dur-base) var(--ease-knot) both; animation-delay: calc(var(--i, 0) * var(--stagger, 50ms)); }
+  @media (prefers-reduced-motion: reduce) {
+    [data-entrance="populate"] .mship-dash__desk, [data-entrance="populate"] .mship-dash__phone, [data-entrance="thread-knots"] .mship-cancel__thread, [data-entrance="thread-knots"] .mship-cancel__text, [data-entrance="thread-knots"] .mship-cancel__email { animation: none !important; clip-path: none !important; opacity: 1 !important; transform: none !important; }
+    .mship-dash__pan { display: none; }
+  }
+  :root[data-motion="reduced"] :is([data-entrance="populate"] .mship-dash__desk, [data-entrance="populate"] .mship-dash__phone, [data-entrance="thread-knots"] .mship-cancel__thread, [data-entrance="thread-knots"] .mship-cancel__text, [data-entrance="thread-knots"] .mship-cancel__email) { animation: none !important; clip-path: none !important; opacity: 1 !important; transform: none !important; }
+  :root[data-motion="reduced"] .mship-dash__pan { display: none; }
+
+  @media (max-width: 1279px) {
+    .mship-dash__desk { grid-column: 1 / -1; }
+    .mship-dash__phone { grid-column: 1 / -1; }
+    .mship-dash__phones { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .mship-dash__phones .sb-app--phone { width: 100%; }
+    .mship-cancel__path { grid-column: 1 / -1; }
+    .mship-cancel__email { grid-column: 1 / -1; }
+  }
+  @media (max-width: 767px) {
+    .mship-dash__phones { grid-template-columns: minmax(0, 1fr); }
+    .mship-dash__phones .sb-app--phone { width: min(100%, 300px); }
+    .mship-cancel__knots { grid-template-columns: minmax(0, 1fr); row-gap: 16px; }
+    .mship-cancel__thread { left: 15px; right: auto; top: 16px; bottom: 16px; width: 2px; height: auto; transform-origin: top; }
+    [data-entrance="thread-knots"] .mship-cancel__thread { transform: scaleY(0); }
+    @keyframes sb-thread { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+    .mship-faq__disclaimer { padding-inline: 16px; }
+  }
+</style>
+<script>
+  import { motionReduced } from '../scripts/ease';
+  // the product pan plays once when the window enters the viewport, then rests on the selected still (never under reduced motion)
+  const win = document.querySelector<HTMLElement>('[data-pan-window]');
+  const video = win?.querySelector<HTMLVideoElement>('[data-pan]');
+  if (win && video && !motionReduced() && 'IntersectionObserver' in window) {
+    let played = false;
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting || played) continue;
+        played = true; io.disconnect();
+        video.classList.add('is-playing');
+        video.addEventListener('ended', () => video.classList.remove('is-playing'), { once: true });
+        video.addEventListener('error', () => video.classList.remove('is-playing'), { once: true });
+        video.play().catch(() => video.classList.remove('is-playing'));
+      }
+    }, { threshold: 0.4 });
+    io.observe(win);
+  }
+  // the caption follows the selected view
+  document.querySelectorAll<HTMLElement>('[data-product-group]').forEach((group) => {
+    const captions = Array.from(group.querySelectorAll<HTMLElement>('[data-caption-for]'));
+    const sync = () => captions.forEach((c) => { c.hidden = c.dataset.captionFor !== group.dataset.view; });
+    new MutationObserver(sync).observe(group, { attributes: true, attributeFilter: ['data-view'] });
+    sync();
+  });
+</script>

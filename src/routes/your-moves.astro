@@ -1,0 +1,27 @@
+---
+// /your-moves (design document 7.10, Art Direction 3.21): the ranker page. Heading pass, the standfirst,
+// the visitor's threads scene, the six switches with the edge image, the ranked four and the greyed rest,
+// Copy this list and Print this list, the closing Bobbin with the members' line, the disclaimer at the foot.
+// Text hover: lift (the word lifts 2px on a thread shadow). Scene: moves-threads.
+import Layout from '../layouts/Layout.astro';
+import HeadingPass from '../components/HeadingPass.astro';
+import PageScene from '../components/PageScene.astro';
+import Ranker from '../components/ranker/Ranker.astro';
+import { t } from '../lib/copy';
+interface Props { path: string; }
+const { path } = Astro.props;
+---
+<Layout title={t('head.moves.title')} description={t('head.moves.meta')} route={path} hover="lift">
+  <HeadingPass title={t('moves.heading')} id="moves-heading" intro={t('moves.standfirst')} level={1} wideTitle>
+    <div slot="aside" class="moves-scene-wrap"><PageScene kind="moves-threads" height="150px" data-for="ranker" label={t('moves.state.empty')} /></div>
+  </HeadingPass>
+  <Ranker id="ranker" />
+</Layout>
+<style is:global>
+  .moves-scene-wrap { width: 100%; }
+  .moves-scene-wrap .scene { border-radius: var(--radius-card); background: color-mix(in srgb, var(--white) 55%, transparent); }
+  #moves-heading .heading-pass__aside { align-self: end; }
+  #moves-heading .heading-pass__intro { font-size: var(--fs-standfirst); line-height: 1.4; grid-column: 1 / span 3; }
+  @media (max-width: 1279px) { #moves-heading .heading-pass__intro { grid-column: 1 / span 2; } }
+  @media (max-width: 1023px) { #moves-heading .heading-pass__intro { grid-column: 1 / -1; } }
+</style>

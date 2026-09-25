@@ -1,0 +1,89 @@
+---
+// /sign-in (design document 7.20): the member's door. Email plus an emailed sign in link by default, a
+// password as the option; on the preview build any valid email opens the illustrative member Jordan's
+// dashboard and the page says so. The sign in card sits in columns one to two with the thread strip in
+// three to five so the row fills. Scene: the selvedge stitch draws around the card when the email validates.
+import Layout from '../layouts/Layout.astro';
+import HeadingPass from '../components/HeadingPass.astro';
+import Bobbin from '../components/Bobbin.astro';
+import PageScene from '../components/PageScene.astro';
+import ThreadStrip from '../components/kit/ThreadStrip.astro';
+import Selvedge from '../components/kit/Selvedge.astro';
+import Knot from '../components/kit/Knot.astro';
+import { t } from '../lib/copy';
+interface Props { path: string }
+const strings = {
+  emailEmpty: t('signin.error.email.empty'), emailFormat: t('signin.error.email.format'), passwordEmpty: t('signin.error.password.empty'),
+  passwordShort: t('confirm.password.error.short'), linkExpired: t('signin.error.link.expired'), sentPattern: t('signin.sent.pattern')
+};
+---
+<Layout title={t('head.signin.title')} description={t('head.signin.meta')} route="/sign-in" noindex hover="none">
+  <HeadingPass title={t('signin.heading')} level={1} id="signin-heading-pass" intro={t('signin.email.hint')} entrance="stitch" />
+  <section class="board pass signin" id="signin-board" data-cells="5" data-entrance="weft-left" aria-labelledby="signin-heading-pass" data-signin data-strings={JSON.stringify(strings)}>
+    <div class="cell span-2 signin__cell">
+      <div class="signin__card">
+        <PageScene kind="signin-stitch" class="signin__stitch" height="100%" />
+        <form class="signin__form" novalidate>
+          <div class="error-summary signin__summary" role="alert" tabindex="-1" hidden data-error-summary>
+            <h2 class="error-summary__title">{t('signin.error.summary')}</h2>
+            <ul data-error-summary-list></ul>
+          </div>
+          <div data-signin-form-body>
+            <div class="field">
+              <label class="field__label" for="signin-email">{t('signin.email.label')}</label>
+              <p class="field__hint" id="signin-email-hint">{t('signin.email.hint')}</p>
+              <div class="field__control"><input class="field__input" id="signin-email" name="email" type="email" autocomplete="email" inputmode="email" spellcheck="false" aria-describedby="signin-email-hint signin-email-error" required /></div>
+              <p class="field__error" id="signin-email-error" hidden data-error-for="email"><Knot size={14} /><span data-error-text></span></p>
+            </div>
+            <div class="signin__path" data-path-link>
+              <Bobbin label={t('signin.submit.link')} type="submit" wide />
+              <button class="signin__toggle" type="button" data-password-toggle>{t('signin.password.toggle')}</button>
+            </div>
+            <div class="signin__path" data-path-password hidden>
+              <div class="field">
+                <label class="field__label" for="signin-password">{t('signin.password.label')}</label>
+                <div class="field__control"><input class="field__input" id="signin-password" name="password" type="password" autocomplete="current-password" aria-describedby="signin-password-error" /></div>
+                <p class="field__error" id="signin-password-error" hidden data-error-for="password"><Knot size={14} /><span data-error-text></span></p>
+              </div>
+              <Bobbin label={t('signin.password.submit')} type="submit" wide />
+              <button class="signin__toggle" type="button" data-password-forgot>{t('signin.password.forgot')}</button>
+            </div>
+          </div>
+          <div class="signin__sent" role="status" aria-live="polite" hidden data-signin-sent>
+            <p class="signin__sent-line" data-signin-sent-line></p>
+            <button class="signin__toggle" type="button" data-signin-again>{t('signin.sent.again')}</button>
+          </div>
+          <p class="signin__preview small muted">{t('add.signin.preview')}</p>
+        </form>
+      </div>
+    </div>
+    <div class="cell span-3 signin__aside">
+      <ThreadStrip id="signin-strip" />
+      <p class="signin__brand">{t('footer.brand')}</p>
+      <div class="signin__edge"><Selvedge id="signin-aside-edge" /></div>
+      <a class="signin__membership" href="/membership">{t('compact.link')}</a>
+    </div>
+  </section>
+</Layout>
+<style is:global>
+  .signin { min-height: 50vh; }
+  .signin__card { position: relative; padding: clamp(16px, 1.6vw, 28px); }
+  .signin__stitch { position: absolute; inset: 0; pointer-events: none; }
+  .signin__form { position: relative; display: flex; flex-direction: column; gap: 16px; }
+  .signin__path { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; margin-top: 16px; }
+  .signin__path .bobbin { width: 100%; }
+  .signin__toggle { color: var(--indigo); font-weight: 600; text-decoration: underline; min-height: 44px; padding: 0; text-align: left; }
+  .signin__sent { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+  .signin__sent-line { font-weight: 600; }
+  .signin__preview { line-height: 1.5; }
+  .signin__aside { gap: 16px; justify-content: center; }
+  .signin__aside .threadstrip__canvas { height: 96px; }
+  .signin__brand { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-h3); color: var(--indigo); }
+  .signin__edge { height: 14px; }
+  .signin__membership { font-weight: 700; align-self: flex-start; }
+  @media (max-width: 1279px) { .signin__cell { grid-column: span 2; } .signin__aside { grid-column: 1 / -1; } }
+  @media (max-width: 1023px) { .signin__cell, .signin__aside { grid-column: 1 / -1; } }
+</style>
+<script>
+  import '../scripts/signin';
+</script>

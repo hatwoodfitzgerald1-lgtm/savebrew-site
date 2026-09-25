@@ -1,0 +1,116 @@
+---
+// /guides (design document 7.5): the free library. The header band over photo.guides-header with "What's free to
+// read?", the four guides in their thread's column (Rates carries two, Cashback one, Seasonal one; Coupons and
+// Paycheck carry the honest lines with a link to where the thread is covered now, never a dead card), the
+// Roundup cross link row and the compact membership strip. Text hover: unspool. Scene: guide-spool (the index
+// variant: the spool and the thread, unwinding with the page).
+import Layout from '../layouts/Layout.astro';
+import HeadingPass from '../components/HeadingPass.astro';
+import Board from '../components/Board.astro';
+import CompactMembership from '../components/CompactMembership.astro';
+import PageScene from '../components/PageScene.astro';
+import Picture from '../components/Picture.astro';
+import Disclaimer from '../components/Disclaimer.astro';
+import Icon from '../components/kit/Icon.astro';
+import Knot from '../components/kit/Knot.astro';
+import { t, fmt, THREADS } from '../lib/copy';
+import { guides, guidesForThread } from '../lib/longform';
+import { inlineSvg } from '../lib/svg';
+interface Props { path: string; }
+const { path } = Astro.props;
+const graphics = import.meta.glob('../../public/assets/kit/guide-graphics/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+const graphic = (slug: string) => { const k = Object.keys(graphics).find((f) => f.endsWith(`/${slug}.svg`)); return k ? inlineSvg(graphics[k], { class: 'guides-card__graphic', width: '100%', height: undefined }) : ''; };
+const columns = THREADS.map((th) => ({ ...th, label: t(`guides.column.${th.key}`), guides: guidesForThread(th.name) }));
+const honest: Record<string, { line: string; link: string; href: string }> = {
+  coupons: { line: t('add.guides.column.coupons.line'), link: t('add.guides.column.coupons.link'), href: '/brief' },
+  paycheck: { line: t('add.guides.column.paycheck.line'), link: t('home.cost.free.link.moves'), href: '/your-moves' }
+};
+---
+<Layout title={t('head.guides.title')} description={t('head.guides.meta')} route={path} hover="unspool" rss={[{ title: 'The Guides', href: '/guides/feed.xml' }]}>
+  <section class="gd-header" id="guides-header" data-entrance="open-down" aria-labelledby="guides-title">
+    <div class="gd-header__band">
+      <Picture slot="photo.guides-header" sizes="100vw" loading="eager" fetchpriority="high" decorative />
+    </div>
+    <HeadingPass title={t('guides.heading')} id="guides-pass" level={1} intro={t('guides.intro')} entrance="stitch" class="gd-header__pass" />
+  </section>
+
+  <Board id="guides-row" cells={5} entrance="cards-lift" strip={false} label={t('guides.heading')} class="gd-row">
+    <div class="gd-row__scene span-full"><PageScene kind="guide-spool" height="52px" /></div>
+    {columns.map((col, ci) => (
+      <div class="cell gd-col" data-thread={col.key} style={`--c:${ci}`}>
+        <h2 class="cell-head gd-col__head"><Icon name={col.icon} size={18} class="gd-col__icon" />{col.label}</h2>
+        {col.guides.length > 0 ? col.guides.map((g, gi) => (
+          <a class="guides-card ent-item" href={g.url} style={`--i:${ci * 2 + gi}`}>
+            <span class="guides-card__knot"><Knot size={18} /></span>
+            <span class="guides-card__art" aria-hidden="true"><Fragment set:html={graphic(g.slug)} /></span>
+            <span class="guides-card__thumb"><Picture slot={g.photoSlot} sizes="(max-width: 767px) 100vw, (max-width: 1279px) 33vw, 20vw" /></span>
+            <span class="guides-card__title">{g.title}</span>
+            <span class="guides-card__dek">{g.dek}</span>
+            <span class="guides-card__minutes small muted">{fmt('guides.post.minutes.pattern', { minutes: g.reading_minutes })}</span>
+          </a>
+        )) : (
+          <div class="gd-col__honest ent-item" style={`--i:${ci * 2}`}>
+            <p>{honest[col.key].line}</p>
+            <a class="gd-col__honest-link" href={honest[col.key].href}>{honest[col.key].link}</a>
+          </div>
+        )}
+      </div>
+    ))}
+    <div class="gd-row__disclaimer span-full"><Disclaimer compact /></div>
+  </Board>
+
+  <section class="board pass gd-cross" id="guides-crosslink" data-entrance="weft-right" aria-label={t('guides.crosslink.link')}>
+    <p class="gd-cross__line span-3">{t('guides.crosslink.line')}</p>
+    <p class="gd-cross__link span-2"><Icon name="roundup" size={22} /><a href="/roundup">{t('guides.crosslink.link')}</a></p>
+  </section>
+
+  <CompactMembership line={t('guides.compact.line')} entrance="weft-left" />
+</Layout>
+<style is:global>
+  .gd-header__band { width: 100%; height: clamp(180px, 26vh, 340px); overflow: hidden; background: var(--butter-pale); }
+  .gd-header__band .picture { height: 100%; }
+  .gd-header__band .picture picture, .gd-header__band .picture img { width: 100%; height: 100%; object-fit: cover; }
+  .gd-row__scene { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
+  .gd-col { gap: 14px; }
+  .gd-col__head { font-size: var(--fs-h3); }
+  .guides-card { display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: var(--ink); position: relative; padding-top: 6px; border-top: 2px solid var(--butter-deep); transition: transform var(--dur-base) var(--ease-knot); }
+  .guides-card:hover, .guides-card:focus-visible { transform: translateY(-3px); }
+  .guides-card__knot { position: absolute; top: -10px; left: 0; background: var(--white); color: var(--indigo); padding-right: 4px; transition: transform var(--dur-base) var(--ease-knot); }
+  .guides-card:hover .guides-card__knot, .guides-card:focus-visible .guides-card__knot { transform: scale(1.12); }
+  .guides-card__thumb { display: block; margin-top: 6px; }
+  .guides-card__thumb .picture { aspect-ratio: 16 / 9; border-radius: 6px; }
+  .guides-card__thumb .picture img { height: 100%; }
+  .guides-card__art { display: block; width: 120px; margin-top: 2px; }
+  .guides-card__art svg { width: 100%; height: auto; display: block; border-radius: 4px; }
+  .guides-card__title { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-h3); color: var(--indigo); line-height: 1.12; background-image: linear-gradient(var(--indigo), var(--indigo)); background-repeat: no-repeat; background-size: 0% 2px; background-position: 100% 100%; transition: background-size var(--dur-base) var(--ease-shuttle), background-position 0s var(--dur-base); }
+  .guides-card:hover .guides-card__title, .guides-card:focus-visible .guides-card__title { background-size: 100% 2px; background-position: 0 100%; transition: background-size var(--dur-base) var(--ease-shuttle); }
+  .guides-card__dek { font-size: var(--fs-body); color: var(--ink); }
+  .gd-col__honest { display: flex; flex-direction: column; gap: 10px; padding-top: 6px; border-top: 2px solid var(--butter-deep); }
+  .gd-col__honest-link { font-weight: 700; }
+  .gd-row__disclaimer { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); padding-top: 8px; }
+  .gd-cross { align-items: center; row-gap: 12px; }
+  .gd-cross__line { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); font-size: var(--fs-standfirst); }
+  .gd-cross__link { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: var(--fs-body); }
+
+  /* entrances built from the primitives: open-down (the header clip opens top to bottom), cards-lift (the columns' icons draw, then each card lifts on its thread, staggered by column) */
+  [data-entrance="open-down"] .gd-header__band { clip-path: inset(0 0 100% 0); }
+  [data-entrance="open-down"].is-in .gd-header__band { animation: sb-open-down var(--dur-base) var(--ease-shuttle) both; }
+  @keyframes sb-open-down { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+  [data-entrance="cards-lift"] .gd-col__icon :is(path, circle, line, polyline, rect) { stroke-dasharray: 80; stroke-dashoffset: 80; }
+  [data-entrance="cards-lift"].is-in .gd-col__icon :is(path, circle, line, polyline, rect) { animation: sb-icon-draw var(--dur-slow) var(--ease-shuttle) both; animation-delay: calc(var(--c, 0) * 60ms); }
+  @keyframes sb-icon-draw { to { stroke-dashoffset: 0; } }
+  [data-entrance="cards-lift"] .ent-item { opacity: 0; transform: translateY(22px); }
+  [data-entrance="cards-lift"].is-in .ent-item { animation: sb-dock var(--dur-base) var(--ease-knot) both; animation-delay: calc(0.3s + var(--i, 0) * 50ms); }
+  @media (prefers-reduced-motion: reduce) {
+    [data-entrance="open-down"] .gd-header__band, [data-entrance="cards-lift"] .gd-col__icon * { animation: none !important; clip-path: none !important; stroke-dashoffset: 0 !important; }
+  }
+  :root[data-motion="reduced"] :is([data-entrance="open-down"] .gd-header__band, [data-entrance="cards-lift"] .gd-col__icon *) { animation: none !important; clip-path: none !important; stroke-dashoffset: 0 !important; }
+
+  @media (max-width: 1279px) {
+    .gd-cross__line, .gd-cross__link { grid-column: 1 / -1; }
+    /* the scene fills the spare track beside the fourth and fifth columns (0.2) */
+    .board[data-cells="5"] > .gd-row__scene { grid-row: 2; grid-column: 3; align-self: start; padding-inline: 0; }
+  }
+  @media (max-width: 1023px) { .board[data-cells="5"] > .gd-row__scene { grid-row: auto; grid-column: 1 / -1; padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); } }
+  @media (max-width: 767px) { .gd-row__scene, .gd-row__disclaimer, .gd-cross__line, .gd-cross__link { padding-inline: 16px; } .gd-header__band { height: min(80vw, 300px); } }
+</style>

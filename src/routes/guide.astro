@@ -1,0 +1,204 @@
+---
+// The guide post template (design document 7.6 to 7.9): one template, four bespoke pages. The hero band with
+// the guide's still (IMG-019 crops) and the headline across the five columns, the disclaimer above the fold,
+// the body verbatim in CSS multicolumn with the pull thread set as a weft pass across the columns (the sentence
+// itself, in its place, never repeated), the guide's kit graphic at the head, the membership line and the
+// Bobbin, "Read next" as three knots on one thread, the compact membership strip. Text hover: unspool (the
+// guides family) with the post's own variant on the body headings. Scene: guide-spool with the post's figure.
+import Layout from '../layouts/Layout.astro';
+import Board from '../components/Board.astro';
+import Bobbin from '../components/Bobbin.astro';
+import Disclaimer from '../components/Disclaimer.astro';
+import CompactMembership from '../components/CompactMembership.astro';
+import PageScene from '../components/PageScene.astro';
+import Picture from '../components/Picture.astro';
+import Knot from '../components/kit/Knot.astro';
+import Icon from '../components/kit/Icon.astro';
+import WeftPass from '../components/kit/WeftPass.astro';
+import { t, fmt } from '../lib/copy';
+import { guides, guideBySlug } from '../lib/longform';
+import { inlineSvg } from '../lib/svg';
+interface Props { path: string; slug: string; titleId: string; metaId: string; figure: string; hv: string; }
+const { path, slug, titleId, metaId, figure, hv } = Astro.props;
+const guide = guideBySlug(slug);
+if (!guide) throw new Error(`guide: no guide with the slug ${slug}`);
+const others = guides.filter((g) => g.slug !== slug);
+const graphics = import.meta.glob('../../public/assets/kit/guide-graphics/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+const gkey = Object.keys(graphics).find((f) => f.endsWith(`/${slug}.svg`));
+const graphic = gkey ? inlineSvg(graphics[gkey], { class: 'guide-graphic', width: '100%' }) : '';
+const threadKey = guide.thread.toLowerCase();
+const date = new Date(guide.date + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+// the pull thread: the guide's sentence, found in its paragraph and set across the columns in its own place
+const needle = guide.pull_thread.replace(/[.:;,]\s*$/, '');
+type Piece = { kind: 'h2'; text: string } | { kind: 'p'; text: string } | { kind: 'pull'; before: string; sentence: string; after: string };
+const pieces: Piece[] = [];
+for (const section of guide.sections) {
+  if (section.heading) pieces.push({ kind: 'h2', text: section.heading });
+  for (const p of section.paragraphs) {
+    const at = p.indexOf(needle);
+    if (at >= 0 && !pieces.some((x) => x.kind === 'pull')) {
+      // the sentence ends at the next sentence boundary after the needle
+      const endMatch = p.slice(at + needle.length).match(/^[^.?!]*[.?!]/);
+      const end = at + needle.length + (endMatch ? endMatch[0].length : 0);
+      pieces.push({ kind: 'pull', before: p.slice(0, at).trim(), sentence: p.slice(at, end).trim(), after: p.slice(end).trim() });
+    } else pieces.push({ kind: 'p', text: p });
+  }
+}
+const wordCount = guide.wordCount;
+---
+<Layout title={t(titleId)} description={t(metaId)} route={path} hover="unspool" bodyClass={`guide-hv-${hv}`} rss={[{ title: 'The Guides', href: '/guides/feed.xml' }]}>
+  <article class="guide" data-guide={slug} data-words={wordCount}>
+    <header class="guide-hero" id="guide-hero" data-entrance="open-left" aria-labelledby="guide-title">
+      <div class="guide-hero__band">
+        <Picture slot={guide.photoSlot} sizes="100vw" loading="eager" fetchpriority="high" decorative />
+      </div>
+      <div class="heading-pass guide-hero__pass">
+        <p class="guide-hero__thread cell-head"><Icon name={threadKey} size={18} />{guide.thread}</p>
+        <h1 class="guide-hero__title" id="guide-title">{guide.h1}</h1>
+        <p class="guide-hero__dek">{guide.dek}</p>
+        <p class="guide-hero__meta small"><span class="fig">{fmt('guides.post.minutes.pattern', { minutes: guide.reading_minutes })}</span><span class="guide-hero__date">{date}</span></p>
+        <div class="heading-pass__weft"><WeftPass /></div>
+      </div>
+    </header>
+    <section class="pass guide-disclaimer" id="guide-disclaimer" aria-label={t('global.brand')}>
+      <div class="span-full guide-disclaimer__inner"><Disclaimer id="disclaimer-guide" /></div>
+    </section>
+
+    <Board id="guide-body" cells={5} entrance="columns" strip={false} label={guide.title} class="guide-body" tag="section">
+      <div class="guide-body__scene span-full"><PageScene kind="guide-spool" height="48px" data-progress="guide-body" data-figure={figure} /></div>
+      <div class="guide-body__prose span-full prose-cols">
+        <figure class="guide-body__graphic"><Fragment set:html={graphic} /></figure>
+        {pieces.map((piece) => {
+          if (piece.kind === 'h2') return <h2 class="guide-body__h2">{piece.text}</h2>;
+          if (piece.kind === 'p') return <p>{piece.text}</p>;
+          return (
+            <Fragment>
+              {piece.before && <p>{piece.before}</p>}
+              <p class="pull-thread guide-pull"><span class="guide-pull__knot" aria-hidden="true"><Knot size={22} /></span><span class="guide-pull__text">{piece.sentence}</span><span class="guide-pull__thread" aria-hidden="true"></span></p>
+              {piece.after && <p>{piece.after}</p>}
+            </Fragment>
+          );
+        })}
+      </div>
+    </Board>
+
+    <section class="board pass guide-cta" id="guide-cta" data-entrance="draw" aria-label={guide.button_label}>
+      <p class="guide-cta__line span-3 ent-item">{guide.membershipLine || guide.membership_line}</p>
+      <div class="guide-cta__button span-2"><Bobbin label={guide.button || guide.button_label} sku="SB101" class="guide-cta__bobbin" /></div>
+    </section>
+
+    <section class="board pass guide-next" id="guide-next" data-entrance="thread-three" aria-labelledby="guide-next-heading">
+      <h2 class="guide-next__heading span-full">{t('guides.post.readnext')}</h2>
+      <div class="guide-next__wrap span-full">
+        <span class="guide-next__thread" aria-hidden="true"></span>
+        <ul class="guide-next__list">
+          {others.map((g, i) => (
+            <li class="guide-next__item ent-item" style={`--i:${i}`}>
+              <a class="guide-next__link" href={g.url}>
+                <span class="guide-next__knot"><Knot size={26} /></span>
+                <span class="guide-next__thread-name cell-head"><Icon name={g.thread.toLowerCase()} size={16} />{g.thread}</span>
+                <span class="guide-next__title">{g.title}</span>
+                <span class="guide-next__minutes small muted">{fmt('guides.post.minutes.pattern', { minutes: g.reading_minutes })}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <CompactMembership line={t('guides.post.compact.line')} entrance="weft-left" />
+  </article>
+</Layout>
+<style is:global>
+  .guide-hero__band { width: 100%; height: clamp(200px, 34vh, 440px); overflow: hidden; background: var(--butter-pale); }
+  .guide-hero__band .picture { height: 100%; }
+  .guide-hero__band .picture picture, .guide-hero__band .picture img { width: 100%; height: 100%; object-fit: cover; }
+  .guide-hero__pass { padding-top: clamp(16px, 1.8vw, 28px); align-items: end; }
+  .guide-hero__thread { grid-column: 1 / -1; }
+  .guide-hero__title { grid-column: 1 / -1; font-size: var(--fs-h1); font-weight: 800; line-height: 1.02; }
+  .guide-hero__dek { grid-column: 1 / span 3; font-size: var(--fs-standfirst); line-height: 1.4; }
+  .guide-hero__meta { grid-column: 4 / span 2; display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--muted); align-self: end; justify-content: flex-end; }
+  .guide-disclaimer { background: var(--white); padding-block: clamp(12px, 1.2vw, 20px); border-bottom: 1px solid var(--butter-deep); margin-bottom: var(--reveal); }
+  .guide-disclaimer__inner { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
+  .guide-body { row-gap: var(--gap); }
+  .guide-body__scene { position: sticky; top: 0; z-index: 3; background: var(--white); padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); border-bottom: 1px solid var(--butter-deep); }
+  .guide-body__graphic { margin: 0 0 1em; break-inside: avoid; }
+  .guide-body__graphic svg { width: 100%; height: auto; display: block; border-radius: var(--radius-card); }
+  .guide-body__prose { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); font-size: var(--fs-body); }
+  .guide-body__h2 { font-size: var(--fs-h3); font-weight: 700; margin-top: 1.4em; line-height: 1.15; }
+  .guide-body__prose > .guide-body__h2:first-child { margin-top: 0; }
+  .guide-pull { column-span: all; position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 12px; align-items: start; margin: 1.2em 0; padding: 14px 0 18px; font-family: var(--font-display); font-weight: 600; font-size: var(--fs-h2); line-height: 1.08; color: var(--indigo); }
+  .guide-pull__knot { color: var(--indigo); margin-top: 0.3em; }
+  .guide-pull__thread { grid-column: 1 / -1; height: 2px; background: var(--indigo); margin-top: 12px; transform-origin: left; }
+  .guide-cta { align-items: center; row-gap: var(--gap); }
+  .guide-cta__line { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); font-size: var(--fs-standfirst); }
+  .guide-cta__button { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); display: flex; justify-content: flex-start; }
+  .guide-next { row-gap: 8px; }
+  .guide-next__heading { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); font-size: var(--fs-h3); font-weight: 700; }
+  .guide-next__wrap { position: relative; padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); padding-top: 8px; }
+  .guide-next__thread { position: absolute; left: var(--cell-pad, clamp(16px, 1.4vw, 28px)); right: var(--cell-pad, clamp(16px, 1.4vw, 28px)); top: 21px; height: 2px; background: var(--indigo); transform-origin: left; }
+  .guide-next__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--gap); position: relative; }
+  .guide-next__link { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--ink); }
+  .guide-next__knot { color: var(--indigo); background: var(--white); width: 26px; transition: transform var(--dur-base) var(--ease-knot); }
+  .guide-next__link:hover .guide-next__knot, .guide-next__link:focus-visible .guide-next__knot { transform: scale(1.12); }
+  .guide-next__title { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-h3); color: var(--indigo); line-height: 1.12; background-image: linear-gradient(var(--indigo), var(--indigo)); background-repeat: no-repeat; background-size: 0% 2px; background-position: 100% 100%; transition: background-size var(--dur-base) var(--ease-shuttle); }
+  .guide-next__link:hover .guide-next__title, .guide-next__link:focus-visible .guide-next__title { background-size: 100% 2px; background-position: 0 100%; }
+
+  /* the post's own text hover on the body headings, over the guides family's unspool on links */
+  .guide-body__h2 { display: inline-block; position: relative; transition: font-variation-settings var(--dur-base) var(--ease-knot); }
+  .guide-hv-loop .guide-body__h2::after { content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 2px; background: var(--indigo); transform: scaleX(0); transform-origin: left; border-radius: 0 0 8px 8px; transition: transform var(--dur-base) var(--ease-shuttle), height var(--dur-base) var(--ease-knot); }
+  .guide-hv-loop .guide-body__h2:is(:hover, :focus-visible)::after { transform: scaleX(1); height: 6px; border-bottom: 2px solid var(--indigo); background: transparent; border-left: 2px solid var(--indigo); border-right: 2px solid var(--indigo); }
+  .guide-hv-thicken .guide-body__h2 { font-variation-settings: "wght" 300; }
+  .guide-hv-thicken .guide-body__h2:is(:hover, :focus-visible) { font-variation-settings: "wght" 800; }
+  .guide-hv-measure .guide-body__h2 { background-image: repeating-linear-gradient(90deg, var(--indigo) 0 10px, transparent 10px 14px); background-repeat: no-repeat; background-size: 0% 2px; background-position: 0 100%; padding-bottom: 4px; transition: background-size var(--dur-base) var(--ease-shuttle); }
+  .guide-hv-measure .guide-body__h2:is(:hover, :focus-visible) { background-size: 100% 2px; }
+  .guide-hv-measure .guide-body__h2::after { content: ""; position: absolute; left: 0; right: 0; bottom: -3px; height: 6px; background-image: repeating-linear-gradient(90deg, var(--indigo) 0 2px, transparent 2px 28px); background-repeat: repeat-x; background-size: 28px 6px; transform: scaleY(0); transform-origin: bottom; transition: transform var(--dur-base) var(--ease-knot) 0.2s; }
+  .guide-hv-measure .guide-body__h2:is(:hover, :focus-visible)::after { transform: scaleY(1); }
+  .guide-hv-knots .guide-body__h2::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 8px; background-image: radial-gradient(circle, var(--indigo) 3px, transparent 3.5px); background-size: 25% 8px; background-repeat: repeat-x; transform: scale(0); transform-origin: left center; transition: transform var(--dur-base) var(--ease-knot); }
+  .guide-hv-knots .guide-body__h2:is(:hover, :focus-visible)::after { transform: scale(1); }
+
+  /* entrances built from the primitives: open-left (the still's clip opens left to right), columns (the prose wipes column by column, the pull thread draws last), draw (the Bobbin's stitch draws), thread-three (the thread draws and the three knots tie) */
+  [data-entrance="open-left"] .guide-hero__band { clip-path: inset(0 100% 0 0); }
+  [data-entrance="open-left"].is-in .guide-hero__band { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) both; }
+  [data-entrance="columns"] .guide-body__prose { clip-path: inset(0 100% 0 0); }
+  [data-entrance="columns"].is-in .guide-body__prose { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) 0.06s both; }
+  [data-entrance="columns"] .guide-body__graphic { opacity: 0; }
+  [data-entrance="columns"].is-in .guide-body__graphic { animation: sb-fade var(--dur-base) var(--ease-shuttle) both; }
+  [data-entrance="columns"] .guide-pull__thread { transform: scaleX(0); }
+  [data-entrance="columns"].is-in .guide-pull__thread { animation: sb-thread var(--dur-slow) var(--ease-shuttle) 0.4s both; }
+  @keyframes sb-thread { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  [data-entrance="draw"]:not(.is-in) .guide-cta__bobbin .bobbin__border { stroke-dashoffset: 400; stroke-dasharray: 400; opacity: 0; }
+  [data-entrance="draw"].is-in .guide-cta__bobbin .bobbin__border { animation: sb-draw var(--dur-slow) var(--ease-shuttle) both; }
+  @keyframes sb-draw { from { stroke-dasharray: 400; stroke-dashoffset: 400; opacity: 1; } to { stroke-dasharray: 5 4; stroke-dashoffset: 0; opacity: 0.85; } }
+  [data-entrance="draw"] .ent-item { opacity: 0; transform: translateX(-10px); }
+  [data-entrance="draw"].is-in .ent-item { animation: sb-along var(--dur-base) var(--ease-knot) 0.4s both; }
+  @keyframes sb-along { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+  [data-entrance="thread-three"] .guide-next__thread { transform: scaleX(0); }
+  [data-entrance="thread-three"].is-in .guide-next__thread { animation: sb-thread var(--dur-slow) var(--ease-shuttle) both; }
+  [data-entrance="thread-three"] .ent-item { opacity: 0; transform: scale(0.7); transform-origin: 13px 13px; }
+  [data-entrance="thread-three"].is-in .ent-item { animation: sb-knots var(--dur-base) var(--ease-knot) both; animation-delay: calc(0.4s + var(--i, 0) * 0.3s); }
+  @media (prefers-reduced-motion: reduce) {
+    [data-entrance="open-left"] .guide-hero__band, [data-entrance="columns"] .guide-body__prose, [data-entrance="columns"] .guide-body__graphic, [data-entrance="columns"] .guide-pull__thread, [data-entrance="draw"] .guide-cta__bobbin .bobbin__border, [data-entrance="thread-three"] .guide-next__thread { animation: none !important; clip-path: none !important; opacity: 1 !important; transform: none !important; stroke-dashoffset: 0 !important; stroke-dasharray: 5 4 !important; }
+    .guide-body__h2, .guide-body__h2::after { transition: none !important; }
+  }
+  :root[data-motion="reduced"] :is([data-entrance="open-left"] .guide-hero__band, [data-entrance="columns"] .guide-body__prose, [data-entrance="columns"] .guide-body__graphic, [data-entrance="columns"] .guide-pull__thread, [data-entrance="draw"] .guide-cta__bobbin .bobbin__border, [data-entrance="thread-three"] .guide-next__thread) { animation: none !important; clip-path: none !important; opacity: 1 !important; transform: none !important; stroke-dashoffset: 0 !important; stroke-dasharray: 5 4 !important; }
+  :root[data-motion="reduced"] :is(.guide-body__h2, .guide-body__h2::after) { transition: none !important; }
+
+  @media (max-width: 1279px) {
+    .guide-hero__dek { grid-column: 1 / span 2; }
+    .guide-hero__meta { grid-column: 3; }
+    .guide-cta__line, .guide-cta__button { grid-column: 1 / -1; }
+  }
+  @media (max-width: 1023px) {
+    .guide-hero__dek, .guide-hero__meta { grid-column: 1 / -1; justify-content: flex-start; }
+    .guide-pull { font-size: var(--fs-h3); }
+  }
+  @media (max-width: 767px) {
+    .guide-hero__band { height: min(110vw, 420px); }
+    .guide-next__list { grid-template-columns: minmax(0, 1fr); row-gap: 18px; }
+    .guide-next__thread { display: none; }
+    .guide-disclaimer__inner, .guide-body__scene, .guide-body__prose, .guide-cta__line, .guide-cta__button, .guide-next__heading, .guide-next__wrap { padding-inline: 16px; }
+    .guide-cta__button .bobbin { width: 100%; }
+    .guide-body__scene { top: 0; }
+  }
+</style>

@@ -1,0 +1,209 @@
+---
+// /brief (design document 7.2): today's five items in full, exactly as a member read them at 6:30 this
+// morning, then what the members' version adds, yesterday's pass and the compact membership strip.
+// Text hover: tighten (wght 500 to 800). Scene: brief-weft (one weft thread weaving five knots across the
+// head of the items board). The disclaimer sits directly under the header pass, on screen before any scrolling.
+import Layout from '../layouts/Layout.astro';
+import HeadingPass from '../components/HeadingPass.astro';
+import Board from '../components/Board.astro';
+import Cell from '../components/Cell.astro';
+import Disclaimer from '../components/Disclaimer.astro';
+import CompactMembership from '../components/CompactMembership.astro';
+import PageScene from '../components/PageScene.astro';
+import Picture from '../components/Picture.astro';
+import Knot from '../components/kit/Knot.astro';
+import Icon from '../components/kit/Icon.astro';
+import WeftPass from '../components/kit/WeftPass.astro';
+import ThreadStrip from '../components/kit/ThreadStrip.astro';
+import { t, fmt, THREADS } from '../lib/copy';
+import { brief } from '../lib/longform';
+import { file, ALT } from '../lib/assets';
+interface Props { path: string; }
+const { path } = Astro.props;
+const chips: Record<string, string> = { rates: t('home.pass.chip.rates'), cashback: t('home.pass.chip.cashback'), coupons: t('home.pass.chip.coupons'), seasonal: t('home.pass.chip.seasonal'), paycheck: t('home.pass.chip.paycheck') };
+const members = [
+  { icon: 'rates', name: t('brief.members.rates.name'), text: t('brief.members.rates.text'), thumb: true },
+  { icon: 'coupons', name: t('brief.members.saved.name'), text: t('brief.members.saved.text') },
+  { icon: 'archive', name: t('brief.members.archive.name'), text: t('brief.members.archive.text') },
+  { icon: 'texts', name: t('brief.members.texts.name'), text: t('brief.members.texts.text') },
+  { icon: 'goals', name: t('brief.members.goals.name'), text: t('brief.members.goals.text') }
+];
+const thumb = file('product.today-desktop');
+const yesterday = brief.yesterday.items;
+---
+<Layout title={t('head.brief.title')} description={t('head.brief.meta')} route={path} hover="tighten">
+  <section class="heading-pass has-photo brief-header" id="brief-header" data-entrance="datechip" aria-labelledby="brief-date">
+    <div class="heading-pass__photo"><Picture slot="photo.todays-pass-heading" sizes="100vw" decorative graded={false} loading="eager" /></div>
+    <h1 class="heading-pass__title brief-header__date" id="brief-date" data-tighten>{t('brief.header.date')}</h1>
+    <p class="brief-header__published"><span class="chip is-on brief-header__chip" aria-label={t('brief.header.published')}>{t('brief.header.published')}</span></p>
+    <div class="heading-pass__weft"><WeftPass /></div>
+  </section>
+  <section class="pass brief-disclaimer" id="brief-disclaimer" aria-label={t('global.brand')}>
+    <div class="brief-disclaimer__inner span-full"><Disclaimer id="disclaimer-brief" /></div>
+  </section>
+
+  <section class="pass brief-framing" id="brief-framing" data-entrance="weft-right">
+    <p class="brief-framing__text standfirst span-4">{t('brief.items.framing')}</p>
+  </section>
+  <Board id="brief-items" cells={5} entrance="pop" stagger={60} strip={false} label={t('brief.items.framing')} class="brief-items">
+    <div class="brief-items__scene span-full"><PageScene kind="brief-weft" height="56px" data-columns="5" /></div>
+    {brief.today.items.map((item) => (
+      <Cell thread={item.key as any} class="brief-item">
+        <h3 class="brief-item__headline hv">{item.headline}</h3>
+        <p class="brief-item__summary">{item.summary}</p>
+        <button class="chip brief-item__chip" type="button" aria-disabled="true" data-inert-chip title={fmt('home.pass.chip.tip.pattern', { chip: chips[item.key] })}>{chips[item.key]}</button>
+      </Cell>
+    ))}
+    <p class="brief-items__note small muted span-full">{t('brief.items.chip.note')}</p>
+  </Board>
+
+  <HeadingPass title={t('brief.members.heading')} id="brief-members-heading" entrance="stitch" />
+  <Board id="brief-members" cells={5} entrance="icons" strip={true} label={t('brief.members.heading')} class="brief-members">
+    {members.map((m, i) => (
+      <div class="cell brief-member ent-item" style={`--i:${i}`}>
+        <h3 class="cell-head brief-member__head"><Icon name={m.icon} size={18} class="brief-member__icon" />{m.name}</h3>
+        {m.thumb && <a class="brief-member__thumb" href="/#dashboard"><img src={thumb} width="96" height="60" alt={ALT['product.today-desktop']} loading="lazy" decoding="async" /></a>}
+        <p class="brief-member__text">{m.text}</p>
+      </div>
+    ))}
+  </Board>
+
+  <section class="board pass brief-yesterday" id="brief-yesterday" data-entrance="slide" aria-labelledby="brief-yesterday-label">
+    <div class="brief-yesterday__head span-full">
+      <h2 class="brief-yesterday__label" id="brief-yesterday-label">{t('brief.yesterday.label')}</h2>
+      <p class="brief-yesterday__hint small muted" id="brief-yesterday-hint">{t('brief.yesterday.hover')}</p>
+    </div>
+    <div class="brief-yesterday__strip span-full" data-ypass>
+      <span class="brief-yesterday__thread" aria-hidden="true"></span>
+      <ul class="brief-yesterday__knots" aria-describedby="brief-yesterday-hint">
+        {yesterday.map((item, i) => (
+          <li class="brief-yesterday__knot ent-item" style={`--i:${i}`}>
+            <button class="brief-yesterday__button" type="button" aria-label={fmt('brief.yesterday.knot.aria.pattern', { thread: item.thread, headline: item.headline })} aria-expanded="false" aria-controls="brief-yesterday-detail" data-ypass-knot={i}>
+              <Knot size={28} />
+              <span class="brief-yesterday__name">{item.thread}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div class="brief-yesterday__detail span-full" id="brief-yesterday-detail" role="region" aria-live="polite" aria-labelledby="brief-yesterday-label" data-ypass-detail>
+      {yesterday.map((item, i) => (
+        <div class="brief-yesterday__item" data-ypass-item={i} hidden>
+          <p class="cell-head"><Knot size={16} />{item.thread}</p>
+          <h3 class="brief-yesterday__headline hv">{item.headline}</h3>
+          <p>{item.summary}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <CompactMembership line={t('brief.compact.line')} entrance="weft-left" />
+</Layout>
+<style is:global>
+  .brief-header { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .brief-header__date { grid-column: 1 / span 4; font-size: var(--fs-h2); font-weight: 700; }
+  .brief-header__published { grid-column: 5; justify-self: end; align-self: end; }
+  .brief-header__chip { cursor: default; font-size: var(--fs-label); }
+  .brief-disclaimer { background: var(--white); padding-block: clamp(14px, 1.4vw, 22px); border-bottom: 1px solid var(--butter-deep); margin-bottom: var(--reveal); }
+  .brief-disclaimer__inner { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
+  .brief-framing { padding-block: 0 clamp(12px, 1.4vw, 20px); }
+  .brief-framing__text { color: var(--indigo-deep); }
+  .brief-items__scene { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
+  .brief-item__headline { font-family: var(--font-ui); font-size: var(--fs-body); font-weight: 700; color: var(--ink); line-height: 1.35; }
+  .brief-item__chip[aria-disabled="true"] { cursor: help; }
+  .brief-item__chip.is-pressed { transition: none; }
+  .brief-items__note { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); padding-top: 6px; }
+  .brief-member__thumb { display: inline-block; border: 1px solid var(--hairline); border-radius: 6px; overflow: hidden; background: var(--butter-pale); line-height: 0; align-self: flex-start; }
+  .brief-member__thumb img { width: 96px; height: 60px; object-fit: cover; object-position: top; display: block; }
+  .brief-yesterday { row-gap: var(--gap); }
+  .brief-yesterday__head { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 20px; }
+  .brief-yesterday__label { font-size: var(--fs-h3); font-weight: 700; }
+  .brief-yesterday__strip { position: relative; padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
+  .brief-yesterday__thread { position: absolute; left: var(--cell-pad, clamp(16px, 1.4vw, 28px)); right: var(--cell-pad, clamp(16px, 1.4vw, 28px)); top: 22px; height: 2px; background: var(--muted); opacity: 0.5; }
+  .brief-yesterday__knots { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: var(--gap); position: relative; }
+  .brief-yesterday__button { display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 44px; min-width: 44px; padding: 8px 6px; color: var(--muted); border-radius: 6px; transition: color var(--dur-fast) var(--ease-shuttle), transform var(--dur-base) var(--ease-knot); }
+  .brief-yesterday__button .knot { background: var(--white); border-radius: 50%; transition: transform var(--dur-base) var(--ease-knot); }
+  .brief-yesterday__button:hover, .brief-yesterday__button:focus-visible, .brief-yesterday__button[aria-expanded="true"] { color: var(--indigo); }
+  .brief-yesterday__button:hover .knot, .brief-yesterday__button:focus-visible .knot, .brief-yesterday__button[aria-expanded="true"] .knot { transform: scale(1.12); }
+  .brief-yesterday__button:active .knot { transform: scale(0.94); }
+  .brief-yesterday__name { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-cell-head); }
+  .brief-yesterday__detail { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); min-height: 3.2em; }
+  .brief-yesterday__item { display: flex; flex-direction: column; gap: 6px; }
+  .brief-yesterday__headline { font-family: var(--font-ui); font-size: var(--fs-body); font-weight: 700; color: var(--ink); }
+  .brief-yesterday__item[data-in] { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) both; }
+
+  /* entrances built from the primitives: datechip (the date tightens and the chip pops), icons (the cell heads' icons draw, the text fades in the clip), slide (the knots slide in along the thread from the right) */
+  [data-entrance="datechip"] .brief-header__chip { transform: scale(0.6); opacity: 0; transform-origin: 50% 50%; }
+  [data-entrance="datechip"].is-in .brief-header__chip { animation: sb-knots var(--dur-base) var(--ease-knot) 0.4s both; }
+  [data-entrance="icons"] .ent-item .brief-member__icon :is(path, circle, line, polyline, rect) { stroke-dasharray: 80; stroke-dashoffset: 80; }
+  [data-entrance="icons"] .ent-item .brief-member__text, [data-entrance="icons"] .ent-item .brief-member__thumb { opacity: 0; clip-path: inset(0 0 100% 0); }
+  [data-entrance="icons"].is-in .ent-item .brief-member__icon :is(path, circle, line, polyline, rect) { animation: sb-icon-draw var(--dur-slow) var(--ease-shuttle) both; animation-delay: calc(var(--i, 0) * 90ms); }
+  [data-entrance="icons"].is-in .ent-item .brief-member__text, [data-entrance="icons"].is-in .ent-item .brief-member__thumb { animation: sb-fade-clip var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(0.35s + var(--i, 0) * 90ms); }
+  @keyframes sb-icon-draw { to { stroke-dashoffset: 0; } }
+  @keyframes sb-fade-clip { from { opacity: 0; clip-path: inset(0 0 100% 0); } to { opacity: 1; clip-path: inset(0 0 0 0); } }
+  [data-entrance="slide"] .ent-item { opacity: 0; transform: translateX(60px); }
+  [data-entrance="slide"].is-in .ent-item { animation: sb-slide var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(var(--i, 0) * 40ms); }
+  [data-entrance="slide"] .brief-yesterday__thread { transform: scaleX(0); transform-origin: right; }
+  [data-entrance="slide"].is-in .brief-yesterday__thread { transition: transform var(--dur-slow) var(--ease-shuttle); transform: scaleX(1); }
+  @keyframes sb-slide { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    [data-entrance="datechip"] .brief-header__chip, [data-entrance="icons"] .ent-item .brief-member__icon *, [data-entrance="icons"] .ent-item .brief-member__text, [data-entrance="icons"] .ent-item .brief-member__thumb, [data-entrance="slide"] .brief-yesterday__thread, .brief-yesterday__item[data-in] { animation: none !important; opacity: 1 !important; transform: none !important; clip-path: none !important; stroke-dashoffset: 0 !important; transition: none !important; }
+  }
+  :root[data-motion="reduced"] :is([data-entrance="datechip"] .brief-header__chip, [data-entrance="icons"] .ent-item .brief-member__icon *, [data-entrance="icons"] .ent-item .brief-member__text, [data-entrance="icons"] .ent-item .brief-member__thumb, [data-entrance="slide"] .brief-yesterday__thread, .brief-yesterday__item[data-in]) { animation: none !important; opacity: 1 !important; transform: none !important; clip-path: none !important; stroke-dashoffset: 0 !important; transition: none !important; }
+
+  @media (max-width: 1279px) {
+    /* the scene fills the spare track beside cells four and five (0.2), where a row's thread strip would sit */
+    .board[data-cells="5"] > .brief-items__scene { grid-row: 2; grid-column: 3; align-self: center; padding-inline: 0; }
+    .brief-header { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .brief-header__date { grid-column: 1 / span 2; }
+    .brief-header__published { grid-column: 3; }
+    .brief-framing__text { grid-column: 1 / -1; }
+  }
+  @media (max-width: 1023px) {
+    .board[data-cells="5"] > .brief-items__scene { grid-row: auto; grid-column: 1 / -1; padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
+    .brief-header { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .brief-header__date { grid-column: 1 / -1; }
+    .brief-header__published { grid-column: 1 / -1; justify-self: start; }
+  }
+  @media (max-width: 767px) {
+    .brief-header { grid-template-columns: minmax(0, 1fr); }
+    .brief-header__date { font-size: clamp(28px, 8.5vw, 36px); }
+    .brief-yesterday__knots { column-gap: 4px; }
+    .brief-yesterday__name { font-size: 12px; }
+    .brief-disclaimer__inner, .brief-items__note, .brief-items__scene, .brief-yesterday__head, .brief-yesterday__strip, .brief-yesterday__detail { padding-inline: 16px; }
+    .brief-yesterday__thread { left: 16px; right: 16px; }
+  }
+</style>
+<script>
+  import { motionReduced } from '../scripts/ease';
+  // the chips are inert on the public route: press feedback plays, nothing else happens
+  document.querySelectorAll<HTMLButtonElement>('[data-inert-chip]').forEach((chip) => {
+    chip.addEventListener('click', (e) => {
+      e.preventDefault();
+      chip.classList.add('is-pressed');
+      setTimeout(() => chip.classList.remove('is-pressed'), 380);
+    });
+  });
+  // yesterday's pass: hover, tap or focus a knot to read what it said
+  const strip = document.querySelector<HTMLElement>('[data-ypass]');
+  const detail = document.querySelector<HTMLElement>('[data-ypass-detail]');
+  if (strip && detail) {
+    const knots = Array.from(strip.querySelectorAll<HTMLButtonElement>('[data-ypass-knot]'));
+    const items = Array.from(detail.querySelectorAll<HTMLElement>('[data-ypass-item]'));
+    let open = -1;
+    const show = (i: number) => {
+      open = i;
+      knots.forEach((k, j) => k.setAttribute('aria-expanded', j === i ? 'true' : 'false'));
+      items.forEach((it, j) => {
+        const on = j === i;
+        if (on && it.hidden) { it.hidden = false; if (!motionReduced()) { it.removeAttribute('data-in'); void it.offsetWidth; it.setAttribute('data-in', ''); } }
+        else if (!on) it.hidden = true;
+      });
+    };
+    knots.forEach((k, i) => {
+      k.addEventListener('pointerenter', (e) => { if ((e as PointerEvent).pointerType === 'mouse') show(i); });
+      k.addEventListener('focus', () => show(i));
+      k.addEventListener('click', () => show(open === i ? -1 : i));
+    });
+  }
+</script>

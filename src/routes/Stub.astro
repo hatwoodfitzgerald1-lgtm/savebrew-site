@@ -1,0 +1,15 @@
+---
+// A stub route: renders the global chrome and one line so the catch all resolves every planned path before
+// its page agent lands the real page. Replace the entry in src/routes/index.ts with the finished component.
+import Layout from '../layouts/Layout.astro';
+import HeadingPass from '../components/HeadingPass.astro';
+import { t } from '../lib/copy';
+interface Props { path: string; name: string; title: string; description: string; noindex?: boolean; status?: number; }
+const { path, name, title, description, noindex = false } = Astro.props;
+---
+<Layout title={title} description={description} route={path} noindex={noindex}>
+  <HeadingPass title={name} id="stub" />
+  <section class="board pass" id="stub-board">
+    <div class="cell span-2"><p>{t('add.stub.coming')}</p><p class="muted small">{path}</p></div>
+  </section>
+</Layout>
