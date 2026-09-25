@@ -24,23 +24,23 @@ html.no-scroll-timeline [data-entrance="weft-right"]:not(.is-in) { clip-path: in
 html.no-scroll-timeline [data-entrance^="weft"].is-in { clip-path: inset(0 0 0 0); }
 
 /* dock: the items rise and settle onto their warp positions (Knot), staggered */
-[data-entrance="dock"] .ent-item { opacity: 0; transform: translateY(28px); }
+:where(html.sb-motion) [data-entrance="dock"] .ent-item { opacity: 0; transform: translateY(28px); }
 [data-entrance="dock"].is-in .ent-item { animation: sb-dock var(--dur-base) var(--ease-knot) both; animation-delay: calc(var(--i, 0) * var(--stagger, 60ms)); }
 @keyframes sb-dock { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
 
 /* knots: items tie in one by one (a scale with the Knot overshoot), row by row */
-[data-entrance="knots"] .ent-item { opacity: 0; transform: scale(0.6); transform-origin: 50% 50%; }
+:where(html.sb-motion) [data-entrance="knots"] .ent-item { opacity: 0; transform: scale(0.6); transform-origin: 50% 50%; }
 [data-entrance="knots"].is-in .ent-item { animation: sb-knots var(--dur-base) var(--ease-knot) both; animation-delay: calc(var(--i, 0) * var(--stagger, 40ms)); }
 @keyframes sb-knots { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
 
 /* stitch: the section's stitches draw first (the selvedge, the weft pass, the field underlines), then the items follow */
-[data-entrance="stitch"] .ent-item { opacity: 0; }
+:where(html.sb-motion) [data-entrance="stitch"] .ent-item { opacity: 0; }
 [data-entrance="stitch"].is-in .ent-item { animation: sb-fade var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(0.4s + var(--i, 0) * var(--stagger, 50ms)); }
 @keyframes sb-fade { from { opacity: 0; } to { opacity: 1; } }
 
 /* pop: the knots pop (Knot) then the text wipes in beside them (Shuttle) */
-[data-entrance="pop"] .ent-item { clip-path: inset(0 100% 0 0); }
-[data-entrance="pop"] .ent-item .knot { transform: scale(0); transform-origin: 50% 50%; }
+:where(html.sb-motion) [data-entrance="pop"] .ent-item { clip-path: inset(0 100% 0 0); }
+:where(html.sb-motion) [data-entrance="pop"] .ent-item .knot { transform: scale(0); transform-origin: 50% 50%; }
 [data-entrance="pop"].is-in .ent-item { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(0.2s + var(--i, 0) * var(--stagger, 60ms)); }
 [data-entrance="pop"].is-in .ent-item .knot { animation: sb-pop var(--dur-base) var(--ease-knot) both; animation-delay: calc(var(--i, 0) * var(--stagger, 60ms)); }
 @keyframes sb-pop { from { transform: scale(0); } to { transform: scale(1); } }
