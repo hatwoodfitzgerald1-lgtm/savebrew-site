@@ -1,0 +1,116 @@
+---
+// The heading band (6.1, Art Direction 3.5 and 3.23): an opaque white weft band, 84px at 1440 (64px at 375),
+// full width with the gutter padding, a deep butter 1px lower edge, hiding on scroll down and returning on
+// scroll up. Left: the knot mark and wordmark linking home. Then the destination links in Manrope 600, the
+// active one at weight 800 with no marker glyph. Right: About, Contact, Sign in, the spool cart glyph with its
+// stitched count, and the compact Bobbin (white fill, indigo stitch). Phone widths: the wordmark, the cart,
+// a Membership link and the Menu control, with the menu as a full height white sheet.
+import { t } from '../lib/copy';
+import lockupRaw from '../../public/assets/brand/logo/savebrew-primary-currentcolor.svg?raw';
+import { inlineSvg } from '../lib/svg';
+import Spool from './kit/Spool.astro';
+import Bobbin from './Bobbin.astro';
+import MotionControl from './MotionControl.astro';
+interface Props { route?: string; }
+const { route = '/' } = Astro.props;
+const lockup = inlineSvg(lockupRaw, { class: 'band__lockup', height: 24, label: t('global.wordmark.alt') });
+const links = [
+  { href: '/brief', label: t('footer.col.1.link.brief') },
+  { href: '/membership', label: t('nav.membership') },
+  { href: '/roundup', label: t('nav.roundup') },
+  { href: '/guides', label: t('nav.guides') },
+  { href: '/your-moves', label: t('nav.moves') }
+];
+const right = [
+  { href: '/about', label: t('nav.about') },
+  { href: '/contact', label: t('nav.contact') },
+  { href: '/sign-in', label: t('nav.signin'), signin: true }
+];
+const isActive = (href: string) => route === href || (href !== '/' && route.startsWith(href + '/'));
+---
+<header class="band" data-band>
+  <div class="band__inner">
+    <a class="band__home" href="/"><Fragment set:html={lockup} /></a>
+    <nav class="band__nav" aria-label="Site">
+      <ul class="band__links">
+        {links.map((l) => <li><a class:list={['band__link', isActive(l.href) ? 'is-active' : '']} href={l.href} aria-current={isActive(l.href) ? 'page' : undefined}>{l.label}</a></li>)}
+      </ul>
+    </nav>
+    <div class="band__right">
+      <ul class="band__links band__links--right">
+        {right.map((l) => <li><a class:list={['band__link', isActive(l.href) ? 'is-active' : '']} href={l.href} aria-current={isActive(l.href) ? 'page' : undefined} data-signin-link={l.signin ? '' : undefined}>{l.label}</a></li>)}
+      </ul>
+      <a class="band__membership" href="/membership">{t('nav.membership')}</a>
+      <button class="band__cart" type="button" data-cart-open aria-label={t('nav.cart.aria.empty')} data-aria-empty={t('nav.cart.aria.empty')} data-aria-pattern={t('nav.cart.aria.pattern')}>
+        <Spool size={24} />
+        <span class="band__count is-empty" data-cart-count aria-hidden="true">0</span>
+        <span class="sr-only">{t('nav.cart.label')}</span>
+      </button>
+      <div class="band__cta"><Bobbin label={t('nav.cta.compact')} sku="SB101" variant="secondary" compact /></div>
+      <button class="band__menu" type="button" data-menu-open aria-expanded="false" aria-controls="site-menu">{t('nav.menu.open')}</button>
+    </div>
+  </div>
+</header>
+  <div class="menu" id="site-menu" data-menu hidden tabindex="-1" role="dialog" aria-modal="true" aria-label={t('nav.menu.open')}>
+  <div class="menu__inner">
+    <ul class="menu__links">
+      <li><a href="/">{t('add.stub.home')}</a></li>
+      {links.map((l) => <li><a href={l.href} aria-current={isActive(l.href) ? 'page' : undefined}>{l.label}</a></li>)}
+      {right.map((l) => <li><a href={l.href} aria-current={isActive(l.href) ? 'page' : undefined} data-signin-link={l.signin ? '' : undefined}>{l.label}</a></li>)}
+    </ul>
+    <MotionControl id="motion-control-menu" class="menu__motion" />
+    <address class="menu__address">{t('footer.address.entity')}, {t('footer.address.street')}, {t('footer.address.city')}. <a href={t('footer.phone.href')}>{t('footer.phone')}</a>, <a href={`mailto:${t('footer.email')}`}>{t('footer.email')}</a></address>
+    <button class="menu__close" type="button" data-menu-close>{t('nav.menu.close')}</button>
+  </div>
+</div>
+
+<style is:global>
+  .band { position: sticky; top: 0; z-index: 40; width: 100%; height: var(--band-h); background: var(--white); border-bottom: 1px solid var(--butter-deep); transition: transform var(--dur-base) var(--ease-shuttle); will-change: transform; }
+  .band.is-hidden { transform: translateY(-100%); }
+  body.menu-open .band, body.cart-open .band { transform: none; }
+  .band__inner { height: 100%; width: 100%; padding-inline: var(--gutter); display: flex; align-items: center; gap: clamp(16px, 2vw, 40px); }
+  .band__home { display: inline-flex; align-items: center; color: var(--indigo); text-decoration: none; flex: none; }
+  .band__lockup { height: 24px; width: auto; display: block; }
+  .band__nav { flex: 1 1 auto; min-width: 0; }
+  .band__links { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; gap: clamp(12px, 1.6vw, 28px); }
+  .band__link { font-weight: 600; font-size: 15px; color: var(--ink); text-decoration: none; font-variation-settings: "wght" 600; transition: font-variation-settings var(--dur-base) var(--ease-knot), color var(--dur-fast) var(--ease-shuttle); white-space: nowrap; display: inline-block; padding: 10px 0; }
+  .band__link.is-active { font-weight: 800; font-variation-settings: "wght" 800; color: var(--indigo); }
+  .band__link:hover, .band__link:focus-visible { color: var(--indigo); font-variation-settings: "wght" 800; }
+  .band__right { display: flex; align-items: center; gap: clamp(12px, 1.4vw, 24px); margin-left: auto; flex: none; }
+  .band__membership, .band__menu { display: none; }
+  .band__cart { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; color: var(--indigo); border-radius: 4px; transition: transform var(--dur-fast) var(--ease-knot); }
+  .band__cart:hover .icon, .band__cart:focus-visible .icon { transform: rotate(-8deg); }
+  .band__cart .icon { transition: transform var(--dur-base) var(--ease-knot); }
+  .band__cart:active { transform: scale(0.94); }
+  .band__count { position: absolute; top: 2px; right: 0; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; background: var(--indigo); color: var(--butter); font-size: 11px; font-weight: 800; line-height: 18px; text-align: center; outline: 1.5px dashed var(--butter); outline-offset: -3px; transition: transform var(--dur-base) var(--ease-knot); }
+  .band__count.is-empty { transform: scale(0); }
+  .band__cta { flex: none; }
+  /* the mobile menu: a full height white sheet with a weft pass wipe from the right */
+  .menu { position: fixed; inset: var(--band-h) 0 0 0; z-index: 45; background: var(--white); overflow: auto; clip-path: inset(0 0 0 100%); transition: clip-path var(--dur-base) var(--ease-shuttle); }
+  .menu.is-open { clip-path: inset(0 0 0 0); }
+  .menu[hidden] { display: none; }
+  .menu__inner { padding: 24px var(--gutter) 40px; display: flex; flex-direction: column; gap: 20px; }
+  .menu__links { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .menu__links a { display: block; padding: 12px 0; font-family: var(--font-display); font-weight: 700; font-size: 28px; color: var(--indigo); text-decoration: none; border-bottom: 1px solid var(--butter-deep); }
+  .menu__links a[aria-current="page"] { font-weight: 800; }
+  .menu__address { font-size: var(--fs-label); color: var(--muted); line-height: 1.5; }
+  .menu__close { align-self: flex-start; font-weight: 700; color: var(--indigo); padding: 12px 0; text-decoration: underline; }
+  @media (max-width: 1279px) {
+    .band__inner { gap: 16px; }
+    .band__links--right { display: none; }
+    .band__menu { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; font-weight: 700; color: var(--indigo); }
+  }
+  @media (max-width: 1023px) {
+    .band__cta { display: none; }
+  }
+  @media (max-width: 767px) {
+    .band__nav { display: none; }
+    .band__membership { display: inline-block; font-weight: 700; font-size: 15px; color: var(--indigo); text-decoration: none; padding: 10px 0; }
+    .band__lockup { height: 22px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .band, .menu, .band__count, .band__link, .band__cart .icon { transition: none; } }
+  :root[data-motion="reduced"] :is(.band, .menu, .band__count, .band__link, .band__cart .icon) { transition: none; }
+</style>
+<script>
+  import '../scripts/header';
+</script>

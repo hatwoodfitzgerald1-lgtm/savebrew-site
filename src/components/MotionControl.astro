@@ -1,0 +1,15 @@
+---
+// The reduce motion control (EXP-007, 6.7): a switch labelled "Reduce motion" with the states On and Off,
+// persisted as savebrew.motion, setting data-motion="reduced" on the root, honoured by every technique.
+import { t } from '../lib/copy';
+interface Props { id?: string; class?: string; }
+const { id = 'motion-control', class: className = '' } = Astro.props;
+---
+<div class:list={['switch', 'motion-control', className]} data-motion-switch data-announce-on={t('motion.announce.on')} data-announce-off={t('motion.announce.off')} data-state-on={t('motion.state.on')} data-state-off={t('motion.state.off')}>
+  <button class="switch__track" type="button" role="switch" aria-checked="false" id={id} aria-labelledby={`${id}-label`}></button>
+  <label class="switch__label" id={`${id}-label`} for={id}>{t('motion.label')}</label>
+  <span class="switch__state" data-motion-state aria-hidden="true">{t('motion.state.off')}</span>
+</div>
+<script>
+  import '../scripts/motion-control';
+</script>

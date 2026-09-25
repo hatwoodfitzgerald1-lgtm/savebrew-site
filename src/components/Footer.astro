@@ -1,0 +1,88 @@
+---
+// The footer (6.2): a destination on the twill, five columns, three rows, no default horizontal rule.
+// Row one: the five link columns. Row two: the Selvedge Seal weaving itself with the seal line and the brand
+// line (columns one to two), the address block, the phone and email, the copyright. Row three: the disclaimer.
+// The reduce motion control sits in column four; the SMS reminder links to the home row (the block is not repeated).
+import { t } from '../lib/copy';
+import Seal from './kit/Seal.astro';
+import Twill from './kit/Twill.astro';
+import MotionControl from './MotionControl.astro';
+import Disclaimer from './Disclaimer.astro';
+const cols = [
+  { heading: t('footer.col.1.heading'), links: [[t('footer.col.1.link.brief'), '/brief'], [t('footer.col.1.link.moves'), '/your-moves'], [t('footer.col.1.link.signin'), '/sign-in']] },
+  { heading: t('footer.col.2.heading'), links: [[t('footer.col.2.link.roundup'), '/roundup'], [t('footer.col.2.link.guides'), '/guides'], [t('footer.col.2.link.rss'), '/roundup/feed.xml']] },
+  { heading: t('footer.col.3.heading'), links: [[t('footer.col.3.link.daily'), '/membership#daily'], [t('footer.col.3.link.two'), '/membership#daily-for-two'], [t('footer.col.3.link.cart'), '/cart']] },
+  { heading: t('footer.col.4.heading'), links: [[t('footer.col.4.link.about'), '/about'], [t('footer.col.4.link.contact'), '/contact'], [t('sms.block.heading'), '/#sms']], motion: true },
+  { heading: t('footer.col.5.heading'), links: [[t('footer.col.5.link.terms'), '/terms'], [t('footer.col.5.link.privacy'), '/privacy']] }
+];
+---
+<Twill tag="footer" class="footer" id="footer">
+  <div class="footer__links pass" data-entrance="weft-left">
+    {cols.map((c) => (
+      <div class="footer__col">
+        <h2 class="footer__heading">{c.heading}</h2>
+        <ul class="footer__list">
+          {c.links.map(([label, href]) => <li><a href={href}>{label}</a></li>)}
+          {c.motion && <li class="footer__motion"><MotionControl id="motion-control-footer" /></li>}
+        </ul>
+      </div>
+    ))}
+  </div>
+  <div class="footer__identity pass">
+    <div class="footer__seal span-2">
+      <Seal size={160} class="footer__seal-svg" />
+      <div class="footer__seal-text">
+        <p class="footer__seal-line" data-seal-line data-weekday={t('footer.seal.line')} data-weekend={t('footer.seal.line.weekend')}>{t('footer.seal.line')}</p>
+        <p class="footer__brand">{t('footer.brand')}</p>
+      </div>
+    </div>
+    <address class="footer__address">
+      <span class="footer__entity">{t('footer.address.entity')}</span><br />
+      {t('footer.address.street')}<br />
+      {t('footer.address.city')}
+    </address>
+    <div class="footer__contact">
+      <a href={t('footer.phone.href')}>{t('footer.phone')}</a><br />
+      <a href={`mailto:${t('footer.email')}`}>{t('footer.email')}</a>
+    </div>
+    <p class="footer__copyright">{t('footer.copyright')}</p>
+  </div>
+  <div class="footer__disclaimer wide">
+    <Disclaimer />
+  </div>
+</Twill>
+<style is:global>
+  .footer { width: 100%; padding-block: clamp(32px, 4vw, 72px) clamp(24px, 3vw, 48px); color: var(--ink); }
+  .footer__links { row-gap: 24px; }
+  .footer__heading { font-family: var(--font-display); font-weight: 600; font-size: 17px; color: var(--indigo-deep); margin-bottom: 10px; }
+  .footer__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .footer__list a { font-size: 15px; color: var(--indigo); }
+  .footer__motion { margin-top: 6px; }
+  .footer__identity { margin-top: clamp(28px, 3.5vw, 56px); row-gap: 20px; align-items: start; }
+  .footer__seal { display: flex; gap: 20px; align-items: flex-start; }
+  .footer__seal-svg { width: 160px; height: 160px; flex: none; }
+  .footer__seal-line { font-family: var(--font-display); font-weight: 700; font-size: clamp(22px, 1.2rem + 0.6 * var(--vwc), 30px); color: var(--indigo); line-height: 1.1; }
+  .footer__brand { margin-top: 8px; color: var(--muted); }
+  .footer__address, .footer__contact { font-size: 15px; line-height: 1.6; }
+  .footer__entity { font-weight: 700; }
+  .footer__copyright { font-size: var(--fs-label); color: var(--muted); }
+  .footer__disclaimer { margin-top: clamp(24px, 3vw, 48px); }
+  @media (max-width: 1279px) { .footer__seal { grid-column: 1 / -1; } }
+  @media (max-width: 767px) {
+    .footer__seal-svg { width: 96px; height: 96px; }
+    .footer__seal { gap: 14px; }
+  }
+</style>
+<script>
+  // the seal line is true on the day it is read: from 6:30 AM Eastern on Friday to 6:30 AM Eastern on Monday it says Monday's pass
+  const el = document.querySelector<HTMLElement>('[data-seal-line]');
+  if (el) {
+    try {
+      const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: 'numeric', minute: 'numeric', hour12: false }).formatToParts(new Date());
+      const get = (t: string) => parts.find((p) => p.type === t)?.value || '';
+      const day = get('weekday'); const mins = Number(get('hour')) * 60 + Number(get('minute'));
+      const weekend = day === 'Sat' || day === 'Sun' || (day === 'Fri' && mins >= 390) || (day === 'Mon' && mins < 390);
+      el.textContent = weekend ? el.dataset.weekend || '' : el.dataset.weekday || '';
+    } catch { /* keep the weekday line */ }
+  }
+</script>

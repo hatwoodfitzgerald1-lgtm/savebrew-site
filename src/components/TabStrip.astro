@@ -1,0 +1,26 @@
+---
+// The five thread tab strip (0.2, 6.1): sticky at 44px under the heading band below 768 on every route.
+// The five tabs are the five threads; tapping one scrolls to that thread's cell in the current row.
+import { t, THREADS } from '../lib/copy';
+import Knot from './kit/Knot.astro';
+---
+<nav class="tabstrip" data-tabstrip aria-label={t('tabstrip.aria')} aria-describedby="tabstrip-hint">
+  <p class="sr-only" id="tabstrip-hint">{t('tabstrip.hint')}</p>
+  <ul class="tabstrip__list">
+    {THREADS.map((th) => (
+      <li><a class="tabstrip__tab" href={`#${th.key}`} data-thread={th.key}><Knot size={12} /><span>{th.name}</span></a></li>
+    ))}
+  </ul>
+</nav>
+<style is:global>
+  .tabstrip { display: none; position: sticky; top: var(--band-h); z-index: 39; height: var(--tabstrip-h); background: var(--white); border-bottom: 1px solid var(--butter-deep); width: 100%; }
+  .tabstrip__list { list-style: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); height: 100%; margin: 0; padding: 0 4px; }
+  .tabstrip__tab { display: flex; align-items: center; justify-content: center; gap: 4px; height: 100%; text-decoration: none; font-family: var(--font-display); font-weight: 600; font-size: 14px; color: var(--indigo-deep); position: relative; }
+  .tabstrip__tab .knot { color: var(--indigo); transition: transform var(--dur-base) var(--ease-knot); }
+  .tabstrip__tab:active .knot, .tabstrip__tab[aria-current="true"] .knot { transform: scale(1.2); }
+  .tabstrip__tab[aria-current="true"] { font-weight: 800; }
+  .tabstrip__tab::after { content: ""; position: absolute; left: 12%; right: 12%; bottom: 0; height: 2px; background: var(--indigo); transform: scaleX(0); transform-origin: left; transition: transform var(--dur-base) var(--ease-shuttle); }
+  .tabstrip__tab[aria-current="true"]::after { transform: scaleX(1); }
+  [data-thread] { scroll-margin-top: calc(var(--band-h) + var(--tabstrip-h) + 12px); }
+  @media (max-width: 767px) { .tabstrip { display: block; } .band.is-hidden ~ .tabstrip, .band.is-hidden + .tabstrip { top: 0; } }
+</style>

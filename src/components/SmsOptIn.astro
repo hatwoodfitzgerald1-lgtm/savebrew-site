@@ -1,0 +1,91 @@
+---
+// The "Join Our SMS List" block, VERBATIM from sms_optin_block.md with only the brand name, the phone, the
+// support email and the /terms and /privacy links substituted (design document 6.3). Both checkboxes are
+// unchecked by default; the consent text ends "Read our Terms and Privacy Policy". On Home it is a full width
+// inline row (heading left, the consent copy across the middle columns, the phone field and control at the
+// right end, the selvedge stitch as the field underline); variant="card" stacks it for the confirmation and
+// the dashboard's Texts card. States and GOV.UK error strings per 6.3 (src/data/add.json). Nothing is sent or stored.
+import { t } from '../lib/copy';
+import Bobbin from './Bobbin.astro';
+import Knot from './kit/Knot.astro';
+interface Props { variant?: 'row' | 'card'; id?: string; class?: string; }
+const { variant = 'row', id = 'sms', class: className = '' } = Astro.props;
+const uid = id;
+const link = (text: string, terms = '/terms', privacy = '/privacy') => {
+  // link the last "Terms" and the last "Privacy Policy" in the verbatim string
+  const tI = text.lastIndexOf('Terms');
+  let out = text.slice(0, tI) + `<a href="${terms}">Terms</a>` + text.slice(tI + 'Terms'.length);
+  const pI = out.lastIndexOf('Privacy Policy');
+  out = out.slice(0, pI) + `<a href="${privacy}">Privacy Policy</a>` + out.slice(pI + 'Privacy Policy'.length);
+  return out;
+};
+const consent1 = link(t('sms.block.consent.1'));
+const consent2 = link(t('sms.block.consent.2'));
+const strings = {
+  sending: t('add.sms.sending'), success: t('add.sms.success'), summary: t('add.sms.error.summary'),
+  phoneEmpty: t('add.sms.error.phone.empty'), phoneFormat: t('add.sms.error.phone.format'),
+  consent1: t('add.sms.error.consent.1'), consent2: t('add.sms.error.consent.2'), system: t('add.sms.error.system'),
+  button: t('sms.block.button')
+};
+---
+<section class:list={['sms', `sms--${variant}`, variant === 'row' ? 'pass' : '', className]} id={id} aria-labelledby={`${uid}-heading`} data-entrance={variant === 'row' ? 'stitch' : undefined} data-entrance-items=".sms__part">
+  <h2 class="sms__heading sms__part" id={`${uid}-heading`}>{t('sms.block.heading')}</h2>
+  <form class="sms__form" data-sms-form novalidate data-strings={JSON.stringify(strings)}>
+    <div class="sms__consent sms__part">
+      <label class="check sms__check">
+        <input type="checkbox" name="consent1" id={`${uid}-consent1`} value="1" />
+        <span set:html={consent1} />
+      </label>
+      <label class="check sms__check">
+        <input type="checkbox" name="consent2" id={`${uid}-consent2`} value="1" />
+        <span set:html={consent2} />
+      </label>
+    </div>
+    <div class="sms__field sms__part">
+      <div class="error-summary sms__summary" role="alert" tabindex="-1" hidden data-sms-summary>
+        <p class="error-summary__title" data-sms-summary-title>{strings.summary}</p>
+        <ul data-sms-summary-list></ul>
+      </div>
+      <div class="field" data-sms-phone-field>
+        <label class="field__label" for={`${uid}-phone`}>{t('add.sms.phone.label')}</label>
+        <div class="field__control">
+          <input class="field__input" type="tel" id={`${uid}-phone`} name="phone" placeholder={t('sms.block.phone.placeholder')} autocomplete="tel" inputmode="tel" aria-describedby={`${uid}-phone-error`} />
+        </div>
+        <p class="field__error" id={`${uid}-phone-error`} hidden data-sms-phone-error><Knot size={14} /><span data-sms-phone-error-text></span></p>
+      </div>
+      <p class="field__error" id={`${uid}-consent-error`} hidden data-sms-consent-error><Knot size={14} /><span data-sms-consent-error-text></span></p>
+      <Bobbin label={strings.button} type="submit" class="sms__submit" data-sms-submit="" />
+    </div>
+    <p class="sms__success" aria-live="polite" role="status" hidden data-sms-success></p>
+  </form>
+</section>
+<style is:global>
+  .sms { width: 100%; background: var(--white); padding-block: clamp(24px, 3vw, 48px); row-gap: 20px; align-items: start; }
+  .sms--row { border-block: 1px solid var(--butter-deep); }
+  .sms__heading { grid-column: 1 / span 1; font-size: var(--fs-h2); font-weight: 700; color: var(--indigo); line-height: 1; }
+  .sms__form { display: contents; }
+  .sms--row .sms__consent { grid-column: 2 / span 3; padding-inline: 0 var(--gap); }
+  .sms--row .sms__field { grid-column: 5 / span 1; display: flex; flex-direction: column; gap: 10px; }
+  .sms__check span { font-size: var(--fs-body); }
+  .sms__submit { align-self: flex-start; }
+  .sms__success { grid-column: 1 / -1; font-weight: 600; color: var(--ink); }
+  .sms__summary { margin-bottom: 4px; }
+  .sms--card { display: flex; flex-direction: column; gap: 16px; padding: 20px; border: 1px solid var(--hairline); border-radius: var(--radius-card); }
+  .sms--card .sms__heading { font-size: var(--fs-h3); }
+  .sms--card .sms__field { display: flex; flex-direction: column; gap: 10px; }
+  @media (max-width: 1279px) {
+    .sms--row .sms__heading { grid-column: 1 / -1; }
+    .sms--row .sms__consent { grid-column: 1 / span 2; padding-inline: 0; }
+    .sms--row .sms__field { grid-column: 3 / span 1; }
+  }
+  @media (max-width: 1023px) {
+    .sms--row .sms__consent { grid-column: 1 / span 1; }
+    .sms--row .sms__field { grid-column: 2 / span 1; }
+  }
+  @media (max-width: 767px) {
+    .sms--row .sms__consent, .sms--row .sms__field { grid-column: 1 / -1; }
+  }
+</style>
+<script>
+  import '../scripts/sms';
+</script>

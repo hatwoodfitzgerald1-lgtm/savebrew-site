@@ -1,0 +1,201 @@
+---
+// THE MEMBERSHIP ROW, "What does it cost?" (Art Direction 3.23 item 3, Offering Spec 10.4, design document 7.1
+// section 3 and 7.3): the Daily spanning columns one to two, the Daily for Two spanning three to four, the fifth
+// column "What's free to read" on the twill with photo.membership-free-column behind it at 30 percent. One card
+// system: name, the one line audience, the price line with both cadence prices and the renewal sentence at the
+// same weight, the arithmetic line, the full inclusion list (eight and eleven, each with its description, marked
+// by the knot), the tax and fees line, the refund line, the Bobbin. A cadence control above the cards (Monthly |
+// Yearly, monthly by default, two toggles that ply together on Knot) changes only the button label and the SKU it
+// adds; both prices stay printed. No badge, no giant numeral, no $0 card, no stepper, no TOTAL line, no price in or
+// under a button. Entrance: the cards wipe in from the left one after the other (Shuttle), the fifth column last,
+// and the cadence toggles click once (Knot). Usage (Home): <MembershipRow />; /membership: <MembershipRow heading={false} />
+// after its own heading pass; interior routes use <CompactMembership> instead, never this row twice on a page.
+import HeadingPass from './HeadingPass.astro';
+import Bobbin from './Bobbin.astro';
+import Picture from './Picture.astro';
+import Twill from './kit/Twill.astro';
+import Seal from './kit/Seal.astro';
+import Knot from './kit/Knot.astro';
+import { t } from '../lib/copy';
+interface Props { compact?: boolean; heading?: boolean; id?: string; class?: string; entrance?: string; }
+const { compact = false, heading = true, id = 'cost', class: className = '', entrance = 'weft-cards' } = Astro.props;
+const rowId = `${id}-row`;
+const inc = (n: number) => ({ name: t(`home.cost.daily.inc.${n}.name`), desc: t(`home.cost.daily.inc.${n}.desc`) });
+const dailyInc = [1, 2, 3, 4, 5, 6, 7, 8].map(inc);
+const twoInc = [...dailyInc, ...[9, 10, 11].map((n) => ({ name: t(`home.cost.two.inc.${n}.name`), desc: t(`home.cost.two.inc.${n}.desc`) }))];
+const cards = [
+  {
+    id: 'daily', key: 'daily', name: t('home.cost.daily.name'), audience: t('home.cost.daily.audience'), price: t('home.cost.daily.price'),
+    arithmetic: t('home.cost.daily.arithmetic'), renewal: t('home.cost.daily.renewal'), label: t('home.cost.daily.inclusions.label'),
+    inclusions: dailyInc, tax: t('home.cost.daily.tax'), refund: t('home.cost.daily.refund'),
+    cta: { monthly: t('home.cost.daily.cta.monthly'), yearly: t('home.cost.daily.cta.yearly') }, sku: { monthly: 'SB101', yearly: 'SB102' }
+  },
+  {
+    id: 'daily-for-two', key: 'two', name: t('home.cost.two.name'), audience: t('home.cost.two.audience'), price: t('home.cost.two.price'),
+    arithmetic: t('home.cost.two.arithmetic'), renewal: t('home.cost.two.renewal'), label: t('home.cost.two.inclusions.label'),
+    inclusions: twoInc, tax: t('home.cost.two.tax'), refund: t('home.cost.two.refund'),
+    cta: { monthly: t('home.cost.two.cta.monthly'), yearly: t('home.cost.two.cta.yearly') }, sku: { monthly: 'SB201', yearly: 'SB202' }
+  }
+] as const;
+---
+{heading && <HeadingPass title={t('home.cost.heading')} id={id} />}
+<Twill tag="section" class={['membership', 'pass', compact ? 'membership--compact' : '', className].filter(Boolean).join(' ')} id={rowId} data-entrance={entrance} data-entrance-items=".membership__part" data-cadence="monthly" aria-label={t('home.cost.heading')}>
+  <div class="membership__cadence membership__part ent-item" style="--i:0" data-cadence-control>
+    <div class="mship-cadence" role="radiogroup" aria-label={t('membership.cadence.aria')}>
+      <svg class="mship-cadence__ply" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path class="mship-cadence__a" d="M0 8 C 25 8, 25 16, 50 16 S 75 8, 100 8" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke" />
+        <path class="mship-cadence__b" d="M0 16 C 25 16, 25 8, 50 8 S 75 16, 100 16" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke" />
+      </svg>
+      <button class="mship-cadence__opt" type="button" role="radio" aria-checked="true" data-cadence-pick="monthly">{t('membership.cadence.monthly')}</button>
+      <button class="mship-cadence__opt" type="button" role="radio" aria-checked="false" data-cadence-pick="yearly">{t('membership.cadence.yearly')}</button>
+      <span class="mship-cadence__fill" aria-hidden="true"></span>
+    </div>
+    <p class="membership__cadence-note">{t('membership.cadence.note')}</p>
+  </div>
+  {cards.map((c, i) => (
+    <article class="membership__card membership__part ent-item span-2" id={c.id} style={`--i:${i + 1}`} aria-labelledby={`${c.id}-name`} data-membership={c.key}>
+      <div class="membership__seal"><Seal size={96} animate={true} label="" /></div>
+      <h3 class="membership__name" id={`${c.id}-name`}>{c.name}</h3>
+      <p class="membership__audience">{c.audience}</p>
+      <p class="membership__price">{c.price}</p>
+      <p class="membership__renewal">{c.renewal}</p>
+      <p class="membership__arithmetic">{c.arithmetic}</p>
+      <p class="membership__label">{c.label}</p>
+      <ul class="membership__list">
+        {c.inclusions.map((item) => (
+          <li class="membership__item"><Knot size={16} class="membership__knot" /><span><strong class="membership__item-name">{item.name}</strong> {item.desc}</span></li>
+        ))}
+      </ul>
+      <div class="membership__terms">
+        <p class="membership__tax">{c.tax}</p>
+        <p class="membership__refund">{c.refund}</p>
+      </div>
+      <div class="membership__cta">
+        <Bobbin label={c.cta.monthly} sku={c.sku.monthly} data-label-monthly={c.cta.monthly} data-label-yearly={c.cta.yearly} data-sku-monthly={c.sku.monthly} data-sku-yearly={c.sku.yearly} data-cadence-bobbin="" />
+      </div>
+    </article>
+  ))}
+  <aside class="membership__free membership__part ent-item" style="--i:3" aria-labelledby={`${rowId}-free`}>
+    <div class="membership__free-photo"><Picture slot="photo.membership-free-column" sizes="(max-width: 767px) 100vw, 20vw" decorative /></div>
+    <h3 class="membership__free-heading" id={`${rowId}-free`}>{t('home.cost.free.heading')}</h3>
+    <p class="membership__free-line">{t('home.cost.free.line')}</p>
+    <ul class="membership__free-links">
+      <li><a href="/roundup">{t('home.cost.free.link.roundup')}</a></li>
+      <li><a href="/guides">{t('home.cost.free.link.guides')}</a></li>
+      <li><a href="/your-moves">{t('home.cost.free.link.moves')}</a></li>
+    </ul>
+  </aside>
+</Twill>
+<style is:global>
+  .membership { padding-block: clamp(24px, 3vw, 48px); row-gap: var(--gap); align-items: stretch; }
+  .membership__cadence { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+  .membership__cadence-note { font-size: var(--fs-label); color: var(--muted); }
+  /* the cadence control: two options over two threads that ply (cross) when the pick changes, an indigo fill sliding under the pick */
+  .mship-cadence { position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; border: 1.5px solid var(--indigo); border-radius: 4px; overflow: hidden; background: var(--white); isolation: isolate; color: var(--indigo); }
+  .mship-cadence__opt { position: relative; z-index: 2; min-height: 44px; min-width: 112px; padding: 0 18px; font-weight: 700; color: var(--indigo); background: transparent; transition: color var(--dur-base) var(--ease-knot); }
+  .mship-cadence__opt[aria-checked="true"] { color: var(--butter); }
+  .mship-cadence__opt:focus-visible { outline-offset: -4px; box-shadow: none; }
+  .mship-cadence__fill { position: absolute; top: 0; bottom: 0; left: 0; width: 50%; background: var(--indigo); z-index: 0; transition: transform var(--dur-base) var(--ease-knot); }
+  .mship-cadence__ply { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.55; transition: transform var(--dur-base) var(--ease-knot); transform-origin: 50% 50%; pointer-events: none; }
+  .mship-cadence__b { opacity: 0.5; }
+  .membership[data-cadence="yearly"] .mship-cadence__fill { transform: translateX(100%); }
+  .membership[data-cadence="yearly"] .mship-cadence__ply { transform: scaleY(-1); }
+  .mship-cadence.is-clicking .mship-cadence__ply { animation: sb-ply var(--dur-base) var(--ease-knot) 1; }
+  @keyframes sb-ply { 0% { transform: scaleY(1); } 50% { transform: scaleY(-1); } 100% { transform: scaleY(1); } }
+  .membership[data-cadence="yearly"] .mship-cadence.is-clicking .mship-cadence__ply { animation-name: sb-ply-y; }
+  @keyframes sb-ply-y { 0% { transform: scaleY(-1); } 50% { transform: scaleY(1); } 100% { transform: scaleY(-1); } }
+  /* the cards: the same radius, hairline and type as the dashboard cards (10.4) */
+  .membership__card { position: relative; background: var(--white); border-radius: var(--radius-card); box-shadow: 0 0 0 1px var(--hairline); padding: clamp(20px, 1.8vw, 32px); display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .membership__seal { position: absolute; top: 16px; right: 16px; width: 96px; height: 96px; }
+  .membership__seal .seal { width: 96px; height: 96px; }
+  .membership__name { font-size: var(--fs-h3); font-weight: 700; color: var(--indigo); padding-right: 112px; }
+  .membership__audience { color: var(--ink); padding-right: 112px; }
+  .membership__price { font-family: var(--font-ui); font-size: var(--fs-h3); font-weight: 700; color: var(--ink); padding-right: 112px; margin-top: 4px; }
+  .membership__renewal { font-weight: 700; color: var(--ink); }
+  .membership__arithmetic { color: var(--muted); }
+  .membership__label { font-weight: 700; margin-top: 8px; }
+  .membership__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .membership__item { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 8px; align-items: start; }
+  .membership__item .knot { margin-top: 3px; color: var(--indigo); }
+  .membership__item-name { font-weight: 700; }
+  .membership__terms { margin-top: 8px; columns: 26ch; column-gap: var(--gap); font-size: var(--fs-label); color: var(--muted); }
+  .membership__terms > p { break-inside: avoid; }
+  .membership__terms > p + p { margin-top: 8px; }
+  .membership__tax, .membership__refund { font-size: var(--fs-label); color: var(--muted); }
+  /* the inclusion list runs in two columns on wide screens so the measure stays under 55 characters */
+  @media (min-width: 1700px) { .membership__list { display: block; columns: 2; column-gap: var(--gap); } .membership__item { break-inside: avoid; margin-bottom: 8px; } }
+  .membership__cta { margin-top: auto; padding-top: 12px; }
+  /* the fifth column: the free reading, on the twill, the photo behind it at 30 percent */
+  .membership__free { position: relative; isolation: isolate; display: flex; flex-direction: column; gap: 12px; padding: clamp(14px, 1.2vw, 26px) clamp(12px, 1vw, 24px); min-width: 0; border-radius: var(--radius-card); overflow: hidden; }
+  .membership__free-photo { position: absolute; inset: 0; z-index: -1; opacity: 0.3; }
+  .membership__free-photo .picture, .membership__free-photo picture, .membership__free-photo img { width: 100%; height: 100%; }
+  .membership__free-photo .picture { background: transparent; }
+  .membership__free-heading { font-size: var(--fs-h3); font-weight: 700; color: var(--indigo); }
+  .membership__free-line { color: var(--ink); }
+  .membership__free-links { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .membership__free-links a { font-weight: 700; }
+  .membership--compact { padding-block: clamp(18px, 2vw, 32px); }
+  .membership--compact .membership__card { padding: clamp(16px, 1.4vw, 24px); gap: 8px; }
+  .membership--compact .membership__item, .membership--compact .membership__arithmetic { font-size: var(--fs-label); }
+  /* entrance: the cadence control, then the cards, then the free column wipe in from the left; the toggles click once */
+  [data-entrance="weft-cards"] .membership__part { clip-path: inset(0 100% 0 0); }
+  [data-entrance="weft-cards"].is-in .membership__part { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(var(--i, 0) * 180ms); }
+  [data-entrance="weft-cards"].is-in .mship-cadence__ply { animation: sb-ply var(--dur-base) var(--ease-knot) 0.7s 1; }
+  /* collapse (0.2): two rows from 1279 down, the free column across the foot; one column below 768 */
+  @media (max-width: 1279px) {
+    .membership { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .membership__card { grid-column: span 1; }
+    .membership__free { grid-column: 1 / -1; }
+  }
+  @media (max-width: 767px) {
+    .membership { grid-template-columns: minmax(0, 1fr); }
+    .membership__card, .membership__free { grid-column: 1 / -1; }
+    .membership__seal { width: 64px; height: 64px; }
+    .membership__seal .seal { width: 64px; height: 64px; }
+    .membership__name, .membership__audience, .membership__price { padding-right: 76px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .membership__part { clip-path: none !important; animation: none !important; }
+    .mship-cadence__fill, .mship-cadence__ply, .mship-cadence__opt { transition: none; animation: none !important; }
+  }
+  :root[data-motion="reduced"] .membership__part { clip-path: none !important; animation: none !important; }
+  :root[data-motion="reduced"] :is(.mship-cadence__fill, .mship-cadence__ply, .mship-cadence__opt) { transition: none; animation: none !important; }
+</style>
+<script>
+  // The cadence control: Monthly | Yearly (a radiogroup on Knot). It changes only each card's Bobbin label and the
+  // SKU it adds (SB101 <-> SB102, SB201 <-> SB202); both prices stay printed. Arrow keys move the pick.
+  function init(root: ParentNode = document) {
+    root.querySelectorAll<HTMLElement>('[data-cadence-control]').forEach((ctl) => {
+      if (ctl.dataset.ready) return;
+      ctl.dataset.ready = '1';
+      const row = ctl.closest<HTMLElement>('.membership');
+      if (!row) return;
+      const group = ctl.querySelector<HTMLElement>('.mship-cadence')!;
+      const opts = Array.from(ctl.querySelectorAll<HTMLButtonElement>('[data-cadence-pick]'));
+      const apply = (cadence: 'monthly' | 'yearly', click = true) => {
+        row.dataset.cadence = cadence;
+        opts.forEach((o) => { const on = o.dataset.cadencePick === cadence; o.setAttribute('aria-checked', on ? 'true' : 'false'); o.tabIndex = on ? 0 : -1; });
+        row.querySelectorAll<HTMLElement>('[data-cadence-bobbin]').forEach((b) => {
+          const label = b.querySelector<HTMLElement>('.bobbin__label');
+          if (label) label.textContent = cadence === 'yearly' ? (b.dataset.labelYearly || '') : (b.dataset.labelMonthly || '');
+          b.dataset.addSku = cadence === 'yearly' ? (b.dataset.skuYearly || '') : (b.dataset.skuMonthly || '');
+        });
+        if (click) { group.classList.remove('is-clicking'); void group.offsetWidth; group.classList.add('is-clicking'); }
+      };
+      opts.forEach((o) => {
+        o.addEventListener('click', () => apply(o.dataset.cadencePick as any));
+        o.addEventListener('keydown', (e) => {
+          if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+          e.preventDefault();
+          const next = o.dataset.cadencePick === 'monthly' ? 'yearly' : 'monthly';
+          apply(next);
+          opts.find((x) => x.dataset.cadencePick === next)?.focus();
+        });
+      });
+      group.addEventListener('animationend', () => group.classList.remove('is-clicking'));
+      apply((row.dataset.cadence as any) || 'monthly', false);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => init()); else init();
+  (window as any).sbMembershipRow = { init };
+</script>

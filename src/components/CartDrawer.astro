@@ -1,0 +1,99 @@
+---
+// The cart drawer (6.5), on every route: opens from the right with a weft pass wipe when a Bobbin adds a
+// membership or the spool glyph is pressed. One membership at a time, quantity fixed at 1: the line, today's
+// charge, the renewal sentence in words, the tax line, the cadence switch (a radiogroup on Knot), Remove, the
+// Bobbin "Go to checkout", and the empty state. Focus moves to the heading; Escape and Close return it.
+// The commerce agent completes the scene (the knot sliding along a thread into the spool) and the /cart page.
+import { t } from '../lib/copy';
+import Bobbin from './Bobbin.astro';
+import Selvedge from './kit/Selvedge.astro';
+const strings = {
+  line: t('cart.line.pattern'), quantity: t('cart.quantity.note'), charge: t('cart.charge.label'),
+  renewalMonthly: t('cart.renewal.monthly.pattern'), renewalYearly: t('cart.renewal.yearly.pattern'), tax: t('cart.tax'),
+  noteMonthly: t('cart.cadence.note.monthly.pattern'), noteYearly: t('cart.cadence.note.yearly.pattern'),
+  added: t('cart.added.pattern'), replaced: t('cart.replace.pattern'), removed: t('cart.removed'),
+  empty: t('cart.empty.line'), emptyLink: t('cart.empty.link')
+};
+---
+<div class="cart-drawer" data-cart-drawer hidden role="dialog" aria-modal="true" aria-labelledby="cart-heading" tabindex="-1" data-strings={JSON.stringify(strings)}>
+  <div class="cart-drawer__scrim" data-cart-close></div>
+  <aside class="cart-drawer__panel">
+    <div class="cart-drawer__head">
+      <h2 class="cart-drawer__heading" id="cart-heading" tabindex="-1">{t('cart.heading')}</h2>
+      <button class="cart-drawer__close" type="button" data-cart-close>{t('cart.close')}</button>
+    </div>
+    <div class="cart-drawer__scene" data-cart-scene data-scene="cart-spool" aria-hidden="true"><canvas></canvas></div>
+    <div class="cart-drawer__body" data-cart-body>
+      <p class="cart-drawer__message small" data-cart-message hidden></p>
+      <div class="cart-drawer__item" data-cart-item hidden>
+        <p class="cart-drawer__line fig" data-cart-line></p>
+        <p class="cart-drawer__note small muted">{strings.quantity}</p>
+        <dl class="cart-drawer__facts">
+          <div><dt>{strings.charge}</dt><dd class="fig" data-cart-charge></dd></div>
+        </dl>
+        <p class="cart-drawer__renewal" data-cart-renewal></p>
+        <p class="cart-drawer__tax small muted">{strings.tax}</p>
+        <fieldset class="cart-drawer__cadence" role="radiogroup" aria-label={t('cart.cadence.aria')}>
+          <legend class="sr-only">{t('cart.cadence.aria')}</legend>
+          <div class="cadence" data-cart-cadence>
+            <button type="button" class="cadence__opt" role="radio" aria-checked="true" data-cadence="monthly">{t('cart.cadence.monthly')}</button>
+            <button type="button" class="cadence__opt" role="radio" aria-checked="false" data-cadence="yearly">{t('cart.cadence.yearly')}</button>
+            <span class="cadence__thread" aria-hidden="true"></span>
+          </div>
+          <p class="cart-drawer__cadence-note small" data-cart-cadence-note aria-live="polite"></p>
+        </fieldset>
+        <div class="cart-drawer__edge"><Selvedge id="cart-drawer-edge" /></div>
+        <div class="cart-drawer__actions">
+          <Bobbin label={t('cart.checkout')} href="/checkout" wide />
+          <button class="cart-drawer__remove" type="button" data-cart-remove>{t('cart.remove')}</button>
+        </div>
+      </div>
+      <div class="cart-drawer__empty" data-cart-empty>
+        <p>{strings.empty}</p>
+        <a class="cart-drawer__empty-link" href="/membership">{strings.emptyLink}</a>
+      </div>
+    </div>
+    <p class="live" aria-live="polite" data-cart-live></p>
+  </aside>
+</div>
+<style is:global>
+  .cart-drawer { position: fixed; inset: 0; z-index: 50; }
+  .cart-drawer[hidden] { display: none; }
+  .cart-drawer__scrim { position: absolute; inset: 0; background: rgba(20, 22, 58, 0.28); opacity: 0; transition: opacity var(--dur-base) var(--ease-shuttle); }
+  .cart-drawer.is-open .cart-drawer__scrim { opacity: 1; }
+  .cart-drawer__panel { position: absolute; top: 0; right: 0; bottom: 0; width: min(100%, 440px); background: var(--white); display: flex; flex-direction: column; clip-path: inset(0 0 0 100%); transition: clip-path var(--dur-base) var(--ease-shuttle); overflow: auto; border-left: 1px solid var(--butter-deep); }
+  .cart-drawer.is-open .cart-drawer__panel { clip-path: inset(0 0 0 0); }
+  .cart-drawer__head { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 12px; }
+  .cart-drawer__heading { font-size: clamp(28px, 2vw, 36px); font-weight: 700; }
+  .cart-drawer__close { font-weight: 700; color: var(--indigo); min-height: 44px; padding: 0 8px; text-decoration: underline; }
+  .cart-drawer__scene { height: 64px; margin: 0 24px; position: relative; overflow: hidden; }
+  .cart-drawer__scene canvas { display: block; width: 100%; height: 100%; }
+  .cart-drawer__message { color: var(--ink); font-weight: 600; padding: 8px 10px; border-left: 2px solid var(--indigo); background: var(--butter-pale); }
+  .cart-drawer__message[hidden] { display: none; }
+  .cart-drawer__body { padding: 8px 24px 24px; display: flex; flex-direction: column; gap: 14px; }
+  .cart-drawer__item { display: flex; flex-direction: column; gap: 12px; }
+  .cart-drawer__item[hidden] { display: none; }
+  .cart-drawer__line { font-size: var(--fs-h3); font-family: var(--font-display); font-weight: 700; color: var(--indigo); }
+  .cart-drawer__facts { display: flex; flex-direction: column; gap: 6px; }
+  .cart-drawer__facts div { display: flex; justify-content: space-between; gap: 12px; }
+  .cart-drawer__facts dt { font-weight: 600; }
+  .cart-drawer__facts dd { margin: 0; }
+  .cart-drawer__cadence { border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  .cadence { position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; border: 1.5px solid var(--indigo); border-radius: 4px; overflow: hidden; background: var(--white); isolation: isolate; }
+  .cadence__opt { min-height: 44px; padding: 0 16px; font-weight: 700; color: var(--indigo); background: transparent; position: relative; z-index: 1; transition: color var(--dur-base) var(--ease-knot); }
+  .cadence__opt[aria-checked="true"] { color: var(--butter); }
+  .cadence__thread { position: absolute; top: 0; bottom: 0; left: 0; width: 50%; background: var(--indigo); z-index: 0; transition: transform var(--dur-base) var(--ease-knot); }
+  .cadence[data-cadence="yearly"] .cadence__thread { transform: translateX(100%); }
+  .cart-drawer__edge { height: 14px; }
+  .cart-drawer__actions { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+  .cart-drawer__remove { color: var(--indigo); font-weight: 600; text-decoration: underline; min-height: 44px; }
+  .cart-drawer__empty { display: flex; flex-direction: column; gap: 10px; }
+  .cart-drawer__empty[hidden] { display: none; }
+  .cart-drawer__empty-link { font-weight: 700; }
+  body.cart-open { overflow: hidden; }
+  @media (prefers-reduced-motion: reduce) { .cart-drawer__panel, .cart-drawer__scrim, .cadence__thread, .cadence__opt { transition: none; } }
+  :root[data-motion="reduced"] :is(.cart-drawer__panel, .cart-drawer__scrim, .cadence__thread, .cadence__opt) { transition: none; }
+</style>
+<script>
+  import '../scripts/cart-drawer';
+</script>

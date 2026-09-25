@@ -1,0 +1,17 @@
+---
+// The PageScene slot: each page mounts one lightweight canvas scene with a named kind (3.7). The scene module
+// lives at src/scripts/scenes/<kind>.ts and exports a default mount(root) that returns a Scene (see base.ts);
+// it is mounted lazily after first paint, paused offscreen and on hidden tabs, disposed on pagehide, and
+// draws its static end state when motion is reduced. The canvas is decorative; content stays in the DOM.
+interface Props { kind: string; class?: string; height?: string; label?: string; [key: `data-${string}`]: string | number | undefined; }
+const { kind, class: className = '', height = '120px', label, ...rest } = Astro.props;
+const data: Record<string, string> = {};
+for (const [k, v] of Object.entries(rest)) if (k.startsWith('data-') && v != null) data[k] = String(v);
+---
+<div class:list={['scene', `scene--${kind}`, className]} data-scene={kind} style={`--scene-h:${height}`} aria-hidden={label ? undefined : 'true'} role={label ? 'img' : undefined} aria-label={label} {...data}>
+  <canvas></canvas>
+</div>
+<style is:global>
+  .scene { position: relative; width: 100%; height: var(--scene-h, 120px); overflow: hidden; }
+  .scene canvas { display: block; width: 100%; height: 100%; }
+</style>

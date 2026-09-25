@@ -1,0 +1,30 @@
+---
+// A real <picture> for a photo slot (IMG-019 crops): the phone crop under 768, the desktop crop above,
+// srcset for the 800 to 2400 renditions, width and height so the box is reserved. Never a placeholder
+// box: when the file has not landed the markup is still emitted for the named paths and the build warns.
+import { picture } from '../lib/assets';
+interface Props {
+  slot: string;
+  alt?: string;
+  sizes?: string;
+  loading?: 'lazy' | 'eager';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  class?: string;
+  graded?: boolean;
+  decorative?: boolean;
+}
+const { slot, alt, sizes = '100vw', loading = 'lazy', fetchpriority, class: className = '', graded = true, decorative = false } = Astro.props;
+const p = picture(slot, alt);
+---
+<div class:list={['picture', graded ? 'graded' : null, className]} data-slot={slot} data-present={p.present ? 'true' : 'false'}>
+  <picture>
+    {p.phoneSrcset && <source media="(max-width: 767px)" type="image/webp" srcset={p.phoneSrcset} sizes={sizes} width={p.phoneWidth} height={p.phoneHeight} />}
+    {p.avif && <source type="image/avif" srcset={p.avif} sizes={sizes} />}
+    <img src={p.src} srcset={p.srcset} sizes={sizes} alt={decorative ? '' : p.alt} width={p.width} height={p.height} loading={loading} decoding="async" fetchpriority={fetchpriority} />
+  </picture>
+</div>
+<style is:global>
+  .picture { position: relative; overflow: hidden; background: var(--butter-pale); }
+  .picture img { width: 100%; height: 100%; object-fit: cover; }
+  .picture[data-present="false"] img { background: var(--butter-pale); }
+</style>

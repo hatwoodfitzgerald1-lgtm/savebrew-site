@@ -1,0 +1,42 @@
+---
+// The compact membership strip on interior routes (6.8): two cards on the twill, each with the name, the price
+// line and the Bobbin, plus that route's own one line and the link "What each membership includes". It does
+// not repeat the home cards' copy. Usage: <CompactMembership line={t('brief.compact.line')} />
+import { t } from '../lib/copy';
+import Bobbin from './Bobbin.astro';
+import Twill from './kit/Twill.astro';
+import Seal from './kit/Seal.astro';
+interface Props { line: string; id?: string; class?: string; entrance?: string; }
+const { line, id = 'membership-strip', class: className = '', entrance = 'weft-right' } = Astro.props;
+---
+<Twill tag="section" class={['compact', 'pass', className].filter(Boolean).join(' ')} id={id} data-entrance={entrance} aria-label={t('nav.membership')}>
+  <div class="compact__card span-2">
+    <div class="compact__seal"><Seal size={48} animate={false} label="" /></div>
+    <h2 class="compact__name">{t('compact.daily.name')}</h2>
+    <p class="compact__price">{t('compact.daily.price')}</p>
+    <Bobbin label={t('compact.daily.cta')} sku="SB101" />
+  </div>
+  <div class="compact__card span-2">
+    <div class="compact__seal"><Seal size={48} animate={false} label="" /></div>
+    <h2 class="compact__name">{t('compact.two.name')}</h2>
+    <p class="compact__price">{t('compact.two.price')}</p>
+    <Bobbin label={t('compact.two.cta')} sku="SB201" />
+  </div>
+  <div class="compact__aside">
+    <p class="compact__line">{line}</p>
+    <a class="compact__link" href="/membership">{t('compact.link')}</a>
+  </div>
+</Twill>
+<style is:global>
+  .compact { padding-block: clamp(24px, 3vw, 48px); row-gap: var(--gap); align-items: stretch; }
+  .compact__card { position: relative; background: var(--white); border-radius: var(--radius-card); box-shadow: 0 0 0 1px var(--butter-deep); padding: clamp(18px, 1.6vw, 28px); display: flex; flex-direction: column; gap: 10px; align-items: flex-start; min-width: 0; }
+  .compact__seal { position: absolute; top: 12px; right: 12px; width: 48px; height: 48px; }
+  .compact__name { font-size: var(--fs-h3); font-weight: 700; color: var(--indigo); padding-right: 60px; }
+  .compact__price { font-weight: 700; }
+  .compact__aside { display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: clamp(12px, 1vw, 20px) 0; min-width: 0; }
+  .compact__line { font-size: var(--fs-body); }
+  .compact__link { font-weight: 700; }
+  @media (max-width: 1279px) { .compact__card { grid-column: span 1; } .compact__aside { grid-column: span 1; } }
+  @media (max-width: 1023px) { .compact__card { grid-column: span 1; } .compact__aside { grid-column: 1 / -1; } }
+  @media (max-width: 767px) { .compact__card { grid-column: 1 / -1; } }
+</style>

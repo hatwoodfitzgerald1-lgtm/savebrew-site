@@ -1,0 +1,12 @@
+---
+// The educational disclaimer (Offering Spec section 12, copy.md disclaimer.text). Runs on every content
+// route where section 7 places it: visible without scrolling on /brief, above the fold on the guides.
+import { t } from '../lib/copy';
+interface Props { class?: string; id?: string; compact?: boolean; }
+const { class: className = '', id, compact = false } = Astro.props;
+---
+<p class:list={['disclaimer', compact ? 'disclaimer--compact' : '', className]} id={id}>{t('disclaimer.text')}</p>
+<style is:global>
+  .disclaimer { font-size: var(--fs-label); line-height: 1.5; color: var(--muted); max-width: none; }
+  .disclaimer--compact { font-size: 12px; }
+</style>

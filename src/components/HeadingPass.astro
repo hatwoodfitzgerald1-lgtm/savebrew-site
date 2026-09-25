@@ -1,0 +1,17 @@
+---
+// THE HEADING PASS (TYP-014): a true H2 in the document order, set full width on butter between rows, with
+// the weft pass drawn beneath it. Rows have no kicker; the heading pass above them is the title, set as the
+// question the reader is asking. Optional intro (columns one to two) and aside (columns four to five) text.
+import WeftPass from './kit/WeftPass.astro';
+import Picture from './Picture.astro';
+interface Props { title: string; id?: string; level?: 1 | 2 | 3; intro?: string; aside?: string; photoSlot?: string; class?: string; entrance?: string; wideTitle?: boolean; }
+const { title, id, level = 2, intro, aside, photoSlot, class: className = '', entrance = 'stitch', wideTitle = false } = Astro.props;
+const Tag = (`h${level}`) as any;
+---
+<section class:list={['heading-pass', photoSlot ? 'has-photo' : '', className]} id={id} data-entrance={entrance} data-entrance-items=".ent">
+  {photoSlot && <div class="heading-pass__photo"><Picture slot={photoSlot} sizes="100vw" decorative graded={false} /></div>}
+  <Tag class:list={['heading-pass__title', 'ent', wideTitle ? 'is-wide' : '']}>{title}</Tag>
+  {intro && <p class="heading-pass__intro ent">{intro}</p>}
+  {(aside || Astro.slots.has('aside')) && <div class="heading-pass__aside ent">{aside}<slot name="aside" /></div>}
+  <div class="heading-pass__weft"><WeftPass /></div>
+</section>

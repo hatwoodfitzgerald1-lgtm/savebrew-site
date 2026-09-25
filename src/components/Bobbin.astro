@@ -1,0 +1,49 @@
+---
+// THE BOBBIN, the site's button (CUR-007, 3.10): a squat rectangle, radius 4, an inset dashed stitch border,
+// indigo fill with a butter label (primary) or white fill with an indigo stitch and label (secondary). The
+// stitches run on hover, the fill deepens and the button tightens on press, and one stitch travels the border
+// every eleven seconds at idle. The price never sits inside or directly under it.
+// Usage: <Bobbin label="Add the Daily to my cart" sku="SB101" />   (adds to the cart and opens the drawer)
+//        <Bobbin label="Go to checkout" href="/checkout" />          (a link)
+//        <Bobbin label="Pay $7.99 now" type="submit" />              (a form submit)
+interface Props {
+  label: string;
+  href?: string;
+  sku?: 'SB101' | 'SB102' | 'SB201' | 'SB202';
+  variant?: 'primary' | 'secondary';
+  compact?: boolean;
+  wide?: boolean;
+  type?: 'button' | 'submit';
+  class?: string;
+  id?: string;
+  ariaLabel?: string;
+  disabled?: boolean;
+  [key: `data-${string}`]: string | undefined;
+}
+const { label, href, sku, variant = 'primary', compact = false, wide = false, type = 'button', class: className = '', id, ariaLabel, disabled = false, ...rest } = Astro.props;
+const data: Record<string, string> = {};
+for (const [k, v] of Object.entries(rest)) if (k.startsWith('data-') && v != null) data[k] = String(v);
+const classes = ['bobbin', variant === 'secondary' ? 'bobbin--secondary' : '', compact ? 'bobbin--compact' : '', wide ? 'bobbin--wide' : '', className].filter(Boolean);
+---
+{href ? (
+  <a class:list={classes} href={href} id={id} aria-label={ariaLabel} {...data}>
+    <span class="bobbin__label">{label}</span>
+    <svg class="bobbin__stitch" aria-hidden="true" focusable="false"><rect class="bobbin__border" /><rect class="bobbin__travel" pathLength="100" /></svg>
+  </a>
+) : (
+  <button class:list={classes} type={type} id={id} aria-label={ariaLabel} data-add-sku={sku} disabled={disabled || undefined} {...data}>
+    <span class="bobbin__label">{label}</span>
+    <svg class="bobbin__stitch" aria-hidden="true" focusable="false"><rect class="bobbin__border" /><rect class="bobbin__travel" pathLength="100" /></svg>
+  </button>
+)}
+<style is:global>
+  .bobbin__stitch rect { x: 4px; y: 4px; width: calc(100% - 8px); height: calc(100% - 8px); rx: 2px; }
+  .bobbin__stitch .bobbin__travel { stroke-dasharray: 5 95; }
+  @keyframes sb-travel {
+    0% { opacity: 0; stroke-dashoffset: 0; }
+    1% { opacity: 1; }
+    10% { opacity: 1; stroke-dashoffset: -100; }
+    11% { opacity: 0; stroke-dashoffset: -100; }
+    100% { opacity: 0; stroke-dashoffset: -100; }
+  }
+</style>

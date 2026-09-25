@@ -1,0 +1,17 @@
+---
+// A warp cell: a column is content, never chrome. Carries its thread's knot and name as the cell head
+// (Big Shoulders 600 at 15px with the knot glyph), which is also what the mobile tab strip scrolls to.
+import Knot from './kit/Knot.astro';
+import Icon from './kit/Icon.astro';
+import { THREADS } from '../lib/copy';
+interface Props { thread?: 'rates' | 'cashback' | 'coupons' | 'seasonal' | 'paycheck'; head?: string; icon?: string; span?: 1 | 2 | 3 | 'full'; class?: string; id?: string; tag?: string; headLevel?: 3 | 4; }
+const { thread, head, icon, span = 1, class: className = '', id, tag = 'div', headLevel = 3 } = Astro.props;
+const Tag = tag as any;
+const Head = (`h${headLevel}`) as any;
+const name = head ?? (thread ? THREADS.find((t) => t.key === thread)?.name : undefined);
+const spanClass = span === 'full' ? 'span-full' : span > 1 ? `span-${span}` : '';
+---
+<Tag class:list={['cell', spanClass, className]} data-thread={thread} id={id}>
+  {name && <Head class="cell-head">{icon ? <Icon name={icon} size={18} /> : <Knot size={16} />}{name}</Head>}
+  <slot />
+</Tag>

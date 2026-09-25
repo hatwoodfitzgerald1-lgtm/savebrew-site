@@ -1,0 +1,34 @@
+---
+// THE ROW BOARD: a white weft block on the butter ground, inset by the gutter (the butter selvedge strips),
+// five warp columns edge to edge, the thread strip at its head and the selvedge stitch at its foot.
+// Children are cells: <Cell thread="rates">...</Cell> or <div class="cell">, with .span-2, .span-3 and
+// .span-full for spanning cells. data-cells="5" turns on the three plus two collapse with the strip filling
+// the spare track at 1024 to 1279 and the fifth cell spanning at 768 to 1023 (0.2).
+import ThreadStrip from './kit/ThreadStrip.astro';
+import Selvedge from './kit/Selvedge.astro';
+interface Props {
+  id: string;
+  cells?: number;
+  strip?: boolean;
+  stripMobile?: boolean;
+  edge?: boolean;
+  entrance?: 'weft-left' | 'weft-right' | 'dock' | 'knots' | 'stitch' | 'pop' | 'none';
+  stagger?: number;
+  items?: string;
+  twill?: boolean;
+  class?: string;
+  label?: string;
+  tag?: 'section' | 'div' | 'article' | 'form';
+  [key: `data-${string}`]: string | number | undefined;
+}
+const { id, cells = 5, strip = true, stripMobile = false, edge = true, entrance = 'weft-left', stagger, items = '.cell', twill = false, class: className = '', label, tag = 'section', ...rest } = Astro.props;
+const Tag = tag as any;
+// any extra data-* attribute is forwarded to the board (B1: the home boards need data-product-group, data-view and their own hooks)
+const extra: Record<string, string> = {};
+for (const [k, v] of Object.entries(rest as Record<string, unknown>)) if (k.startsWith('data-') && v != null) extra[k] = String(v);
+---
+<Tag class:list={['board', 'pass', twill ? 'on-twill' : '', className]} id={id} data-cells={cells} data-entrance={entrance === 'none' ? undefined : entrance} data-stagger={stagger} data-entrance-items={items} data-strip-mobile={stripMobile ? '' : undefined} aria-label={label} data-twill={twill ? 'file' : undefined} {...extra}>
+  {strip && <div class="board__strip"><ThreadStrip compact /></div>}
+  <slot />
+  {edge && <div class="board__edge"><Selvedge id={`${id}-edge`} /></div>}
+</Tag>
