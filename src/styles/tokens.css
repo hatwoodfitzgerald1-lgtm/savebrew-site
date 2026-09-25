@@ -1,0 +1,110 @@
+/* SaveBrew design tokens. Art Direction 3.10 (palette, type), 3.11 (motion), 3.17 (layout).
+   Every colour, curve, duration and layout unit on the site comes from here; nothing else is permitted. */
+
+@font-face {
+  font-family: "Big Shoulders Display";
+  src: url("/assets/fonts/big-shoulders-display-latin.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Manrope";
+  src: url("/assets/fonts/manrope-latin.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* size adjusted fallbacks so the swap does not shift layout (CLS under 0.1) */
+@font-face {
+  font-family: "Manrope Fallback";
+  src: local("Arial"), local("Helvetica"), local("Liberation Sans");
+  size-adjust: 102.7%;
+  ascent-override: 103.8%;
+  descent-override: 29.2%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Big Shoulders Fallback";
+  src: local("Arial Narrow"), local("Liberation Sans Narrow"), local("Roboto Condensed");
+  size-adjust: 63.6%;
+  ascent-override: 154.7%;
+  descent-override: 33.5%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Big Shoulders Fallback Wide";
+  src: local("Arial"), local("Helvetica"), local("Liberation Sans");
+  size-adjust: 52.1%;
+  ascent-override: 188.9%;
+  descent-override: 40.9%;
+  line-gap-override: 0%;
+}
+
+/* the animatable weight axis for The Tightening (TYP-003) */
+@property --wght {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 500;
+}
+
+:root {
+  /* ground */
+  --butter: #F6E7A1;
+  --butter-deep: #EBD77A;
+  --butter-pale: #FBF3CF;
+  /* weft */
+  --white: #FFFFFF;
+  /* thread */
+  --indigo: #2B2F8F;
+  --indigo-deep: #1B1E5C;
+  --ink: #14163A;
+  --muted: #4F5280;
+  /* semantic, inside the product views only; meaning always carried by an arrow or a word */
+  --up: #1F7A4D;
+  --down: #B3261E;
+  --unchanged: #4F5280;
+  --behind: #8A5A00;
+  /* hairlines inside the product views (never between warp columns) */
+  --hairline: rgba(20, 22, 58, 0.14);
+  --hairline-soft: rgba(20, 22, 58, 0.08);
+
+  /* type */
+  --font-display: "Big Shoulders Display", "Big Shoulders Fallback", "Big Shoulders Fallback Wide", "Arial Narrow", sans-serif;
+  --font-ui: "Manrope", "Manrope Fallback", "Helvetica Neue", Arial, sans-serif;
+  --vwc: min(1vw, 25.6px);
+  --fs-h1: clamp(44px, 2.4rem + 3.6 * var(--vwc), 118px);
+  --fs-h2: clamp(30px, 1.6rem + 1.8 * var(--vwc), 64px);
+  --fs-h3: clamp(19px, 1.05rem + 0.4 * var(--vwc), 26px);
+  --fs-body: clamp(15px, 0.94rem + 0.14 * var(--vwc), 17.5px);
+  --fs-standfirst: clamp(17px, 1rem + 0.3 * var(--vwc), 22px);
+  --fs-label: 13px;
+  --fs-cell-head: 15px;
+  --lh-body: 1.5;
+  --lh-tight: 1.05;
+
+  /* layout (3.17): five fluid warp columns edge to edge */
+  --gutter: clamp(16px, 1.25vw, 32px);
+  --gap: clamp(16px, 1.25vw, 32px);
+  --col: calc((100vw - 2 * var(--gutter) - 4 * var(--gap)) / 5);
+  --reveal: clamp(20px, 2vw, 40px);      /* the butter reveal between weft blocks (0.1) */
+  --band-h: 84px;                          /* the heading band */
+  --tabstrip-h: 44px;                      /* the sticky five thread tab strip below 768 */
+  --radius-board: 4px;
+  --radius-card: 12px;
+
+  /* motion signature (3.11): two curves, three durations, one idle cadence */
+  --ease-shuttle: cubic-bezier(0.36, 0.01, 0.10, 1);
+  --ease-knot: cubic-bezier(0.22, 1.12, 0.36, 1);
+  --dur-fast: 0.11s;
+  --dur-base: 0.38s;
+  --dur-slow: 1.2s;
+  --idle: 11s;
+  --glyph-stagger: 18ms;                   /* The Tightening, per glyph */
+}
+
+@media (max-width: 767px) {
+  :root { --band-h: 64px; }
+}

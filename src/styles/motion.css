@@ -1,0 +1,147 @@
+/* The motion system in CSS: the entrance vocabulary (data-entrance), the per page text hovers (data-hover on body),
+   The Tightening (TYP-003), the Bobbin choreography (CUR-007) and the reduce motion contract. Shuttle and Knot only,
+   at 0.11s, 0.38s and 1.2s, with the 11s idle cadence. */
+
+/* ------------------------------------------------------------------ entrances */
+/* the weft pass (MOT-018), the site's one reveal language: clip-path wipes on the native scroll timeline (EXP-005),
+   the polyfill on Safari (/assets/js/scroll-timeline.js), a transition on .is-in if neither is available */
+[data-entrance="weft-left"], [data-entrance="weft-right"] {
+  animation-duration: auto;
+  animation-timing-function: var(--ease-shuttle);
+  animation-fill-mode: both;
+  animation-timeline: view();
+  animation-range: entry 0% cover 35%;
+}
+[data-entrance="weft-left"] { animation-name: sb-weft-left; }
+[data-entrance="weft-right"] { animation-name: sb-weft-right; }
+@keyframes sb-weft-left { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes sb-weft-right { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0 0 0 0); } }
+html.no-scroll-timeline [data-entrance="weft-left"], html.no-scroll-timeline [data-entrance="weft-right"] {
+  animation: none; transition: clip-path var(--dur-base) var(--ease-shuttle);
+}
+html.no-scroll-timeline [data-entrance="weft-left"]:not(.is-in) { clip-path: inset(0 100% 0 0); }
+html.no-scroll-timeline [data-entrance="weft-right"]:not(.is-in) { clip-path: inset(0 0 0 100%); }
+html.no-scroll-timeline [data-entrance^="weft"].is-in { clip-path: inset(0 0 0 0); }
+
+/* dock: the items rise and settle onto their warp positions (Knot), staggered */
+[data-entrance="dock"] .ent-item { opacity: 0; transform: translateY(28px); }
+[data-entrance="dock"].is-in .ent-item { animation: sb-dock var(--dur-base) var(--ease-knot) both; animation-delay: calc(var(--i, 0) * var(--stagger, 60ms)); }
+@keyframes sb-dock { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+
+/* knots: items tie in one by one (a scale with the Knot overshoot), row by row */
+[data-entrance="knots"] .ent-item { opacity: 0; transform: scale(0.6); transform-origin: 50% 50%; }
+[data-entrance="knots"].is-in .ent-item { animation: sb-knots var(--dur-base) var(--ease-knot) both; animation-delay: calc(var(--i, 0) * var(--stagger, 40ms)); }
+@keyframes sb-knots { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
+
+/* stitch: the section's stitches draw first (the selvedge, the weft pass, the field underlines), then the items follow */
+[data-entrance="stitch"] .ent-item { opacity: 0; }
+[data-entrance="stitch"].is-in .ent-item { animation: sb-fade var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(0.4s + var(--i, 0) * var(--stagger, 50ms)); }
+@keyframes sb-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* pop: the knots pop (Knot) then the text wipes in beside them (Shuttle) */
+[data-entrance="pop"] .ent-item { clip-path: inset(0 100% 0 0); }
+[data-entrance="pop"] .ent-item .knot { transform: scale(0); transform-origin: 50% 50%; }
+[data-entrance="pop"].is-in .ent-item { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(0.2s + var(--i, 0) * var(--stagger, 60ms)); }
+[data-entrance="pop"].is-in .ent-item .knot { animation: sb-pop var(--dur-base) var(--ease-knot) both; animation-delay: calc(var(--i, 0) * var(--stagger, 60ms)); }
+@keyframes sb-pop { from { transform: scale(0); } to { transform: scale(1); } }
+
+/* rows in the first viewport at load: no delay, so nothing veils the first paint */
+[data-entrance].is-initial .ent-item, [data-entrance].is-initial .ent-item .knot { animation-delay: 0s !important; animation-duration: var(--dur-fast) !important; }
+[data-entrance].is-initial[data-entrance^="weft"] { animation-timeline: auto; animation-duration: 0s; }
+
+/* ------------------------------------------------------------------ text hovers (data-hover on body, one per page) */
+/* every treatment is mirrored on :focus-visible and :active (press stands in for hover on touch); the product views are left alone */
+.hv, .hv-target { display: inline-block; }
+/* tighten (/brief): the weight pulls from 500 to 800 */
+.hv-tighten :is(a, .hv):not(.sb-app *):not(.bobbin):not(.chip) { font-variation-settings: "wght" 500; transition: font-variation-settings var(--dur-base) var(--ease-knot); }
+.hv-tighten :is(h2, h3):not(.sb-app *) { font-variation-settings: "wght" 700; transition: font-variation-settings var(--dur-base) var(--ease-knot); }
+.hv-tighten :is(a, .hv, h2, h3):not(.sb-app *):not(.bobbin):not(.chip):is(:hover, :focus-visible, :active) { font-variation-settings: "wght" 800; }
+/* stitch (/membership): a running stitch underline draws and its stitches run */
+.hv-stitch a:not(.sb-app *):not(.bobbin):not(.chip) { text-decoration: none; padding-bottom: 2px; background-image: repeating-linear-gradient(90deg, var(--indigo) 0 6px, transparent 6px 10px); background-repeat: no-repeat; background-position: 0 100%; background-size: 0% 2px; transition: background-size var(--dur-base) var(--ease-shuttle); }
+.hv-stitch a:not(.sb-app *):not(.bobbin):not(.chip):is(:hover, :focus-visible, :active) { background-size: 100% 2px; animation: sb-stitch-run var(--dur-slow) linear infinite; }
+@keyframes sb-stitch-run { from { background-position-x: 0; } to { background-position-x: 10px; } }
+/* knot (/roundup): the first letter knots, a 1.12 overshoot */
+.hv-knot .knot-letter { display: inline-block; transition: transform var(--dur-base) var(--ease-knot); transform-origin: 50% 80%; }
+.hv-knot :is(a, h2, h3, .hv):is(:hover, :focus-visible, :active) .knot-letter { transform: scale(1.12); }
+/* a cell head is a flex row with a gap: the wrapped first letter must not become a separate flex item with its own gap */
+.hv-knot .cell-head { gap: 0; }
+.hv-knot .cell-head > :is(.knot, .icon) { margin-right: 6px; }
+/* lift (/your-moves): the word lifts 2px on a thread shadow */
+.hv-lift :is(a, .hv):not(.sb-app *):not(.bobbin):not(.chip):not(.band *):not(.menu *):not(.tabstrip *) { display: inline-block; text-decoration: none; transition: transform var(--dur-base) var(--ease-knot), text-shadow var(--dur-base) var(--ease-shuttle); text-shadow: 0 0 0 transparent; border-bottom: 1px solid color-mix(in srgb, var(--indigo) 40%, transparent); }
+.hv-lift :is(a, .hv):not(.sb-app *):not(.bobbin):not(.chip):not(.band *):not(.menu *):not(.tabstrip *):is(:hover, :focus-visible, :active) { transform: translateY(-2px); text-shadow: 0 3px 0 color-mix(in srgb, var(--indigo) 22%, transparent); border-bottom-color: var(--indigo); }
+/* dye (/about): a butter dye wash behind the word */
+.hv-dye :is(a, .hv, h2, h3):not(.sb-app *):not(.bobbin):not(.chip) { background-image: linear-gradient(var(--butter), var(--butter)); background-repeat: no-repeat; background-size: 0% 55%; background-position: 0 80%; transition: background-size var(--dur-base) var(--ease-shuttle); }
+.hv-dye :is(a, .hv, h2, h3):not(.sb-app *):not(.bobbin):not(.chip):is(:hover, :focus-visible, :active) { background-size: 100% 55%; }
+.hv-dye .heading-pass :is(h2, h3) { background-image: linear-gradient(var(--white), var(--white)); }
+/* dash (/contact): stitch dashes appear under links and run once */
+.hv-dash a:not(.sb-app *):not(.bobbin):not(.chip) { text-decoration: none; padding-bottom: 2px; background-image: repeating-linear-gradient(90deg, var(--indigo) 0 4px, transparent 4px 8px); background-repeat: no-repeat; background-position: 0 100%; background-size: 100% 0; transition: background-size var(--dur-fast) var(--ease-shuttle); }
+.hv-dash a:not(.sb-app *):not(.bobbin):not(.chip):is(:hover, :focus-visible, :active) { background-size: 100% 2px; animation: sb-dash-run var(--dur-base) var(--ease-shuttle) 1; }
+@keyframes sb-dash-run { from { background-position-x: 8px; } to { background-position-x: 0; } }
+/* unspool (/guides): the thread underline unspools left to right and winds back from the right */
+.hv-unspool a:not(.sb-app *):not(.bobbin):not(.chip) { text-decoration: none; background-image: linear-gradient(var(--indigo), var(--indigo)); background-repeat: no-repeat; background-size: 0% 2px; background-position: 100% 100%; padding-bottom: 2px; transition: background-size var(--dur-base) var(--ease-shuttle), background-position 0s var(--dur-base); }
+.hv-unspool a:not(.sb-app *):not(.bobbin):not(.chip):is(:hover, :focus-visible, :active) { background-size: 100% 2px; background-position: 0 100%; transition: background-size var(--dur-base) var(--ease-shuttle); }
+/* pluck (home): the plucked thread, an SVG displacement ripple (pointer only, headings only, driven by motion.ts); keyboard gets a stitch outline */
+.hv-pluck :is(h1, h2, h3, .hv):not(.sb-app *) { will-change: filter; }
+.hv-pluck :is(h1, h2, h3, .hv):not(.sb-app *):focus-visible { outline: 2px dashed var(--indigo); outline-offset: 4px; box-shadow: none; }
+/* keyboard users always get the 2px stitch outline where a pointer treatment would displace text */
+.hv-target:focus-visible { outline: 2px dashed var(--indigo); outline-offset: 4px; }
+
+/* ------------------------------------------------------------------ The Tightening (TYP-003) */
+.tighten { --wght: 500; }
+.tighten.is-tight { --wght: 800; }
+.tighten .g { font-variation-settings: "wght" var(--wght); transition: --wght var(--dur-base) var(--ease-knot); transition-delay: calc(var(--i, 0) * var(--glyph-stagger)); display: inline; white-space: pre-wrap; }
+.tighten:not(.is-split) { font-variation-settings: "wght" var(--wght); }
+@media (max-width: 767px) { :root { --glyph-stagger: 9ms; } }
+
+/* ------------------------------------------------------------------ the Bobbin (CUR-007) */
+.bobbin {
+  --bobbin-fill: var(--indigo); --bobbin-ink: var(--butter); --bobbin-stitch: var(--butter);
+  position: relative; isolation: isolate; display: inline-flex; align-items: center; justify-content: center;
+  min-height: 48px; padding: 12px 22px; border-radius: 4px; border: 0;
+  background: var(--bobbin-fill); color: var(--bobbin-ink);
+  font-family: var(--font-ui); font-weight: 800; font-size: var(--fs-body); line-height: 1.2; text-decoration: none; text-align: center; max-width: 100%;
+  cursor: pointer; transform: translateZ(0);
+  transition: background-color var(--dur-fast) var(--ease-shuttle), transform var(--dur-fast) var(--ease-knot), color var(--dur-fast) var(--ease-shuttle);
+}
+.bobbin--secondary { --bobbin-fill: var(--white); --bobbin-ink: var(--indigo); --bobbin-stitch: var(--indigo); box-shadow: inset 0 0 0 1px var(--indigo); }
+.bobbin--compact { min-height: 40px; padding: 8px 14px; font-size: var(--fs-label); font-weight: 700; }
+.bobbin--wide { width: 100%; }
+.bobbin__label { position: relative; z-index: 1; transition: transform var(--dur-fast) var(--ease-knot); }
+.bobbin__stitch { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 0; }
+.bobbin__stitch rect { fill: none; stroke: var(--bobbin-stitch); stroke-width: 1.5; stroke-dasharray: 5 4; opacity: 0.85; vector-effect: non-scaling-stroke; }
+/* idle: one stitch travels the border once every eleven seconds (the dash geometry and keyframes live in Bobbin.astro, on pathLength 100) */
+.bobbin__stitch .bobbin__travel { stroke-dashoffset: 0; opacity: 0; stroke-width: 2; animation: sb-travel var(--idle) linear infinite; }
+/* hover and focus: the stitches run around the border */
+.bobbin:is(:hover, :focus-visible) .bobbin__stitch rect:not(.bobbin__travel) { animation: sb-run var(--dur-slow) linear infinite; opacity: 1; }
+@keyframes sb-run { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -18; } }
+.bobbin:is(:hover, :focus-visible) .bobbin__label { transform: translateX(1px); }
+/* press: deepen and tighten */
+.bobbin:active { --bobbin-fill: var(--indigo-deep); transform: scale(0.98); }
+.bobbin--secondary:active { --bobbin-fill: var(--butter-pale); }
+.bobbin:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; box-shadow: 0 0 0 2px var(--white); }
+.bobbin:not(.bobbin--secondary):focus-visible { outline-color: var(--butter); box-shadow: 0 0 0 2px var(--indigo); }
+.bobbin[aria-busy="true"] { opacity: 0.7; cursor: progress; }
+
+/* ------------------------------------------------------------------ the reduce motion contract */
+@media (prefers-reduced-motion: reduce) {
+  [data-entrance] { animation: none !important; clip-path: none !important; opacity: 1 !important; transform: none !important; transition: none !important; }
+  [data-entrance] .ent-item, [data-entrance] .ent-item .knot { animation: none !important; opacity: 1 !important; transform: none !important; clip-path: none !important; }
+  .tighten { --wght: 800; }
+  .tighten .g { transition: none; }
+  .bobbin__stitch .bobbin__travel { animation: none; opacity: 0; }
+  .bobbin:is(:hover, :focus-visible) .bobbin__stitch rect { animation: none; }
+  .hv-stitch a:is(:hover, :focus-visible), .hv-dash a:is(:hover, :focus-visible) { animation: none; }
+  .hv-tighten :is(a, .hv, h2, h3), .hv-knot .knot-letter, .hv-lift :is(a, .hv), .hv-dye :is(a, .hv, h2, h3), .hv-unspool a, .hv-stitch a, .hv-dash a { transition: none; }
+  .field__control::after { transition: none; }
+  .switch__track, .switch__track::before, .switch__track::after, .chip { transition: none; }
+  html { scroll-behavior: auto; }
+}
+:root[data-motion="reduced"] [data-entrance] { animation: none !important; clip-path: none !important; opacity: 1 !important; transform: none !important; transition: none !important; }
+:root[data-motion="reduced"] [data-entrance] .ent-item, :root[data-motion="reduced"] [data-entrance] .ent-item .knot { animation: none !important; opacity: 1 !important; transform: none !important; clip-path: none !important; }
+:root[data-motion="reduced"] .tighten { --wght: 800; }
+:root[data-motion="reduced"] .tighten .g { transition: none; }
+:root[data-motion="reduced"] .bobbin__stitch .bobbin__travel { animation: none; opacity: 0; }
+:root[data-motion="reduced"] .bobbin:is(:hover, :focus-visible) .bobbin__stitch rect { animation: none; }
+:root[data-motion="reduced"] .hv-stitch a:is(:hover, :focus-visible), :root[data-motion="reduced"] .hv-dash a:is(:hover, :focus-visible) { animation: none; }
+:root[data-motion="reduced"] :is(.hv-tighten :is(a, .hv, h2, h3), .hv-knot .knot-letter, .hv-lift :is(a, .hv), .hv-dye :is(a, .hv, h2, h3), .hv-unspool a, .hv-stitch a, .hv-dash a) { transition: none; }
+:root[data-motion="reduced"] .field__control::after, :root[data-motion="reduced"] .switch__track, :root[data-motion="reduced"] .switch__track::before, :root[data-motion="reduced"] .switch__track::after, :root[data-motion="reduced"] .chip { transition: none; }

@@ -1,0 +1,71 @@
+/* The brand graphic kit, animated with Shuttle and Knot; static under prefers-reduced-motion and data-motion="reduced". */
+
+/* THE KNOT: draw in (warp top to bottom on Shuttle, loop left to right tightening on Knot) once .is-in is set on it or an ancestor */
+.knot { display: inline-block; color: currentColor; vertical-align: middle; flex: none; }
+.knot .warp, .knot .over, .knot .under { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: butt; }
+.knot--draw .warp { stroke-dasharray: 24; stroke-dashoffset: 24; }
+.knot--draw .over { stroke-dasharray: 32; stroke-dashoffset: 32; }
+.knot--draw .under { stroke-dasharray: 8; stroke-dashoffset: 8; }
+.knot--draw .loop { transform-origin: 12px 12px; transform: scale(1.18); }
+.is-in .knot--draw .warp, .knot--draw.is-in .warp { animation: sb-warp var(--dur-base) var(--ease-shuttle) forwards; }
+.is-in .knot--draw .over, .knot--draw.is-in .over { animation: sb-loop var(--dur-base) var(--ease-knot) 0.2s forwards; }
+.is-in .knot--draw .under, .knot--draw.is-in .under { animation: sb-loop var(--dur-base) var(--ease-knot) 0.42s forwards; }
+.is-in .knot--draw .loop, .knot--draw.is-in .loop { animation: sb-tight var(--dur-base) var(--ease-knot) 0.5s forwards; }
+@keyframes sb-warp { to { stroke-dashoffset: 0; } }
+@keyframes sb-loop { to { stroke-dashoffset: 0; } }
+@keyframes sb-tight { to { transform: scale(1); } }
+
+/* THE SELVEDGE SEAL: woven row by row top to bottom (Shuttle per row), the border stitches last (Knot) */
+.seal { display: block; flex: none; }
+.seal--weave .weft, .seal--weave .row { opacity: 0; transform: translateX(-8px); transform-origin: 14px 50%; }
+.seal--weave .stitch { stroke-dashoffset: 600; }
+.seal--weave.is-in .weft, .seal--weave.is-in .row, .is-in .seal--weave .weft, .is-in .seal--weave .row { animation: sb-row var(--dur-base) var(--ease-shuttle) both; }
+.seal--weave.is-in .stitch, .is-in .seal--weave .stitch { animation: sb-stitch var(--dur-slow) var(--ease-knot) 0.9s both; }
+@keyframes sb-row { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+@keyframes sb-stitch { to { stroke-dashoffset: 0; } }
+
+/* THE WEFT PASS: the thread draws left to right on reveal */
+.weft-pass-wrap { width: 100%; height: 24px; color: var(--indigo); display: flex; align-items: center; }
+.weft-pass__knot { flex: none; margin-right: -2.5px; }
+.weft-pass { flex: 1 1 auto; min-width: 0; height: 24px; overflow: visible; display: block; }
+.weft-pass .w { stroke-dasharray: 100; stroke-dashoffset: 100; }
+.is-in .weft-pass .w, .weft-pass.is-in .w { animation: sb-w var(--dur-slow) var(--ease-shuttle) forwards; }
+@keyframes sb-w { to { stroke-dashoffset: 0; } }
+
+/* THE THREAD STRIP: five short vertical threads with per load sag on canvas, the names beneath */
+.threadstrip { position: relative; width: 100%; color: var(--indigo); }
+.threadstrip__canvas { width: 100%; height: 56px; display: block; }
+.threadstrip__labels { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.threadstrip__label { display: flex; align-items: center; justify-content: center; gap: 4px; font-family: var(--font-display); font-weight: 600; font-size: 15px; color: var(--indigo-deep); line-height: 1; white-space: nowrap; }
+.threadstrip__label .knot { color: var(--indigo); }
+.threadstrip--compact .threadstrip__canvas { height: 36px; }
+.threadstrip--compact .threadstrip__label { font-size: 13px; }
+.threadstrip--compact .threadstrip__label .knot { width: 12px; height: 12px; }
+
+/* THE SELVEDGE: the running stitch canvas */
+.selvedge { display: block; color: var(--indigo); }
+.selvedge--horizontal { width: 100%; height: 14px; }
+.selvedge--vertical { height: 100%; width: 14px; }
+
+/* THE TWILL: 6 percent contrast diagonal weave, tiled */
+.twill { background-color: var(--butter); background-image: var(--twill-image, url("/assets/texture/twill.webp")); background-size: 96px 96px; background-repeat: repeat; }
+.twill.twill--white { background-color: var(--white); }
+.twill[data-twill="canvas"] { background-image: var(--twill-image, none); }
+
+/* icons */
+.icon { display: inline-block; color: var(--indigo); flex: none; vertical-align: middle; }
+.icon.is-active { color: var(--indigo-deep); }
+
+/* static end states when motion is reduced (both the OS setting and the site control) */
+@media (prefers-reduced-motion: reduce) {
+  .knot--draw .warp, .knot--draw .over, .knot--draw .under { stroke-dashoffset: 0; animation: none !important; }
+  .knot--draw .loop { transform: none; animation: none !important; }
+  .seal--weave .weft, .seal--weave .row { opacity: 1; transform: none; animation: none !important; }
+  .seal--weave .stitch { stroke-dashoffset: 0; animation: none !important; }
+  .weft-pass .w { stroke-dashoffset: 0; animation: none !important; }
+}
+:root[data-motion="reduced"] .knot--draw .warp, :root[data-motion="reduced"] .knot--draw .over, :root[data-motion="reduced"] .knot--draw .under { stroke-dashoffset: 0; animation: none !important; }
+:root[data-motion="reduced"] .knot--draw .loop { transform: none; animation: none !important; }
+:root[data-motion="reduced"] .seal--weave .weft, :root[data-motion="reduced"] .seal--weave .row { opacity: 1; transform: none; animation: none !important; }
+:root[data-motion="reduced"] .seal--weave .stitch { stroke-dashoffset: 0; animation: none !important; }
+:root[data-motion="reduced"] .weft-pass .w { stroke-dashoffset: 0; animation: none !important; }

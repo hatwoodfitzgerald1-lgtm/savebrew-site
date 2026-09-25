@@ -1,0 +1,131 @@
+/* THE FULL WIDTH LAYOUT SYSTEM (Art Direction 3.17, the collapse rules of 0.2).
+   Warp Columns: five fluid content columns from edge to edge, one per money thread; every section is a
+   row across all five. No centred container, no max-width, no margin auto wrapper, no rail, no spine,
+   no visible grid. scripts/check-width.mjs fails the build if any of those appear. */
+
+/* the pass: a row board, five warp columns over the whole width */
+.pass {
+  width: 100%;
+  max-width: none;
+  padding-inline: var(--gutter);
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  column-gap: var(--gap);
+  grid-auto-flow: row dense;
+}
+/* a full width block with only the gutter padding and no grid (heading passes, prose bands) */
+.wide { width: 100%; max-width: none; padding-inline: var(--gutter); }
+/* a two track pass for prose beside a module (3:2), never a lone measure */
+.pass--two { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+.pass--two-flip { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
+
+/* spanning cells at 1280 and up */
+.span-2 { grid-column: span 2; }
+.span-3 { grid-column: span 3; }
+.span-4 { grid-column: span 4; }
+.span-full { grid-column: 1 / -1; }
+/* fill whatever is left of the row */
+.span-fill { grid-column: auto / -1; }
+
+/* prose: CSS multicolumn, 34ch, two columns at 1280, three at 1440, four at 1920, five at 2560 */
+.prose-cols { columns: 34ch; column-gap: var(--gap); column-fill: balance; orphans: 2; widows: 2; }
+.prose-cols > * + * { margin-top: 0.85em; }
+.prose-cols h2, .prose-cols h3 { break-after: avoid; column-span: none; }
+.prose-cols h3 { margin-top: 1.4em; }
+.prose-cols .pull-thread { column-span: all; }
+.prose-cols img, .prose-cols figure, .prose-cols table { break-inside: avoid; }
+
+/* edge to edge media and modules */
+.edge { grid-column: 1 / -1; margin-inline: calc(-1 * var(--gutter)); width: calc(100% + 2 * var(--gutter)); max-width: none; }
+.bleed { width: 100%; max-width: none; padding-inline: 0; }
+.bleed > img, .bleed > video, .bleed > picture > img, .bleed > canvas { width: 100%; }
+
+/* cells: a column is content, never chrome; the cell's padding keeps text off the white edge */
+.cell { min-width: 0; padding: var(--cell-pad, clamp(16px, 1.4vw, 28px)); display: flex; flex-direction: column; gap: 10px; }
+.cell > * + * { margin-top: 0; }
+.cell > :is(.chip, .bobbin:not(.bobbin--wide), .switch, .link-plain) { align-self: flex-start; }
+.cell .cell-head { margin-bottom: 4px; }
+
+/* the heading pass (TYP-014): a display H2 at full width on butter with one weft thread beneath it */
+.heading-pass {
+  width: 100%; max-width: none; padding-inline: var(--gutter);
+  padding-block: clamp(28px, 3.4vw, 64px) clamp(14px, 1.4vw, 24px);
+  background: var(--butter);
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: var(--gap); row-gap: 12px;
+  align-items: end;
+}
+.heading-pass__title { grid-column: 1 / -1; font-size: var(--fs-h2); font-weight: 700; color: var(--indigo); max-width: none; }
+.heading-pass__title.is-wide { grid-column: 1 / span 4; }
+.heading-pass__intro { grid-column: 1 / span 2; color: var(--ink); font-size: var(--fs-body); }
+.heading-pass__aside { grid-column: 4 / span 2; color: var(--muted); font-size: var(--fs-label); align-self: end; }
+.heading-pass__weft { grid-column: 1 / -1; height: 24px; color: var(--indigo); margin-top: 6px; }
+.heading-pass.has-photo { position: relative; isolation: isolate; }
+.heading-pass.has-photo > .heading-pass__photo { position: absolute; inset: 0; z-index: -1; opacity: 0.2; }
+.heading-pass.has-photo > .heading-pass__photo img { width: 100%; height: 100%; object-fit: cover; }
+
+/* the row board: a white weft block on the butter ground, inset by the gutter (the selvedge strips), the stitch at its foot */
+.board {
+  position: relative;
+  padding-block: clamp(20px, 2.2vw, 40px);
+  margin-block: 0 var(--reveal);
+  isolation: isolate;
+}
+.board::before {
+  content: ""; position: absolute; inset: 0 var(--gutter); z-index: -1;
+  background: var(--white); border-radius: var(--radius-board);
+  box-shadow: 0 0 0 1px var(--butter-deep);
+}
+.board--flush { padding-block: 0; }
+.board__strip { grid-column: 1 / -1; padding: 0 var(--cell-pad, clamp(16px, 1.4vw, 28px)); margin-bottom: 4px; }
+.board__edge { grid-column: 1 / -1; height: 14px; margin-top: clamp(12px, 1.4vw, 24px); padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
+.board__edge canvas { width: 100%; height: 14px; }
+.board.on-twill::before { background-color: var(--white); background-image: var(--twill-image, none); background-size: 96px 96px; }
+
+/* butter reveal between boards and other full width rows */
+.row-gap { height: var(--reveal); }
+
+/* ------------------------------------------------------------------ the collapse rules (0.2) */
+/* 1280 to 1439: five for row boards, prose boards use columns: 34ch and get four */
+/* 1024 to 1279: three plus two; the fifth track of the second row is filled by the row's thread strip */
+@media (max-width: 1279px) {
+  .pass, .heading-pass { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .span-3, .span-4 { grid-column: 1 / -1; }
+  .heading-pass__title.is-wide { grid-column: 1 / -1; }
+  .heading-pass__intro { grid-column: 1 / span 2; }
+  .heading-pass__aside { grid-column: 3 / span 1; }
+  .board[data-cells="5"] > .cell:nth-child(4 of .cell) { grid-row: 2; grid-column: 1; }
+  .board[data-cells="5"] > .cell:nth-child(5 of .cell) { grid-row: 2; grid-column: 2; }
+  .board[data-cells="5"] > .board__strip { grid-row: 2; grid-column: 3; align-self: center; margin: 0; }
+  .l-span-1 { grid-column: span 1; }
+  .l-span-2 { grid-column: span 2; }
+  .l-span-3, .l-span-full { grid-column: 1 / -1; }
+}
+/* 768 to 1023: two plus two plus one; the fifth cell spans the full width as a selvedge block */
+@media (max-width: 1023px) {
+  .pass, .heading-pass { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pass--two, .pass--two-flip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .span-2, .span-3, .span-4 { grid-column: 1 / -1; }
+  .heading-pass__intro, .heading-pass__aside { grid-column: 1 / -1; }
+  .board[data-cells="5"] > .cell:nth-child(4 of .cell), .board[data-cells="5"] > .cell:nth-child(5 of .cell) { grid-row: auto; grid-column: auto; }
+  .board[data-cells="5"] > .cell:nth-child(5 of .cell) { grid-column: 1 / -1; }
+  .board[data-cells="5"] > .board__strip { grid-row: auto; grid-column: 1 / -1; align-self: auto; margin-bottom: 4px; }
+  .m-span-1 { grid-column: span 1; }
+  .m-span-2, .m-span-full { grid-column: 1 / -1; }
+}
+/* below 768: one column under the sticky five thread tab strip */
+@media (max-width: 767px) {
+  .pass, .heading-pass, .pass--two, .pass--two-flip { grid-template-columns: minmax(0, 1fr); }
+  .span-2, .span-3, .span-4, .span-full, .span-fill, .l-span-1, .l-span-2, .m-span-1 { grid-column: 1 / -1; }
+  .board__strip { display: none; }
+  .board[data-strip-mobile] > .board__strip { display: block; }
+  .cell { padding: 14px 16px; }
+  .prose-cols { columns: 1; }
+}
+
+/* QA (additive): at 1280 to 1439 the five column row boards tighten their cell padding and body size so a
+   two line summary measures about 30ch, the floor the art direction sets for the narrowest warp column. */
+@media (min-width: 1280px) and (max-width: 1439px) {
+  :root { --cell-pad: 12px; }
+  .cell { font-size: 14.5px; }
+  .cell p { font-size: 14.5px; }
+}
