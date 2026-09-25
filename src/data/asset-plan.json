@@ -1,0 +1,385 @@
+{
+ "brand": "SaveBrew",
+ "public_root": "/assets",
+ "weight_budget": {
+  "total_kb": 9000,
+  "hero_loop_desktop_kb": 2600,
+  "hero_loop_mobile_kb": 1200,
+  "product_pan_kb": 1500,
+  "still_max_kb_at_1600w": 180,
+  "product_shot_max_kb": 260,
+  "kit_svg_max_kb": 24,
+  "texture_kb": 320
+ },
+ "updated": "2026-09-25T17:08Z",
+ "slots": [
+  {
+   "id": "video.hero-loop",
+   "role": "12 second silent hero loop, four 3 second clips hard cut, clean wrap",
+   "aspect": "16:9",
+   "lives_on": [
+    "/ (What did last week's pass look like? row, behind the week strip at 35 percent)",
+    "/about (hero band)"
+   ],
+   "files": {
+    "desktop": "/assets/video/hero-loop.mp4",
+    "mobile": "/assets/video/hero-loop-720.mp4",
+    "poster": "/assets/video/hero-loop-poster.webp"
+   },
+   "status": "review",
+   "crop_note": null
+  },
+  {
+   "id": "video.product-pan",
+   "role": "6 to 8 second product in motion clip: one slow left to right pan across the three real dashboard views (Today, Rate Tracker, Goals) with one toggle click, one row ticking and one bar filling",
+   "aspect": "16:9",
+   "lives_on": [
+    "/ (What's inside the dashboard? row)",
+    "/membership"
+   ],
+   "files": {
+    "desktop": "/assets/video/product-pan.mp4",
+    "poster": "/assets/video/product-pan-poster.webp"
+   },
+   "status": "review",
+   "crop_note": null
+  },
+  {
+   "id": "photo.about-hero",
+   "role": "About page hero band",
+   "aspect": {
+    "desktop": "21:9",
+    "phone": "4:5"
+   },
+   "lives_on": [
+    "/about"
+   ],
+   "files": {
+    "src": "/assets/photo/about-hero.webp"
+   },
+   "status": "review",
+   "crop_note": "desktop 21:9 as generated; phone 4:5 focal crop from the centre"
+  },
+  {
+   "id": "photo.membership-free-column",
+   "role": "membership row fifth column background at 30 percent",
+   "aspect": "1:1",
+   "lives_on": [
+    "/",
+    "/membership"
+   ],
+   "files": {
+    "src": "/assets/photo/membership-free-column.webp"
+   },
+   "status": "review",
+   "crop_note": "1:1 as generated"
+  },
+  {
+   "id": "photo.todays-pass-heading",
+   "role": "What's in today's pass? heading pass background at 20 percent and the /brief header",
+   "aspect": {
+    "desktop": "3:1",
+    "phone": "4:3"
+   },
+   "lives_on": [
+    "/",
+    "/brief"
+   ],
+   "files": {
+    "src": "/assets/photo/todays-pass-heading.webp"
+   },
+   "status": "review",
+   "crop_note": "slot wants 3:1 on desktop; 21:9 is the widest the model supports, so optimise.py crops the centre band to 3:1; phone 4:3 focal crop from the centre"
+  },
+  {
+   "id": "photo.ranker-edge",
+   "role": "Which threads should you pull first? row edge image",
+   "aspect": "4:5",
+   "lives_on": [
+    "/",
+    "/your-moves"
+   ],
+   "files": {
+    "src": "/assets/photo/ranker-edge.webp"
+   },
+   "status": "review",
+   "crop_note": "4:5 as generated"
+  },
+  {
+   "id": "photo.roundup-header",
+   "role": "/roundup header band",
+   "aspect": {
+    "desktop": "16:9",
+    "phone": "1:1"
+   },
+   "lives_on": [
+    "/roundup"
+   ],
+   "files": {
+    "src": "/assets/photo/roundup-header.webp"
+   },
+   "status": "review",
+   "crop_note": "desktop 16:9 as generated; phone 1:1 focal crop from the centre"
+  },
+  {
+   "id": "photo.guides-header",
+   "role": "/guides index header",
+   "aspect": {
+    "desktop": "21:9",
+    "phone": "4:5"
+   },
+   "lives_on": [
+    "/guides"
+   ],
+   "files": {
+    "src": "/assets/photo/guides-header.webp"
+   },
+   "status": "review",
+   "crop_note": "desktop 21:9 as generated; phone 4:5 focal crop from the centre"
+  },
+  {
+   "id": "photo.contact-side",
+   "role": "/contact side image beside the address",
+   "aspect": "4:5",
+   "lives_on": [
+    "/contact"
+   ],
+   "files": {
+    "src": "/assets/photo/contact-side.webp"
+   },
+   "status": "review",
+   "crop_note": "4:5 as generated"
+  },
+  {
+   "id": "photo.404",
+   "role": "404 page image, a loose thread",
+   "aspect": "1:1",
+   "lives_on": [
+    "/404"
+   ],
+   "files": {
+    "src": "/assets/photo/404-loose-thread.webp"
+   },
+   "status": "review",
+   "crop_note": "1:1 as generated"
+  },
+  {
+   "id": "photo.guide-hero.make-a-rotating-category-pay",
+   "role": "guide hero",
+   "aspect": {
+    "desktop": "16:9",
+    "phone": "4:5"
+   },
+   "lives_on": [
+    "/guides/make-a-rotating-category-pay",
+    "/guides"
+   ],
+   "files": {
+    "src": "/assets/photo/guide-rotating-category.webp"
+   },
+   "status": "review",
+   "crop_note": "desktop 16:9 as generated; phone 4:5 focal crop from the centre"
+  },
+  {
+   "id": "photo.guide-hero.the-national-average-is-a-warning",
+   "role": "guide hero",
+   "aspect": {
+    "desktop": "16:9",
+    "phone": "4:5"
+   },
+   "lives_on": [
+    "/guides/the-national-average-is-a-warning",
+    "/guides"
+   ],
+   "files": {
+    "src": "/assets/photo/guide-national-average.webp"
+   },
+   "status": "review",
+   "crop_note": "desktop 16:9 as generated; phone 4:5 focal crop from the centre"
+  },
+  {
+   "id": "photo.guide-hero.four-percent-against-the-account-you-have",
+   "role": "guide hero",
+   "aspect": {
+    "desktop": "16:9",
+    "phone": "4:5"
+   },
+   "lives_on": [
+    "/guides/four-percent-against-the-account-you-have",
+    "/guides"
+   ],
+   "files": {
+    "src": "/assets/photo/guide-four-percent.webp"
+   },
+   "status": "review",
+   "crop_note": "desktop 16:9 as generated; phone 4:5 focal crop from the centre"
+  },
+  {
+   "id": "photo.guide-hero.why-patio-furniture-is-cheap-in-october",
+   "role": "guide hero",
+   "aspect": {
+    "desktop": "16:9",
+    "phone": "4:5"
+   },
+   "lives_on": [
+    "/guides/why-patio-furniture-is-cheap-in-october",
+    "/guides"
+   ],
+   "files": {
+    "src": "/assets/photo/guide-patio-october.webp"
+   },
+   "status": "review",
+   "crop_note": "desktop 16:9 as generated; phone 4:5 focal crop from the centre"
+  },
+  {
+   "id": "product.today-desktop",
+   "role": "Today view, desktop window 1440x900 at 2x, app's own bar, knot mark and wordmark left",
+   "aspect": "16:10",
+   "lives_on": [
+    "/ (What's inside the dashboard?)",
+    "/membership",
+    "/brief"
+   ],
+   "files": {
+    "src": "/assets/product/today-desktop.webp",
+    "html": "/home/claude/savebrew/assets/product-ui/today.html"
+   },
+   "status": "review",
+   "crop_note": null
+  },
+  {
+   "id": "product.rates-desktop",
+   "role": "Rate Tracker view, desktop window",
+   "aspect": "16:10",
+   "lives_on": [
+    "/",
+    "/membership"
+   ],
+   "files": {
+    "src": "/assets/product/rates-desktop.webp",
+    "html": "/home/claude/savebrew/assets/product-ui/rates.html"
+   },
+   "status": "review",
+   "crop_note": null
+  },
+  {
+   "id": "product.goals-desktop",
+   "role": "Goals view, desktop window",
+   "aspect": "16:10",
+   "lives_on": [
+    "/",
+    "/membership"
+   ],
+   "files": {
+    "src": "/assets/product/goals-desktop.webp",
+    "html": "/home/claude/savebrew/assets/product-ui/goals.html"
+   },
+   "status": "review",
+   "crop_note": null
+  },
+  {
+   "id": "product.today-phone",
+   "role": "Today view, phone 375x812 at 3x, frameless",
+   "aspect": "375:812",
+   "lives_on": [
+    "/",
+    "/membership"
+   ],
+   "files": {
+    "src": "/assets/product/today-phone.webp"
+   },
+   "status": "review",
+   "crop_note": null
+  },
+  {
+   "id": "product.rates-phone",
+   "role": "Rate Tracker view, phone",
+   "aspect": "375:812",
+   "lives_on": [
+    "/"
+   ],
+   "files": {
+    "src": "/assets/product/rates-phone.webp"
+   },
+   "status": "review",
+   "crop_note": null
+  },
+  {
+   "id": "product.goals-phone",
+   "role": "Goals view, phone",
+   "aspect": "375:812",
+   "lives_on": [
+    "/"
+   ],
+   "files": {
+    "src": "/assets/product/goals-phone.webp"
+   },
+   "status": "review",
+   "crop_note": null
+  },
+  {
+   "id": "kit.logo",
+   "role": "primary, reversed, stacked and icon only lockups of the knot mark and the SaveBrew wordmark, SVG and PNG, checked on white, on indigo and on butter",
+   "lives_on": [
+    "header",
+    "footer",
+    "app bar",
+    "/brand-kit/"
+   ],
+   "files": {
+    "dir": "/home/claude/savebrew/assets/brand-kit/"
+   },
+   "status": "review",
+   "crop_note": null
+  },
+  {
+   "id": "kit.favicon",
+   "role": "favicon set: svg, 32 png, 180 apple touch, ico",
+   "files": {
+    "dir": "/home/claude/savebrew/assets/brand-kit/favicon/"
+   },
+   "status": "review",
+   "crop_note": null
+  },
+  {
+   "id": "kit.banners",
+   "role": "LinkedIn cover 1128x191 and logo 400x400, X header 1500x500, Crunchbase 1200x628, OG 1200x630",
+   "files": {
+    "dir": "/home/claude/savebrew/assets/brand-kit/banners/"
+   },
+   "status": "review",
+   "crop_note": null
+  },
+  {
+   "id": "kit.svg",
+   "role": "the graphic kit: the Knot motif, the Selvedge Seal, the thread strip, the weft pass divider, the eleven icons, four guide graphics (one per post), the 404 loose thread",
+   "files": {
+    "dir": "/home/claude/savebrew/assets/kit-svg/"
+   },
+   "status": "review",
+   "crop_note": null
+  },
+  {
+   "id": "texture.fabric",
+   "role": "one CC0 plain weave cotton or linen colour map, 1K, WebP, for the mobile poster ground and the 404 field",
+   "files": {
+    "src": "/assets/texture/fabric-1k.webp"
+   },
+   "status": "review",
+   "crop_note": null
+  },
+  {
+   "id": "scene.loom-poster",
+   "role": "the loom's poster: the flat cloth at progress 1.0, 1600 by 1000 WebP with a 4 percent static grain baked in, shown behind the hero until Three.js is live and kept under reduced motion, low power and init failure",
+   "aspect": "16:10",
+   "lives_on": [
+    "/ (the hero, behind the loom canvas)"
+   ],
+   "files": {
+    "src": "/assets/scene/loom-poster.webp"
+   },
+   "status": "shipped",
+   "crop_note": "object-fit cover, anchored centre bottom"
+  }
+ ]
+}

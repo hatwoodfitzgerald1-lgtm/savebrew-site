@@ -1,0 +1,135 @@
+{
+ "week_of": "2026-09-19",
+ "note": "This week's public candidates for the Your moves ranker (art direction 3.21). Refreshed each Saturday with the Roundup. Dollar amounts are about, not exact; accounts and cards are illustrative. Weights follow toggle_order; each is an integer 0 to 3. Score = (8 minus position in editors_order) plus the weights of the toggles that are on; ties go to fewer minutes.",
+ "toggle_order": [
+  "has_high_yield_savings_account",
+  "money_in_big_bank_account_under_1_percent",
+  "carries_rotating_category_card",
+  "saving_toward_dated_goal",
+  "bought_something_over_200_recently",
+  "paycheck_split_not_looked_at_this_year"
+ ],
+ "editors_order": [
+  "rates_write_down_your_rate",
+  "cashback_activate_october",
+  "seasonal_patio_now_tv_later",
+  "rates_compare_to_the_top",
+  "paycheck_split_one_stub",
+  "cashback_grocery_cap_check",
+  "coupons_price_adjustment"
+ ],
+ "candidates": [
+  {
+   "id": "rates_write_down_your_rate",
+   "thread": "Rates",
+   "headline": "Write down your account's published rate before it moves",
+   "minutes": 3,
+   "why": "The Fed raised a quarter point Wednesday; tracked accounts tend to reprice within two weeks, and a dated number shows it.",
+   "skip_if": "Your account is on a tracked list that already records its rate each morning.",
+   "weights": [
+    1,
+    3,
+    0,
+    1,
+    0,
+    1
+   ]
+  },
+  {
+   "id": "cashback_activate_october",
+   "thread": "Cashback",
+   "headline": "Activate the October category on the morning it opens",
+   "minutes": 2,
+   "why": "Both tracked rotating cards named their fourth quarter categories this week; activation is free and the 5 percent starts October 1.",
+   "skip_if": "You don't carry a rotating category card, or yours activates on its own.",
+   "weights": [
+    0,
+    0,
+    3,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "id": "seasonal_patio_now_tv_later",
+   "thread": "Seasonal",
+   "headline": "Patio sets are 30 to 40 percent off; TVs aren't yet",
+   "minutes": 5,
+   "why": "The outdoor aisle is being cleared for holiday stock; the tracked TVs sit within $30 of August and turn in late November.",
+   "skip_if": "There's nowhere to keep a patio set until April, or the TV can't wait eight weeks.",
+   "weights": [
+    0,
+    0,
+    0,
+    1,
+    1,
+    0
+   ]
+  },
+  {
+   "id": "rates_compare_to_the_top",
+   "thread": "Rates",
+   "headline": "Put your rate against the tracked top: 4.00 percent on your balance",
+   "minutes": 10,
+   "why": "On $10,000 the gap between 0.37 and 4.00 percent is $363 a year; your balance decides whether an hour is worth it.",
+   "skip_if": "Your published rate is already within a quarter of a point of 4.00.",
+   "weights": [
+    0,
+    3,
+    0,
+    2,
+    0,
+    1
+   ]
+  },
+  {
+   "id": "paycheck_split_one_stub",
+   "thread": "Paycheck",
+   "headline": "Split one pay stub three ways: needs, wants, and the 20 percent",
+   "minutes": 10,
+   "why": "October has three paydays for anyone paid on alternate Fridays from October 2, and the third has no bills assigned yet.",
+   "skip_if": "You did the split this year and nothing about your pay or your rent has changed.",
+   "weights": [
+    0,
+    1,
+    0,
+    2,
+    0,
+    3
+   ]
+  },
+  {
+   "id": "cashback_grocery_cap_check",
+   "thread": "Cashback",
+   "headline": "Read the cap line: how much of the $1,500 is left?",
+   "minutes": 4,
+   "why": "The grocery category pays through September 30 and unused cap doesn't carry; the card's app shows spend against it in one line.",
+   "skip_if": "You've already passed the cap, or your groceries go on a flat 3 percent card.",
+   "weights": [
+    0,
+    0,
+    3,
+    0,
+    1,
+    0
+   ]
+  },
+  {
+   "id": "coupons_price_adjustment",
+   "thread": "Coupons",
+   "headline": "Ask for a price adjustment on the big thing you bought recently",
+   "minutes": 6,
+   "why": "Patio sets and grills were cut 30 to 40 percent this week; some retailers' published policies refund the difference within 30 days.",
+   "skip_if": "The published price on what you bought hasn't dropped since you paid it.",
+   "weights": [
+    0,
+    0,
+    0,
+    0,
+    3,
+    0
+   ]
+  }
+ ]
+}

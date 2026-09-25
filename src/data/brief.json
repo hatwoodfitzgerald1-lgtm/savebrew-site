@@ -1,0 +1,723 @@
+{
+ "threads": [
+  {
+   "name": "Rates",
+   "key": "rates"
+  },
+  {
+   "name": "Cashback",
+   "key": "cashback"
+  },
+  {
+   "name": "Coupons",
+   "key": "coupons"
+  },
+  {
+   "name": "Seasonal",
+   "key": "seasonal"
+  },
+  {
+   "name": "Paycheck",
+   "key": "paycheck"
+  }
+ ],
+ "today": {
+  "date": "Thursday, September 24, 2026",
+  "dateShort": "Thu, Sep 24",
+  "weekday": "Thursday",
+  "published": "Published 6:30 AM ET",
+  "publishedTime": "6:30 AM ET",
+  "items": [
+   {
+    "thread": "Rates",
+    "key": "rates",
+    "headline": "Top online savings rates held at 4.00% this week.",
+    "summary": "Three of the twenty accounts we track nudged up by 0.05 points and none cut. If your account is under 3.75%, today is a good morning to compare.",
+    "chip": "Open tracker"
+   },
+   {
+    "thread": "Cashback",
+    "key": "cashback",
+    "headline": "The rotating 5% category switches to grocery stores through September 30.",
+    "summary": "Activate it once and the cap covers about $1,500 of spend. A reminder lands on your Today view on the last morning.",
+    "chip": "Remind me"
+   },
+   {
+    "thread": "Coupons",
+    "key": "coupons",
+    "headline": "A stackable 20% code on winter tires ends Friday.",
+    "summary": "It works with the retailer's rebate on the same order, which brings a $600 set to about $430 after both.",
+    "chip": "Save code"
+   },
+   {
+    "thread": "Seasonal",
+    "key": "seasonal",
+    "headline": "October playbook: buy patio furniture and jeans now, wait on TVs and toys.",
+    "summary": "Clearance cycles favour outdoor goods and denim this month; big electronics drop again in late November.",
+    "chip": "Open playbook"
+   },
+   {
+    "thread": "Paycheck",
+    "key": "paycheck",
+    "headline": "The 50/30/20 tune up: a ten minute look at your paycheck split.",
+    "summary": "Three questions to ask before the next pay run, with a worksheet you can fill in on the Goals tab.",
+    "chip": "Open worksheet"
+   }
+  ]
+ },
+ "yesterday": {
+  "weekday": "Wednesday",
+  "date": "Wednesday, September 23, 2026",
+  "label": "Wednesday 23",
+  "items": [
+   {
+    "thread": "Rates",
+    "key": "rates",
+    "headline": "A second tracked account moved up 0.05 this week, and none has cut.",
+    "summary": "Bank H (illustrative), further down the tracked list, is 3.65% this morning; the top tracked rate stays 4.00%.",
+    "chip": null
+   },
+   {
+    "thread": "Cashback",
+    "key": "cashback",
+    "headline": "Activation for the October categories opened on one of the two tracked cards.",
+    "summary": "Turning it on today costs nothing and the 5% starts October 1; the grocery category keeps paying through September 30.",
+    "chip": null
+   },
+   {
+    "thread": "Coupons",
+    "key": "coupons",
+    "headline": "A 15% code on running shoes stacks with a $20 rebate through Sunday.",
+    "summary": "On a $140 pair the two together bring the price to about $99.",
+    "chip": null
+   },
+   {
+    "thread": "Seasonal",
+    "key": "seasonal",
+    "headline": "Denim clearance spread to three of the four chains we track, at 40% off.",
+    "summary": "A $90 pair is about $54 this week; the fourth chain's published prices had not moved by six.",
+    "chip": null
+   },
+   {
+    "thread": "Paycheck",
+    "key": "paycheck",
+    "headline": "October holds three paydays if your alternate Friday paycheck lands on October 2.",
+    "summary": "The third paycheck has no bills assigned to it, and the split worksheet shows where it could go before it arrives.",
+    "chip": null
+   }
+  ]
+ },
+ "lastWeek": {
+  "from": "Monday, September 14",
+  "to": "Friday, September 18",
+  "year": 2026,
+  "roundupDate": "Saturday, September 19, 2026",
+  "days": [
+   {
+    "weekday": "Monday",
+    "date": "Monday, September 14",
+    "label": "Monday 14",
+    "items": [
+     {
+      "thread": "Rates",
+      "key": "rates",
+      "headline": "The top tracked rate holds at 4.00% into the Fed's meeting week.",
+      "summary": "All twenty tracked accounts and CDs are unchanged since Friday; Bank A (illustrative) still leads at 4.00%.",
+      "chip": null
+     },
+     {
+      "thread": "Cashback",
+      "key": "cashback",
+      "headline": "The grocery category runs sixteen more days, and unused cap doesn't carry.",
+      "summary": "Spend under the $1,500 cap counts through September 30; whatever is left of it that night is gone.",
+      "chip": null
+     },
+     {
+      "thread": "Coupons",
+      "key": "coupons",
+      "headline": "A 25% code on kids' winter coats runs through Thursday night.",
+      "summary": "It applies to sale items as well; an $80 coat comes to about $60 with it.",
+      "chip": null
+     },
+     {
+      "thread": "Seasonal",
+      "key": "seasonal",
+      "headline": "TVs sit near August prices; their cut comes in late November.",
+      "summary": "The tracked 65 inch sets sit within $30 of August prices; the deep cuts follow Thanksgiving.",
+      "chip": null
+     },
+     {
+      "thread": "Paycheck",
+      "key": "paycheck",
+      "headline": "The 50/30/20 split starts with net pay, not the offer letter.",
+      "summary": "Take one pay stub, find the deposit amount and split that; the taxes already left.",
+      "chip": null
+     }
+    ]
+   },
+   {
+    "weekday": "Tuesday",
+    "date": "Tuesday, September 15",
+    "label": "Tuesday 15",
+    "items": [
+     {
+      "thread": "Rates",
+      "key": "rates",
+      "headline": "A tracked savings account moved up 0.05 to 3.90% before the Fed.",
+      "summary": "Bank B (illustrative) repriced overnight, the first tracked move of the Fed's week.",
+      "chip": null
+     },
+     {
+      "thread": "Cashback",
+      "key": "cashback",
+      "headline": "October to December categories published: warehouse clubs, and online retail.",
+      "summary": "Both tracked rotating cards named their fourth quarter categories; activation windows open before October 1.",
+      "chip": null
+     },
+     {
+      "thread": "Coupons",
+      "key": "coupons",
+      "headline": "Two grocery delivery codes stack this week: $15 off and free delivery.",
+      "summary": "On a $120 order the pair brings it to about $105 with no delivery fee.",
+      "chip": null
+     },
+     {
+      "thread": "Seasonal",
+      "key": "seasonal",
+      "headline": "Outdoor furniture clearance began at two of the three tracked home retailers.",
+      "summary": "An $899 four piece set is listed at $599 this morning; the third retailer had not moved.",
+      "chip": null
+     },
+     {
+      "thread": "Paycheck",
+      "key": "paycheck",
+      "headline": "The date sets the deposit: $4,000 in a year, $154 a payday.",
+      "summary": "Divide what's left of a goal by the alternate Friday paydays before its date, then round up.",
+      "chip": null
+     }
+    ]
+   },
+   {
+    "weekday": "Wednesday",
+    "date": "Wednesday, September 16",
+    "label": "Wednesday 16",
+    "items": [
+     {
+      "thread": "Rates",
+      "key": "rates",
+      "headline": "Fed decision at 2 PM today; no tracked account moved overnight.",
+      "summary": "No tracked account moved overnight; the average of the twenty sits at 3.54%.",
+      "chip": null
+     },
+     {
+      "thread": "Cashback",
+      "key": "cashback",
+      "headline": "Activating next quarter early costs nothing where the card allows it.",
+      "summary": "One tracked card opens activation on September 23, the other on October 1; both run through December 31.",
+      "chip": null
+     },
+     {
+      "thread": "Coupons",
+      "key": "coupons",
+      "headline": "At the tire retailer, 10% off beats $20 off past $200.",
+      "summary": "Two codes, one order; on $500 the percentage code wins by $30.",
+      "chip": null
+     },
+     {
+      "thread": "Seasonal",
+      "key": "seasonal",
+      "headline": "Halloween costumes hold their price through October; the candy doesn't.",
+      "summary": "Costumes are full price until the week of the 31st; candy is cut in the last three days.",
+      "chip": null
+     },
+     {
+      "thread": "Paycheck",
+      "key": "paycheck",
+      "headline": "Fixed costs first: what share of net pay is already spoken for?",
+      "summary": "Add rent, insurance, minimum payments and utilities, then divide by net pay; past 60% the 20% has no room.",
+      "chip": null
+     }
+    ]
+   },
+   {
+    "weekday": "Thursday",
+    "date": "Thursday, September 17",
+    "label": "Thursday 17",
+    "items": [
+     {
+      "thread": "Rates",
+      "key": "rates",
+      "headline": "The Fed raised a quarter point; a tracked CD moved 0.10 overnight.",
+      "summary": "Bank D (illustrative) is 3.75% on its one year CD this morning; the twenty savings accounts held.",
+      "chip": null
+     },
+     {
+      "thread": "Cashback",
+      "key": "cashback",
+      "headline": "Past the $1,500 cap the grocery category pays 1%, not 5%.",
+      "summary": "Beyond the cap a flat 3% grocery card wins; the cap line is in the card's app.",
+      "chip": null
+     },
+     {
+      "thread": "Coupons",
+      "key": "coupons",
+      "headline": "The 25% coats code ends tonight, and no rebate stacks with it.",
+      "summary": "Orders placed by 11:59 PM ET keep the code; the rebate form is separate and doesn't combine.",
+      "chip": null
+     },
+     {
+      "thread": "Seasonal",
+      "key": "seasonal",
+      "headline": "The third tracked home retailer joined the patio clearance at 35% off.",
+      "summary": "All three now list the same four piece set between $549 and $599.",
+      "chip": null
+     },
+     {
+      "thread": "Paycheck",
+      "key": "paycheck",
+      "headline": "Where the 20% sits matters: 0.37% against 4.00% on $200 a payday.",
+      "summary": "Over a year of alternate Friday deposits the difference is about $100 in interest.",
+      "chip": null
+     }
+    ]
+   },
+   {
+    "weekday": "Friday",
+    "date": "Friday, September 18",
+    "label": "Friday 18",
+    "items": [
+     {
+      "thread": "Rates",
+      "key": "rates",
+      "headline": "A money market up 0.10, a savings account down 0.05, overnight.",
+      "summary": "Bank C (illustrative) is 3.80%; Bank E cut to 3.70%, the week's only cut since the Fed's move.",
+      "chip": null
+     },
+     {
+      "thread": "Cashback",
+      "key": "cashback",
+      "headline": "The grocery category has twelve days left: how much cap remains?",
+      "summary": "The card's app shows spend toward the $1,500 cap; anything left after September 30 is gone.",
+      "chip": null
+     },
+     {
+      "thread": "Coupons",
+      "key": "coupons",
+      "headline": "A 20% winter tire code opened today and runs through next Friday.",
+      "summary": "Eight days to use it; the rebate form on the same order is separate and still applies.",
+      "chip": null
+     },
+     {
+      "thread": "Seasonal",
+      "key": "seasonal",
+      "headline": "Grills joined the clearance: a $399 gas grill is listed at $279.",
+      "summary": "The outdoor aisle is being emptied for holiday stock, and the grills go with the patio sets.",
+      "chip": null
+     },
+     {
+      "thread": "Paycheck",
+      "key": "paycheck",
+      "headline": "The deposit that's automatic on payday is the one that happens.",
+      "summary": "A standing transfer set for the morning after payday removes the decision; the amount can be $25.",
+      "chip": null
+     }
+    ]
+   }
+  ],
+  "matrix": [
+   [
+    {
+     "day": "Monday 14",
+     "weekday": "Monday",
+     "date": "Monday, September 14",
+     "thread": "Rates",
+     "key": "rates",
+     "headline": "The top tracked rate holds at 4.00% into the Fed's meeting week.",
+     "summary": "All twenty tracked accounts and CDs are unchanged since Friday; Bank A (illustrative) still leads at 4.00%.",
+     "chip": null
+    },
+    {
+     "day": "Monday 14",
+     "weekday": "Monday",
+     "date": "Monday, September 14",
+     "thread": "Cashback",
+     "key": "cashback",
+     "headline": "The grocery category runs sixteen more days, and unused cap doesn't carry.",
+     "summary": "Spend under the $1,500 cap counts through September 30; whatever is left of it that night is gone.",
+     "chip": null
+    },
+    {
+     "day": "Monday 14",
+     "weekday": "Monday",
+     "date": "Monday, September 14",
+     "thread": "Coupons",
+     "key": "coupons",
+     "headline": "A 25% code on kids' winter coats runs through Thursday night.",
+     "summary": "It applies to sale items as well; an $80 coat comes to about $60 with it.",
+     "chip": null
+    },
+    {
+     "day": "Monday 14",
+     "weekday": "Monday",
+     "date": "Monday, September 14",
+     "thread": "Seasonal",
+     "key": "seasonal",
+     "headline": "TVs sit near August prices; their cut comes in late November.",
+     "summary": "The tracked 65 inch sets sit within $30 of August prices; the deep cuts follow Thanksgiving.",
+     "chip": null
+    },
+    {
+     "day": "Monday 14",
+     "weekday": "Monday",
+     "date": "Monday, September 14",
+     "thread": "Paycheck",
+     "key": "paycheck",
+     "headline": "The 50/30/20 split starts with net pay, not the offer letter.",
+     "summary": "Take one pay stub, find the deposit amount and split that; the taxes already left.",
+     "chip": null
+    }
+   ],
+   [
+    {
+     "day": "Tuesday 15",
+     "weekday": "Tuesday",
+     "date": "Tuesday, September 15",
+     "thread": "Rates",
+     "key": "rates",
+     "headline": "A tracked savings account moved up 0.05 to 3.90% before the Fed.",
+     "summary": "Bank B (illustrative) repriced overnight, the first tracked move of the Fed's week.",
+     "chip": null
+    },
+    {
+     "day": "Tuesday 15",
+     "weekday": "Tuesday",
+     "date": "Tuesday, September 15",
+     "thread": "Cashback",
+     "key": "cashback",
+     "headline": "October to December categories published: warehouse clubs, and online retail.",
+     "summary": "Both tracked rotating cards named their fourth quarter categories; activation windows open before October 1.",
+     "chip": null
+    },
+    {
+     "day": "Tuesday 15",
+     "weekday": "Tuesday",
+     "date": "Tuesday, September 15",
+     "thread": "Coupons",
+     "key": "coupons",
+     "headline": "Two grocery delivery codes stack this week: $15 off and free delivery.",
+     "summary": "On a $120 order the pair brings it to about $105 with no delivery fee.",
+     "chip": null
+    },
+    {
+     "day": "Tuesday 15",
+     "weekday": "Tuesday",
+     "date": "Tuesday, September 15",
+     "thread": "Seasonal",
+     "key": "seasonal",
+     "headline": "Outdoor furniture clearance began at two of the three tracked home retailers.",
+     "summary": "An $899 four piece set is listed at $599 this morning; the third retailer had not moved.",
+     "chip": null
+    },
+    {
+     "day": "Tuesday 15",
+     "weekday": "Tuesday",
+     "date": "Tuesday, September 15",
+     "thread": "Paycheck",
+     "key": "paycheck",
+     "headline": "The date sets the deposit: $4,000 in a year, $154 a payday.",
+     "summary": "Divide what's left of a goal by the alternate Friday paydays before its date, then round up.",
+     "chip": null
+    }
+   ],
+   [
+    {
+     "day": "Wednesday 16",
+     "weekday": "Wednesday",
+     "date": "Wednesday, September 16",
+     "thread": "Rates",
+     "key": "rates",
+     "headline": "Fed decision at 2 PM today; no tracked account moved overnight.",
+     "summary": "No tracked account moved overnight; the average of the twenty sits at 3.54%.",
+     "chip": null
+    },
+    {
+     "day": "Wednesday 16",
+     "weekday": "Wednesday",
+     "date": "Wednesday, September 16",
+     "thread": "Cashback",
+     "key": "cashback",
+     "headline": "Activating next quarter early costs nothing where the card allows it.",
+     "summary": "One tracked card opens activation on September 23, the other on October 1; both run through December 31.",
+     "chip": null
+    },
+    {
+     "day": "Wednesday 16",
+     "weekday": "Wednesday",
+     "date": "Wednesday, September 16",
+     "thread": "Coupons",
+     "key": "coupons",
+     "headline": "At the tire retailer, 10% off beats $20 off past $200.",
+     "summary": "Two codes, one order; on $500 the percentage code wins by $30.",
+     "chip": null
+    },
+    {
+     "day": "Wednesday 16",
+     "weekday": "Wednesday",
+     "date": "Wednesday, September 16",
+     "thread": "Seasonal",
+     "key": "seasonal",
+     "headline": "Halloween costumes hold their price through October; the candy doesn't.",
+     "summary": "Costumes are full price until the week of the 31st; candy is cut in the last three days.",
+     "chip": null
+    },
+    {
+     "day": "Wednesday 16",
+     "weekday": "Wednesday",
+     "date": "Wednesday, September 16",
+     "thread": "Paycheck",
+     "key": "paycheck",
+     "headline": "Fixed costs first: what share of net pay is already spoken for?",
+     "summary": "Add rent, insurance, minimum payments and utilities, then divide by net pay; past 60% the 20% has no room.",
+     "chip": null
+    }
+   ],
+   [
+    {
+     "day": "Thursday 17",
+     "weekday": "Thursday",
+     "date": "Thursday, September 17",
+     "thread": "Rates",
+     "key": "rates",
+     "headline": "The Fed raised a quarter point; a tracked CD moved 0.10 overnight.",
+     "summary": "Bank D (illustrative) is 3.75% on its one year CD this morning; the twenty savings accounts held.",
+     "chip": null
+    },
+    {
+     "day": "Thursday 17",
+     "weekday": "Thursday",
+     "date": "Thursday, September 17",
+     "thread": "Cashback",
+     "key": "cashback",
+     "headline": "Past the $1,500 cap the grocery category pays 1%, not 5%.",
+     "summary": "Beyond the cap a flat 3% grocery card wins; the cap line is in the card's app.",
+     "chip": null
+    },
+    {
+     "day": "Thursday 17",
+     "weekday": "Thursday",
+     "date": "Thursday, September 17",
+     "thread": "Coupons",
+     "key": "coupons",
+     "headline": "The 25% coats code ends tonight, and no rebate stacks with it.",
+     "summary": "Orders placed by 11:59 PM ET keep the code; the rebate form is separate and doesn't combine.",
+     "chip": null
+    },
+    {
+     "day": "Thursday 17",
+     "weekday": "Thursday",
+     "date": "Thursday, September 17",
+     "thread": "Seasonal",
+     "key": "seasonal",
+     "headline": "The third tracked home retailer joined the patio clearance at 35% off.",
+     "summary": "All three now list the same four piece set between $549 and $599.",
+     "chip": null
+    },
+    {
+     "day": "Thursday 17",
+     "weekday": "Thursday",
+     "date": "Thursday, September 17",
+     "thread": "Paycheck",
+     "key": "paycheck",
+     "headline": "Where the 20% sits matters: 0.37% against 4.00% on $200 a payday.",
+     "summary": "Over a year of alternate Friday deposits the difference is about $100 in interest.",
+     "chip": null
+    }
+   ],
+   [
+    {
+     "day": "Friday 18",
+     "weekday": "Friday",
+     "date": "Friday, September 18",
+     "thread": "Rates",
+     "key": "rates",
+     "headline": "A money market up 0.10, a savings account down 0.05, overnight.",
+     "summary": "Bank C (illustrative) is 3.80%; Bank E cut to 3.70%, the week's only cut since the Fed's move.",
+     "chip": null
+    },
+    {
+     "day": "Friday 18",
+     "weekday": "Friday",
+     "date": "Friday, September 18",
+     "thread": "Cashback",
+     "key": "cashback",
+     "headline": "The grocery category has twelve days left: how much cap remains?",
+     "summary": "The card's app shows spend toward the $1,500 cap; anything left after September 30 is gone.",
+     "chip": null
+    },
+    {
+     "day": "Friday 18",
+     "weekday": "Friday",
+     "date": "Friday, September 18",
+     "thread": "Coupons",
+     "key": "coupons",
+     "headline": "A 20% winter tire code opened today and runs through next Friday.",
+     "summary": "Eight days to use it; the rebate form on the same order is separate and still applies.",
+     "chip": null
+    },
+    {
+     "day": "Friday 18",
+     "weekday": "Friday",
+     "date": "Friday, September 18",
+     "thread": "Seasonal",
+     "key": "seasonal",
+     "headline": "Grills joined the clearance: a $399 gas grill is listed at $279.",
+     "summary": "The outdoor aisle is being emptied for holiday stock, and the grills go with the patio sets.",
+     "chip": null
+    },
+    {
+     "day": "Friday 18",
+     "weekday": "Friday",
+     "date": "Friday, September 18",
+     "thread": "Paycheck",
+     "key": "paycheck",
+     "headline": "The deposit that's automatic on payday is the one that happens.",
+     "summary": "A standing transfer set for the morning after payday removes the decision; the amount can be $25.",
+     "chip": null
+    }
+   ]
+  ]
+ },
+ "thisWeek": {
+  "from": "Monday, September 21",
+  "to": "Wednesday, September 23",
+  "days": [
+   {
+    "weekday": "Monday",
+    "date": "Monday, September 21",
+    "label": "Monday 21",
+    "items": [
+     {
+      "thread": "Rates",
+      "key": "rates",
+      "headline": "Tracked rates open the week where they closed it: the top at 4.00%.",
+      "summary": "No overnight moves; four accounts moved last week, three of them up.",
+      "chip": null
+     },
+     {
+      "thread": "Cashback",
+      "key": "cashback",
+      "headline": "Activation for October opens Wednesday on one of the tracked cards.",
+      "summary": "The other card opens on October 1; the grocery category runs nine more days.",
+      "chip": null
+     },
+     {
+      "thread": "Coupons",
+      "key": "coupons",
+      "headline": "The winter tire code stacks with a $50 rebate through Friday.",
+      "summary": "On a $600 set the code takes it to $480 and the rebate to $430.",
+      "chip": null
+     },
+     {
+      "thread": "Seasonal",
+      "key": "seasonal",
+      "headline": "Denim clearance began: 40% off at two of the four chains we track.",
+      "summary": "A $90 pair is about $54 at the two; the other two had not moved by six.",
+      "chip": null
+     },
+     {
+      "thread": "Paycheck",
+      "key": "paycheck",
+      "headline": "Where did the 30% go in September? The card statement knows.",
+      "summary": "The wants line is the one that drifts; three statements show the drift before the split worksheet does.",
+      "chip": null
+     }
+    ]
+   },
+   {
+    "weekday": "Tuesday",
+    "date": "Tuesday, September 22",
+    "label": "Tuesday 22",
+    "items": [
+     {
+      "thread": "Rates",
+      "key": "rates",
+      "headline": "A tracked CD moved up 0.05 to 3.40% overnight.",
+      "summary": "Bank G (illustrative), the shortest CD on the list, is the first tracked account to move this week.",
+      "chip": null
+     },
+     {
+      "thread": "Cashback",
+      "key": "cashback",
+      "headline": "The last September grocery trips decide whether the $1,500 cap is met.",
+      "summary": "Under the cap, groceries earn 5% on the category card; over it, the flat 3% card wins.",
+      "chip": null
+     },
+     {
+      "thread": "Coupons",
+      "key": "coupons",
+      "headline": "A $10 off $50 pharmacy code covers the aisle, not the prescription.",
+      "summary": "Household goods and over the counter items count; the prescription line is excluded by the code's terms.",
+      "chip": null
+     },
+     {
+      "thread": "Seasonal",
+      "key": "seasonal",
+      "headline": "The grill markdown held through the weekend: $399 listed at $279.",
+      "summary": "The tracked home retailers cut grills with the patio sets on Friday, and the price held.",
+      "chip": null
+     },
+     {
+      "thread": "Paycheck",
+      "key": "paycheck",
+      "headline": "A raise resets the split: the new net pay, the same three shares.",
+      "summary": "The 20% grows with the paycheck only if the deposit is redone; a fixed $200 shrinks as a share.",
+      "chip": null
+     }
+    ]
+   },
+   {
+    "weekday": "Wednesday",
+    "date": "Wednesday, September 23",
+    "label": "Wednesday 23",
+    "items": [
+     {
+      "thread": "Rates",
+      "key": "rates",
+      "headline": "A second tracked account moved up 0.05 this week, and none has cut.",
+      "summary": "Bank H (illustrative), further down the tracked list, is 3.65% this morning; the top tracked rate stays 4.00%.",
+      "chip": null
+     },
+     {
+      "thread": "Cashback",
+      "key": "cashback",
+      "headline": "Activation for the October categories opened on one of the two tracked cards.",
+      "summary": "Turning it on today costs nothing and the 5% starts October 1; the grocery category keeps paying through September 30.",
+      "chip": null
+     },
+     {
+      "thread": "Coupons",
+      "key": "coupons",
+      "headline": "A 15% code on running shoes stacks with a $20 rebate through Sunday.",
+      "summary": "On a $140 pair the two together bring the price to about $99.",
+      "chip": null
+     },
+     {
+      "thread": "Seasonal",
+      "key": "seasonal",
+      "headline": "Denim clearance spread to three of the four chains we track, at 40% off.",
+      "summary": "A $90 pair is about $54 this week; the fourth chain's published prices had not moved by six.",
+      "chip": null
+     },
+     {
+      "thread": "Paycheck",
+      "key": "paycheck",
+      "headline": "October holds three paydays if your alternate Friday paycheck lands on October 2.",
+      "summary": "The third paycheck has no bills assigned to it, and the split worksheet shows where it could go before it arrives.",
+      "chip": null
+     }
+    ],
+    "reusesYesterday": true
+   }
+  ]
+ }
+}

@@ -1,0 +1,491 @@
+{
+ "checked": "2026-09-25T17:09:00.284Z",
+ "slots": {
+  "video.hero-loop": {
+   "id": "video.hero-loop",
+   "present": true,
+   "files": {
+    "desktop": {
+     "path": "/assets/video/hero-loop.mp4",
+     "exists": true
+    },
+    "mobile": {
+     "path": "/assets/video/hero-loop-720.mp4",
+     "exists": true
+    },
+    "poster": {
+     "path": "/assets/video/hero-loop-poster.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [],
+    "phone": [],
+    "avif": []
+   }
+  },
+  "video.product-pan": {
+   "id": "video.product-pan",
+   "present": true,
+   "files": {
+    "desktop": {
+     "path": "/assets/video/product-pan.mp4",
+     "exists": true
+    },
+    "poster": {
+     "path": "/assets/video/product-pan-poster.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [],
+    "phone": [],
+    "avif": []
+   }
+  },
+  "photo.about-hero": {
+   "id": "photo.about-hero",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/photo/about-hero.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [
+     800,
+     1200,
+     1600,
+     2400
+    ],
+    "phone": [
+     800
+    ],
+    "avif": [
+     1600
+    ]
+   }
+  },
+  "photo.membership-free-column": {
+   "id": "photo.membership-free-column",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/photo/membership-free-column.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [
+     800,
+     1200,
+     1600
+    ],
+    "phone": [],
+    "avif": [
+     1600
+    ]
+   }
+  },
+  "photo.todays-pass-heading": {
+   "id": "photo.todays-pass-heading",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/photo/todays-pass-heading.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [
+     800,
+     1200,
+     1600,
+     2400
+    ],
+    "phone": [
+     800,
+     1200
+    ],
+    "avif": [
+     1600
+    ]
+   }
+  },
+  "photo.ranker-edge": {
+   "id": "photo.ranker-edge",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/photo/ranker-edge.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [
+     800,
+     1200,
+     1600
+    ],
+    "phone": [],
+    "avif": [
+     1600
+    ]
+   }
+  },
+  "photo.roundup-header": {
+   "id": "photo.roundup-header",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/photo/roundup-header.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [
+     800,
+     1200,
+     1600,
+     2400
+    ],
+    "phone": [
+     800,
+     1200
+    ],
+    "avif": [
+     1600
+    ]
+   }
+  },
+  "photo.guides-header": {
+   "id": "photo.guides-header",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/photo/guides-header.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [
+     800,
+     1200,
+     1600,
+     2400
+    ],
+    "phone": [
+     800
+    ],
+    "avif": [
+     1600
+    ]
+   }
+  },
+  "photo.contact-side": {
+   "id": "photo.contact-side",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/photo/contact-side.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [
+     800,
+     1200,
+     1600
+    ],
+    "phone": [],
+    "avif": [
+     1600
+    ]
+   }
+  },
+  "photo.404": {
+   "id": "photo.404",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/photo/404-loose-thread.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [
+     800,
+     1200,
+     1600
+    ],
+    "phone": [],
+    "avif": [
+     1600
+    ]
+   }
+  },
+  "photo.guide-hero.make-a-rotating-category-pay": {
+   "id": "photo.guide-hero.make-a-rotating-category-pay",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/photo/guide-rotating-category.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [
+     800,
+     1200,
+     1600,
+     2400
+    ],
+    "phone": [
+     800,
+     1200
+    ],
+    "avif": [
+     1600
+    ]
+   }
+  },
+  "photo.guide-hero.the-national-average-is-a-warning": {
+   "id": "photo.guide-hero.the-national-average-is-a-warning",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/photo/guide-national-average.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [
+     800,
+     1200,
+     1600,
+     2400
+    ],
+    "phone": [
+     800,
+     1200
+    ],
+    "avif": [
+     1600
+    ]
+   }
+  },
+  "photo.guide-hero.four-percent-against-the-account-you-have": {
+   "id": "photo.guide-hero.four-percent-against-the-account-you-have",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/photo/guide-four-percent.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [
+     800,
+     1200,
+     1600,
+     2400
+    ],
+    "phone": [
+     800,
+     1200
+    ],
+    "avif": [
+     1600
+    ]
+   }
+  },
+  "photo.guide-hero.why-patio-furniture-is-cheap-in-october": {
+   "id": "photo.guide-hero.why-patio-furniture-is-cheap-in-october",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/photo/guide-patio-october.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [
+     800,
+     1200,
+     1600,
+     2400
+    ],
+    "phone": [
+     800,
+     1200
+    ],
+    "avif": [
+     1600
+    ]
+   }
+  },
+  "product.today-desktop": {
+   "id": "product.today-desktop",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/product/today-desktop.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [],
+    "phone": [],
+    "avif": []
+   }
+  },
+  "product.rates-desktop": {
+   "id": "product.rates-desktop",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/product/rates-desktop.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [],
+    "phone": [],
+    "avif": []
+   }
+  },
+  "product.goals-desktop": {
+   "id": "product.goals-desktop",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/product/goals-desktop.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [],
+    "phone": [],
+    "avif": []
+   }
+  },
+  "product.today-phone": {
+   "id": "product.today-phone",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/product/today-phone.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [],
+    "phone": [],
+    "avif": []
+   }
+  },
+  "product.rates-phone": {
+   "id": "product.rates-phone",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/product/rates-phone.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [],
+    "phone": [],
+    "avif": []
+   }
+  },
+  "product.goals-phone": {
+   "id": "product.goals-phone",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/product/goals-phone.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [],
+    "phone": [],
+    "avif": []
+   }
+  },
+  "kit.logo": {
+   "id": "kit.logo",
+   "present": true,
+   "files": {},
+   "renditions": {
+    "desktop": [],
+    "phone": [],
+    "avif": []
+   }
+  },
+  "kit.favicon": {
+   "id": "kit.favicon",
+   "present": true,
+   "files": {},
+   "renditions": {
+    "desktop": [],
+    "phone": [],
+    "avif": []
+   }
+  },
+  "kit.banners": {
+   "id": "kit.banners",
+   "present": true,
+   "files": {},
+   "renditions": {
+    "desktop": [],
+    "phone": [],
+    "avif": []
+   }
+  },
+  "kit.svg": {
+   "id": "kit.svg",
+   "present": true,
+   "files": {},
+   "renditions": {
+    "desktop": [],
+    "phone": [],
+    "avif": []
+   }
+  },
+  "texture.fabric": {
+   "id": "texture.fabric",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/texture/fabric-1k.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [],
+    "phone": [],
+    "avif": []
+   }
+  },
+  "scene.loom-poster": {
+   "id": "scene.loom-poster",
+   "present": true,
+   "files": {
+    "src": {
+     "path": "/assets/scene/loom-poster.webp",
+     "exists": true
+    }
+   },
+   "renditions": {
+    "desktop": [],
+    "phone": [],
+    "avif": []
+   }
+  }
+ },
+ "missing": [],
+ "twill": true
+}
