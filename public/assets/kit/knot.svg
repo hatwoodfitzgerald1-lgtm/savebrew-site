@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" role="img" aria-label="SaveBrew knot">
+<style>
+.warp,.over,.under{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:butt}
+@media (prefers-reduced-motion: no-preference){
+.draw .warp{stroke-dasharray:24;stroke-dashoffset:24;animation:sb-warp .38s cubic-bezier(0.36, 0.01, 0.10, 1) forwards}
+.draw .over{stroke-dasharray:32;stroke-dashoffset:32;animation:sb-loop .38s cubic-bezier(0.22, 1.12, 0.36, 1) .2s forwards}
+.draw .under{stroke-dasharray:8;stroke-dashoffset:8;animation:sb-loop .38s cubic-bezier(0.22, 1.12, 0.36, 1) .42s forwards}
+.draw .loop{transform-origin:12px 12px;transform:scale(1.18);animation:sb-tight .38s cubic-bezier(0.22, 1.12, 0.36, 1) .5s forwards}
+}
+@keyframes sb-warp{to{stroke-dashoffset:0}}
+@keyframes sb-loop{to{stroke-dashoffset:0}}
+@keyframes sb-tight{to{transform:scale(1)}}
+</style>
+<g class="draw">
+<path class="warp" d="M12 2V4.8M12 8.4V22"/>
+<g class="loop"><path class="over" d="M2.5 12H8.4C8.4 8.4 10 6.6 12 6.6C14 6.6 15.6 8.4 15.6 12H21.5"/><path class="under" d="M15.6 12C15.6 13.6 14.6 14.6 13.5 14.9M10.5 14.9C9.4 14.6 8.4 13.6 8.4 12"/></g>
+</g>
+</svg>
