@@ -1,0 +1,110 @@
+---
+// The global chrome: head hygiene, the loader, the heading band, the tab strip, main, the footer, the cart drawer
+// and the live region, with the motion system loaded once. Every route renders through this layout.
+//   <Layout title={t('head.about.title')} description={t('head.about.meta')} route="/about" hover="dye">
+// Props: title and description (from copy.md head.*), route (the path, for canonical and the active nav link),
+// hover (the page's text hover: pluck|tighten|stitch|knot|lift|dye|dash|unspool), noindex, rss ([{title, href}]),
+// preload (extra <link rel=preload> objects), ogImage, bodyClass, loader (false to skip the stitch, e.g. the dashboard).
+import '../styles/tokens.css';
+import '../styles/base.css';
+import '../styles/layout.css';
+import '../styles/kit.css';
+import '../styles/motion.css';
+import { t } from '../lib/copy';
+import { brand } from '../lib/assets';
+import Header from '../components/Header.astro';
+import TabStrip from '../components/TabStrip.astro';
+import Footer from '../components/Footer.astro';
+import CartDrawer from '../components/CartDrawer.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  route?: string;
+  hover?: 'pluck' | 'tighten' | 'stitch' | 'knot' | 'lift' | 'dye' | 'dash' | 'unspool' | 'none';
+  noindex?: boolean;
+  rss?: { title: string; href: string }[];
+  preload?: { href: string; as: string; type?: string; media?: string }[];
+  ogImage?: string;
+  bodyClass?: string;
+  loader?: boolean;
+  footer?: boolean;
+  tabstrip?: boolean;
+  lang?: string;
+}
+const {
+  title, description, route = Astro.url.pathname.replace(/\/+$/, '') || '/', hover = 'none', noindex = false, rss = [], preload = [],
+  ogImage = brand.og, bodyClass = '', loader = true, footer = true, tabstrip = true, lang = 'en'
+} = Astro.props;
+const site = 'https://savebrew.com';
+const canonical = site + (route === '/' ? '/' : route);
+const ogUrl = ogImage.startsWith('http') ? ogImage : site + ogImage;
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={t('global.brand')} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#F6E7A1" />
+    <link rel="icon" href={brand.favicon.ico} sizes="48x48" />
+    <link rel="icon" href={brand.favicon.svg} type="image/svg+xml" />
+    <link rel="icon" href={brand.favicon.png32} type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href={brand.favicon.apple} sizes="180x180" />
+    <link rel="preload" href="/assets/fonts/big-shoulders-display-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/assets/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin />
+    {preload.map((p) => <link rel="preload" href={p.href} as={p.as} type={p.type} media={p.media} />)}
+    {rss.map((r) => <link rel="alternate" type="application/rss+xml" title={r.title} href={r.href} />)}
+    <script is:inline>
+      // the reduce motion choice is restored before paint; ?qa=rm forces the reduced path
+      (function () {
+        try {
+          var reduced = localStorage.getItem('savebrew.motion') === 'reduced';
+          if (reduced || /[?&]qa=rm(&|$)/.test(location.search)) document.documentElement.setAttribute('data-motion', 'reduced');
+        } catch (e) {}
+      })();
+    </script>
+    <slot name="head" />
+  </head>
+  <body class={bodyClass || undefined} data-hover={hover === 'none' ? undefined : hover} data-route={route}>
+    <a class="skip" href="#content">{t('global.skip')}</a>
+    {loader && (
+      <div class="loader" data-loader aria-hidden="false">
+        <canvas class="loader__stitch" data-selvedge="loader" role="progressbar" aria-label={t('loader.aria')} aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></canvas>
+        <a class="loader__skip" href="#content" data-loader-skip>{t('loader.skip')}</a>
+      </div>
+    )}
+    <Header route={route} />
+    {tabstrip && <TabStrip />}
+    <main id="content" class="site-main" tabindex="-1">
+      <slot />
+    </main>
+    {footer && <Footer />}
+    <CartDrawer />
+    <p class="live" id="sb-live" aria-live="polite"></p>
+    <style is:global>
+      .loader { position: fixed; inset: 0; z-index: 60; pointer-events: none; transition: opacity 0.3s var(--ease-shuttle); }
+      .loader.is-done { opacity: 0; }
+      .loader__stitch { position: absolute; left: 0; top: 0; width: var(--gutter); height: 100vh; height: 100dvh; }
+      .loader__skip { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); pointer-events: auto; font-weight: 700; color: var(--indigo); background: rgba(255, 255, 255, 0.85); padding: 6px 12px; border-radius: 4px; }
+      .loader.is-done .loader__skip { pointer-events: none; }
+      .site-main { min-height: 40vh; }
+    </style>
+    <script>
+      import '../scripts/loader';
+      import '../scripts/motion';
+    </script>
+  </body>
+</html>
