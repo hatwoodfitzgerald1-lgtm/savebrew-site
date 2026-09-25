@@ -1,0 +1,77 @@
+---
+// /terms and /privacy (design document 7.21 and section 8): the complete legal text, verbatim from the generated
+// documents as pasted in the design document (src/data/legal.json, built by scripts/build-legal.mjs), with the
+// SMS clauses, [INSERT SHORT CODE] and the [EIN Address] placeholder kept literally and the documents' own
+// hyphens and phone format as written. The heading pass, the standfirst (legal.contact.line), a table of
+// contents linking each clause, then the clauses as H2s in CSS multicolumn on a white block with the twill
+// margin. Scene: the twill filling in once. Text hover: underline only. Both routes indexed.
+import Layout from '../../layouts/Layout.astro';
+import HeadingPass from '../HeadingPass.astro';
+import PageScene from '../PageScene.astro';
+import Knot from '../kit/Knot.astro';
+import Selvedge from '../kit/Selvedge.astro';
+import legal from '../../data/legal.json';
+import { t } from '../../lib/copy';
+interface Props { doc: 'terms' | 'privacy'; path: string }
+const { doc } = Astro.props;
+const d = (legal as any)[doc] as { title: string; entity: string; intro: string[]; clauses: { heading: string; id: string; blocks: ({ type: 'p'; text: string } | { type: 'list'; items: string[] })[] }[] };
+const heading = t(doc === 'terms' ? 'legal.terms.heading' : 'legal.privacy.heading');
+const title = t(doc === 'terms' ? 'head.terms.title' : 'head.privacy.title');
+const description = t(doc === 'terms' ? 'head.terms.meta' : 'head.privacy.meta');
+const route = doc === 'terms' ? '/terms' : '/privacy';
+---
+<Layout title={title} description={description} route={route} hover="none" bodyClass="is-legal">
+  <HeadingPass title={heading} level={1} id="legal-heading" intro={t('legal.contact.line')} entrance="stitch" />
+  <section class="legal wide" aria-labelledby="legal-heading">
+    <PageScene kind="legal-twill" class="legal__twill" height="100%" />
+    <div class="legal__block">
+      <nav class="legal__toc" aria-label={t('add.legal.contents')} data-entrance="stitch" data-entrance-items="li" data-stagger="30">
+        <p class="legal__toc-label"><Knot size={16} />{t('add.legal.contents')}</p>
+        <ol class="legal__toc-list">
+          {d.clauses.map((c) => <li><a href={`#${c.id}`}>{c.heading}</a></li>)}
+        </ol>
+      </nav>
+      <div class="legal__edge"><Selvedge id={`legal-${doc}-edge`} /></div>
+      <div class="legal__text legal-verbatim" data-entrance="wipe">
+        <div class="prose-cols legal__cols">
+          <p class="legal__entity">{d.entity}</p>
+          {d.intro.map((p) => <p>{p}</p>)}
+          {d.clauses.map((c) => (
+            <div class="legal__clause">
+              <h2 id={c.id} class="legal__h2">{c.heading}</h2>
+              {c.blocks.map((b) => b.type === 'list' ? <ul class="legal__list">{b.items.map((it) => <li>{it}</li>)}</ul> : <p>{b.text}</p>)}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+<style is:global>
+  .legal { position: relative; padding-block: clamp(20px, 2.6vw, 48px) clamp(28px, 3.4vw, 64px); isolation: isolate; background: var(--butter); }
+  .legal__twill { position: absolute; inset: 0; z-index: -1; }
+  .legal__block { background: var(--white); border-radius: var(--radius-board); box-shadow: 0 0 0 1px var(--butter-deep); padding: clamp(18px, 2vw, 36px); display: flex; flex-direction: column; gap: 18px; }
+  .legal__toc { display: flex; flex-direction: column; gap: 10px; }
+  .legal__toc-label { display: flex; align-items: center; gap: 6px; font-family: var(--font-display); font-weight: 600; font-size: var(--fs-h3); color: var(--indigo); }
+  .legal__toc-label .knot { color: var(--indigo); }
+  .legal__toc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; }
+  .legal__toc-list a { font-size: var(--fs-label); font-weight: 600; }
+  .legal__edge { height: 14px; }
+  .legal__cols { columns: 36ch; }
+  .legal__entity { font-weight: 700; color: var(--indigo); }
+  .legal__clause { break-inside: auto; }
+  .legal__h2 { font-size: var(--fs-h3); margin-top: 1.2em; break-after: avoid; scroll-margin-top: calc(var(--band-h) + 16px); }
+  .legal__h2 + p, .legal__h2 + ul { margin-top: 0.4em; }
+  .legal__list { padding-left: 1.1em; list-style: square; }
+  .legal__list li + li { margin-top: 0.4em; }
+  .legal__list li::marker { color: var(--indigo); }
+  .legal p, .legal li { font-size: var(--fs-body); line-height: 1.55; color: var(--ink); overflow-wrap: anywhere; }
+  /* the columns wipe in left to right, one after another, once the block is in view (Shuttle, 1.2s); built from the
+     entrance primitives (.is-in from the motion system), not the scroll timeline, because the block is taller than a viewport */
+  /* the clip sits on the child: an element clipped to nothing never intersects in Chromium, so the wrapper is what the observer watches */
+  [data-entrance="wipe"] > .legal__cols { clip-path: inset(0 100% 0 0); transition: clip-path var(--dur-slow) var(--ease-shuttle); }
+  [data-entrance="wipe"].is-in > .legal__cols, [data-entrance="wipe"].is-initial > .legal__cols { clip-path: inset(0 0 0 0); }
+  @media (prefers-reduced-motion: reduce) { [data-entrance="wipe"] > .legal__cols { clip-path: none; transition: none; } }
+  :root[data-motion="reduced"] [data-entrance="wipe"] > .legal__cols { clip-path: none; transition: none; }
+  @media (max-width: 767px) { .legal__cols { columns: 1; } .legal__block { padding: 16px; } }
+</style>
