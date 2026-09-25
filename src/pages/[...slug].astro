@@ -1,0 +1,16 @@
+---
+// The server rendered catch all (browser_deploy.md): every path is answered here, so no static directory file
+// exists to trigger Webflow Cloud's trailing slash redirect loop. The route map in src/routes/index.ts maps a
+// path to its page component; unknown paths render the designed 404 with a 404 status; the two legal aliases 301.
+export const prerender = false;
+import { resolve, aliases } from '../routes';
+
+const url = new URL(Astro.request.url);
+let path = decodeURIComponent(url.pathname).replace(/\/+$/, '') || '/';
+if (aliases[path]) return Astro.redirect(aliases[path], 301);
+const match = resolve(path);
+Astro.response.status = match.status;
+if (match.status === 404) Astro.response.headers.set('x-robots-tag', 'noindex');
+const Page = match.component;
+---
+<Page {...(match.props || {})} path={match.path} />
