@@ -168,17 +168,17 @@ const pastDate = pastEntry ? fmt('roundup.past.entry.pattern', { date: pastEntry
   .ru-past__rsslink { font-weight: 700; }
 
   /* entrances built from the primitives: open-left (the band's clip opens from the left, the date pops), rows-knots (the table's rows wipe in top to bottom, then the matrix knots tie column by column), along (the entries slide in along the thread) */
-  [data-entrance="open-left"] .ru-header__band { clip-path: inset(0 100% 0 0); }
+  :where(html.sb-motion) [data-entrance="open-left"] .ru-header__band { clip-path: inset(0 100% 0 0); }
   [data-entrance="open-left"].is-in .ru-header__band { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) both; }
-  [data-entrance="open-left"] .ru-header__chip { transform: scale(0.6); opacity: 0; }
+  :where(html.sb-motion) [data-entrance="open-left"] .ru-header__chip { transform: scale(0.6); opacity: 0; }
   [data-entrance="open-left"].is-in .ru-header__chip { animation: sb-knots var(--dur-base) var(--ease-knot) 0.5s both; }
-  [data-entrance="rows-knots"] .ent-item { clip-path: inset(0 100% 0 0); }
+  :where(html.sb-motion) [data-entrance="rows-knots"] .ent-item { clip-path: inset(0 100% 0 0); }
   [data-entrance="rows-knots"].is-in .ent-item { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(var(--i, 0) * 70ms); }
-  [data-entrance="rows-knots"] .ru-matrix__knot { transform: scale(0); }
+  :where(html.sb-motion) [data-entrance="rows-knots"] .ru-matrix__knot { transform: scale(0); }
   [data-entrance="rows-knots"].is-in .ru-matrix__knot { animation: sb-pop var(--dur-base) var(--ease-knot) both; animation-delay: calc(0.5s + var(--i, 0) * 90ms); }
-  [data-entrance="rows-knots"] .ru-matrix__cell.is-moved::before { transform: scale(0); }
+  :where(html.sb-motion) [data-entrance="rows-knots"] .ru-matrix__cell.is-moved::before { transform: scale(0); }
   [data-entrance="rows-knots"].is-in .ru-matrix__cell.is-moved::before { transform: scale(1); transition-delay: calc(0.7s + var(--i, 0) * 90ms); }
-  [data-entrance="along"] .ent-item { opacity: 0; transform: translateX(-40px); }
+  :where(html.sb-motion) [data-entrance="along"] .ent-item { opacity: 0; transform: translateX(-40px); }
   [data-entrance="along"].is-in .ent-item { animation: sb-along var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(var(--i, 0) * 80ms); }
   @keyframes sb-along { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) {

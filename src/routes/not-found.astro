@@ -125,7 +125,7 @@ const links = [
   .hv-curl a:not(.bobbin):not(.chip):not(.sb-app *) { text-decoration: none; background-image: linear-gradient(var(--indigo), var(--indigo)); background-repeat: no-repeat; background-size: 0% 2px; background-position: 0 100%; transition: background-size var(--dur-base) var(--ease-shuttle), text-decoration-color var(--dur-base) var(--ease-shuttle); }
   .hv-curl a:not(.bobbin):not(.chip):not(.sb-app *):is(:hover, :focus-visible, :active) { background-size: 0% 2px; text-decoration: underline wavy var(--indigo); text-decoration-thickness: 2px; text-underline-offset: 4px; }
   /* entrance built from the primitives: curl (the thread curls, the heading arrives tight, the line wipes in) */
-  [data-entrance="curl"] .nf-head__line { clip-path: inset(0 100% 0 0); }
+  :where(html.sb-motion) [data-entrance="curl"] .nf-head__line { clip-path: inset(0 100% 0 0); }
   [data-entrance="curl"].is-in .nf-head__line { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) 0.2s both; }
   @media (prefers-reduced-motion: reduce) { [data-entrance="curl"] .nf-head__line { animation: none !important; clip-path: none !important; } }
   :root[data-motion="reduced"] [data-entrance="curl"] .nf-head__line { animation: none !important; clip-path: none !important; }

@@ -133,17 +133,17 @@ const yesterday = brief.yesterday.items;
   .brief-yesterday__item[data-in] { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) both; }
 
   /* entrances built from the primitives: datechip (the date tightens and the chip pops), icons (the cell heads' icons draw, the text fades in the clip), slide (the knots slide in along the thread from the right) */
-  [data-entrance="datechip"] .brief-header__chip { transform: scale(0.6); opacity: 0; transform-origin: 50% 50%; }
+  :where(html.sb-motion) [data-entrance="datechip"] .brief-header__chip { transform: scale(0.6); opacity: 0; transform-origin: 50% 50%; }
   [data-entrance="datechip"].is-in .brief-header__chip { animation: sb-knots var(--dur-base) var(--ease-knot) 0.4s both; }
-  [data-entrance="icons"] .ent-item .brief-member__icon :is(path, circle, line, polyline, rect) { stroke-dasharray: 80; stroke-dashoffset: 80; }
-  [data-entrance="icons"] .ent-item .brief-member__text, [data-entrance="icons"] .ent-item .brief-member__thumb { opacity: 0; clip-path: inset(0 0 100% 0); }
+  :where(html.sb-motion) [data-entrance="icons"] .ent-item .brief-member__icon :is(path, circle, line, polyline, rect) { stroke-dasharray: 80; stroke-dashoffset: 80; }
+  :where(html.sb-motion) [data-entrance="icons"] .ent-item .brief-member__text, :where(html.sb-motion) [data-entrance="icons"] .ent-item .brief-member__thumb { opacity: 0; clip-path: inset(0 0 100% 0); }
   [data-entrance="icons"].is-in .ent-item .brief-member__icon :is(path, circle, line, polyline, rect) { animation: sb-icon-draw var(--dur-slow) var(--ease-shuttle) both; animation-delay: calc(var(--i, 0) * 90ms); }
   [data-entrance="icons"].is-in .ent-item .brief-member__text, [data-entrance="icons"].is-in .ent-item .brief-member__thumb { animation: sb-fade-clip var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(0.35s + var(--i, 0) * 90ms); }
   @keyframes sb-icon-draw { to { stroke-dashoffset: 0; } }
   @keyframes sb-fade-clip { from { opacity: 0; clip-path: inset(0 0 100% 0); } to { opacity: 1; clip-path: inset(0 0 0 0); } }
-  [data-entrance="slide"] .ent-item { opacity: 0; transform: translateX(60px); }
+  :where(html.sb-motion) [data-entrance="slide"] .ent-item { opacity: 0; transform: translateX(60px); }
   [data-entrance="slide"].is-in .ent-item { animation: sb-slide var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(var(--i, 0) * 40ms); }
-  [data-entrance="slide"] .brief-yesterday__thread { transform: scaleX(0); transform-origin: right; }
+  :where(html.sb-motion) [data-entrance="slide"] .brief-yesterday__thread { transform: scaleX(0); transform-origin: right; }
   [data-entrance="slide"].is-in .brief-yesterday__thread { transition: transform var(--dur-slow) var(--ease-shuttle); transform: scaleX(1); }
   @keyframes sb-slide { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) {

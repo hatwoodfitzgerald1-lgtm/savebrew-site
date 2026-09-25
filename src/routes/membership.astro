@@ -114,21 +114,21 @@ const panPoster = file('video.product-pan', 'poster');
   .mship-faq__disclaimer { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); padding-top: 8px; }
 
   /* entrances built from the primitives: populate (the desktop window's modules populate top to bottom, then the phone slides in from the right), thread-knots (the thread draws left to right, the two knots tie in turn), pop-right (the knots pop, then the answers wipe in from the right one column at a time) */
-  [data-entrance="populate"] .mship-dash__desk { clip-path: inset(0 0 100% 0); }
+  :where(html.sb-motion) [data-entrance="populate"] .mship-dash__desk { clip-path: inset(0 0 100% 0); }
   [data-entrance="populate"].is-in .mship-dash__desk { animation: sb-populate var(--dur-base) var(--ease-shuttle) both; }
   @keyframes sb-populate { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
-  [data-entrance="populate"] .mship-dash__phone { opacity: 0; transform: translateX(40px); }
+  :where(html.sb-motion) [data-entrance="populate"] .mship-dash__phone { opacity: 0; transform: translateX(40px); }
   [data-entrance="populate"].is-in .mship-dash__phone { animation: sb-slide-in var(--dur-base) var(--ease-shuttle) 0.6s both; }
   @keyframes sb-slide-in { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
-  [data-entrance="thread-knots"] .mship-cancel__thread { transform: scaleX(0); }
+  :where(html.sb-motion) [data-entrance="thread-knots"] .mship-cancel__thread { transform: scaleX(0); }
   [data-entrance="thread-knots"].is-in .mship-cancel__thread { animation: sb-thread var(--dur-slow) var(--ease-shuttle) both; }
   @keyframes sb-thread { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-  [data-entrance="thread-knots"] .ent-item { opacity: 0; transform: scale(0.6); transform-origin: 16px 20px; }
+  :where(html.sb-motion) [data-entrance="thread-knots"] .ent-item { opacity: 0; transform: scale(0.6); transform-origin: 16px 20px; }
   [data-entrance="thread-knots"].is-in .ent-item { animation: sb-knots var(--dur-base) var(--ease-knot) both; animation-delay: calc(0.5s + var(--i, 0) * 0.35s); }
-  [data-entrance="thread-knots"] .mship-cancel__text, [data-entrance="thread-knots"] .mship-cancel__email { opacity: 0; }
+  :where(html.sb-motion) [data-entrance="thread-knots"] .mship-cancel__text, :where(html.sb-motion) [data-entrance="thread-knots"] .mship-cancel__email { opacity: 0; }
   [data-entrance="thread-knots"].is-in .mship-cancel__text, [data-entrance="thread-knots"].is-in .mship-cancel__email { animation: sb-fade var(--dur-base) var(--ease-shuttle) 1.1s both; }
-  [data-entrance="pop-right"] .ent-item { clip-path: inset(0 0 0 100%); }
-  [data-entrance="pop-right"] .ent-item .knot { transform: scale(0); transform-origin: 50% 50%; }
+  :where(html.sb-motion) [data-entrance="pop-right"] .ent-item { clip-path: inset(0 0 0 100%); }
+  :where(html.sb-motion) [data-entrance="pop-right"] .ent-item .knot { transform: scale(0); transform-origin: 50% 50%; }
   [data-entrance="pop-right"].is-in .ent-item { animation: sb-weft-right var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(0.2s + var(--i, 0) * var(--stagger, 50ms)); }
   [data-entrance="pop-right"].is-in .ent-item .knot { animation: sb-pop var(--dur-base) var(--ease-knot) both; animation-delay: calc(var(--i, 0) * var(--stagger, 50ms)); }
   @media (prefers-reduced-motion: reduce) {
@@ -151,7 +151,7 @@ const panPoster = file('video.product-pan', 'poster');
     .mship-dash__phones .sb-app--phone { width: min(100%, 300px); }
     .mship-cancel__knots { grid-template-columns: minmax(0, 1fr); row-gap: 16px; }
     .mship-cancel__thread { left: 15px; right: auto; top: 16px; bottom: 16px; width: 2px; height: auto; transform-origin: top; }
-    [data-entrance="thread-knots"] .mship-cancel__thread { transform: scaleY(0); }
+    :where(html.sb-motion) [data-entrance="thread-knots"] .mship-cancel__thread { transform: scaleY(0); }
     @keyframes sb-thread { from { transform: scaleY(0); } to { transform: scaleY(1); } }
     .mship-faq__disclaimer { padding-inline: 16px; }
   }

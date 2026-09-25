@@ -99,16 +99,16 @@ const where = about.where;
   .ab-where__disclaimer { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); padding-top: 8px; }
 
   /* entrances built from the primitives: open-centre (the band's clip opens from the centre outward), weave-columns (the columns wipe in one after another while the seal weaves), knot-row (a knot ties at the address, then the row wipes in) */
-  [data-entrance="open-centre"] .ab-hero__band { clip-path: inset(0 50% 0 50%); }
+  :where(html.sb-motion) [data-entrance="open-centre"] .ab-hero__band { clip-path: inset(0 50% 0 50%); }
   [data-entrance="open-centre"].is-in .ab-hero__band { animation: sb-open-centre var(--dur-base) var(--ease-shuttle) both; }
   @keyframes sb-open-centre { from { clip-path: inset(0 50% 0 50%); } to { clip-path: inset(0 0 0 0); } }
-  [data-entrance="weave-columns"] .ab-body__copy { clip-path: inset(0 100% 0 0); }
+  :where(html.sb-motion) [data-entrance="weave-columns"] .ab-body__copy { clip-path: inset(0 100% 0 0); }
   [data-entrance="weave-columns"].is-in .ab-body__copy { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) both; }
-  [data-entrance="weave-columns"] .ab-body__seal { opacity: 0; transform: translateY(12px); }
+  :where(html.sb-motion) [data-entrance="weave-columns"] .ab-body__seal { opacity: 0; transform: translateY(12px); }
   [data-entrance="weave-columns"].is-in .ab-body__seal { animation: sb-dock var(--dur-base) var(--ease-knot) 0.2s both; }
-  [data-entrance="knot-row"] .ab-where__knot { transform: scale(0); transform-origin: 50% 50%; }
+  :where(html.sb-motion) [data-entrance="knot-row"] .ab-where__knot { transform: scale(0); transform-origin: 50% 50%; }
   [data-entrance="knot-row"].is-in .ab-where__knot { animation: sb-pop var(--dur-base) var(--ease-knot) both; }
-  [data-entrance="knot-row"] .ab-where__cell { clip-path: inset(0 100% 0 0); }
+  :where(html.sb-motion) [data-entrance="knot-row"] .ab-where__cell { clip-path: inset(0 100% 0 0); }
   [data-entrance="knot-row"].is-in .ab-where__cell { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) 0.3s both; }
   @media (prefers-reduced-motion: reduce) {
     [data-entrance="open-centre"] .ab-hero__band, [data-entrance="weave-columns"] .ab-body__copy, [data-entrance="weave-columns"] .ab-body__seal, [data-entrance="knot-row"] .ab-where__knot, [data-entrance="knot-row"] .ab-where__cell { animation: none !important; clip-path: none !important; opacity: 1 !important; transform: none !important; }

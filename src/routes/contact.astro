@@ -113,23 +113,23 @@ const strings = {
   .ct-form__disclaimer { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); padding-top: 8px; }
 
   /* entrances built from the primitives: wipe-cells (the knot ties at the address, then the cells wipe in left to right and the still's clip opens), stitches (the fields' stitch underlines draw one after another) */
-  [data-entrance="wipe-cells"] .ct-cell { clip-path: inset(0 100% 0 0); }
+  :where(html.sb-motion) [data-entrance="wipe-cells"] .ct-cell { clip-path: inset(0 100% 0 0); }
   [data-entrance="wipe-cells"].is-in .ct-cell { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) both; }
   [data-entrance="wipe-cells"].is-in .ct-cell:nth-of-type(1) { animation-delay: 0.35s; }
   [data-entrance="wipe-cells"].is-in .ct-cell:nth-of-type(2) { animation-delay: 0.45s; }
   [data-entrance="wipe-cells"].is-in .ct-cell:nth-of-type(3) { animation-delay: 0.55s; }
   [data-entrance="wipe-cells"].is-in .ct-cell:nth-of-type(4) { animation-delay: 0.65s; }
   [data-entrance="wipe-cells"].is-in .ct-cell:nth-of-type(5) { animation-delay: 0.75s; }
-  [data-entrance="wipe-cells"] .ct-cell--photo .picture { clip-path: inset(0 0 100% 0); }
+  :where(html.sb-motion) [data-entrance="wipe-cells"] .ct-cell--photo .picture { clip-path: inset(0 0 100% 0); }
   [data-entrance="wipe-cells"].is-in .ct-cell--photo .picture { animation: sb-open-down-ct var(--dur-base) var(--ease-shuttle) 0.9s both; }
   @keyframes sb-open-down-ct { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
   [data-entrance="stitches"] .ent-item .field__input { border-bottom-color: transparent; }
-  [data-entrance="stitches"] .ent-item .field__control::after { transform: scaleX(0); }
+  :where(html.sb-motion) [data-entrance="stitches"] .ent-item .field__control::after { transform: scaleX(0); }
   [data-entrance="stitches"].is-in .ent-item .field__input { transition: border-bottom-color var(--dur-fast) var(--ease-shuttle); transition-delay: calc(0.3s + var(--i, 0) * 60ms); border-bottom-color: var(--muted); }
   [data-entrance="stitches"].is-in .ent-item .field__control::after { animation: sb-stitch-draw var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(var(--i, 0) * 60ms); }
   [data-entrance="stitches"].is-in .ent-item .field__control:focus-within::after { animation: none; transform: scaleX(1); }
   @keyframes sb-stitch-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-  [data-entrance="stitches"] .ent-item :is(.field__label, .field__hint) { opacity: 0; }
+  :where(html.sb-motion) [data-entrance="stitches"] .ent-item :is(.field__label, .field__hint) { opacity: 0; }
   [data-entrance="stitches"].is-in .ent-item :is(.field__label, .field__hint) { animation: sb-fade var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(0.1s + var(--i, 0) * 60ms); }
   @media (prefers-reduced-motion: reduce) {
     [data-entrance="wipe-cells"] .ct-cell, [data-entrance="wipe-cells"] .ct-cell--photo .picture, [data-entrance="stitches"] .ent-item :is(.field__label, .field__hint) { animation: none !important; clip-path: none !important; opacity: 1 !important; }

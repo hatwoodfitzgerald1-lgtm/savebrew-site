@@ -158,24 +158,24 @@ const wordCount = guide.wordCount;
   .guide-hv-knots .guide-body__h2:is(:hover, :focus-visible)::after { transform: scale(1); }
 
   /* entrances built from the primitives: open-left (the still's clip opens left to right), columns (the prose wipes column by column, the pull thread draws last), draw (the Bobbin's stitch draws), thread-three (the thread draws and the three knots tie) */
-  [data-entrance="open-left"] .guide-hero__band { clip-path: inset(0 100% 0 0); }
+  :where(html.sb-motion) [data-entrance="open-left"] .guide-hero__band { clip-path: inset(0 100% 0 0); }
   [data-entrance="open-left"].is-in .guide-hero__band { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) both; }
-  [data-entrance="columns"] .guide-body__prose { clip-path: inset(0 100% 0 0); }
+  :where(html.sb-motion) [data-entrance="columns"] .guide-body__prose { clip-path: inset(0 100% 0 0); }
   [data-entrance="columns"].is-in .guide-body__prose { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) 0.06s both; }
-  [data-entrance="columns"] .guide-body__graphic { opacity: 0; }
+  :where(html.sb-motion) [data-entrance="columns"] .guide-body__graphic { opacity: 0; }
   [data-entrance="columns"].is-in .guide-body__graphic { animation: sb-fade var(--dur-base) var(--ease-shuttle) both; }
-  [data-entrance="columns"] .guide-pull__thread { transform: scaleX(0); }
+  :where(html.sb-motion) [data-entrance="columns"] .guide-pull__thread { transform: scaleX(0); }
   [data-entrance="columns"].is-in .guide-pull__thread { animation: sb-thread var(--dur-slow) var(--ease-shuttle) 0.4s both; }
   @keyframes sb-thread { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-  [data-entrance="draw"]:not(.is-in) .guide-cta__bobbin .bobbin__border { stroke-dashoffset: 400; stroke-dasharray: 400; opacity: 0; }
+  :where(html.sb-motion) [data-entrance="draw"]:not(.is-in) .guide-cta__bobbin .bobbin__border { stroke-dashoffset: 400; stroke-dasharray: 400; opacity: 0; }
   [data-entrance="draw"].is-in .guide-cta__bobbin .bobbin__border { animation: sb-draw var(--dur-slow) var(--ease-shuttle) both; }
   @keyframes sb-draw { from { stroke-dasharray: 400; stroke-dashoffset: 400; opacity: 1; } to { stroke-dasharray: 5 4; stroke-dashoffset: 0; opacity: 0.85; } }
-  [data-entrance="draw"] .ent-item { opacity: 0; transform: translateX(-10px); }
+  :where(html.sb-motion) [data-entrance="draw"] .ent-item { opacity: 0; transform: translateX(-10px); }
   [data-entrance="draw"].is-in .ent-item { animation: sb-along var(--dur-base) var(--ease-knot) 0.4s both; }
   @keyframes sb-along { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
-  [data-entrance="thread-three"] .guide-next__thread { transform: scaleX(0); }
+  :where(html.sb-motion) [data-entrance="thread-three"] .guide-next__thread { transform: scaleX(0); }
   [data-entrance="thread-three"].is-in .guide-next__thread { animation: sb-thread var(--dur-slow) var(--ease-shuttle) both; }
-  [data-entrance="thread-three"] .ent-item { opacity: 0; transform: scale(0.7); transform-origin: 13px 13px; }
+  :where(html.sb-motion) [data-entrance="thread-three"] .ent-item { opacity: 0; transform: scale(0.7); transform-origin: 13px 13px; }
   [data-entrance="thread-three"].is-in .ent-item { animation: sb-knots var(--dur-base) var(--ease-knot) both; animation-delay: calc(0.4s + var(--i, 0) * 0.3s); }
   @media (prefers-reduced-motion: reduce) {
     [data-entrance="open-left"] .guide-hero__band, [data-entrance="columns"] .guide-body__prose, [data-entrance="columns"] .guide-body__graphic, [data-entrance="columns"] .guide-pull__thread, [data-entrance="draw"] .guide-cta__bobbin .bobbin__border, [data-entrance="thread-three"] .guide-next__thread { animation: none !important; clip-path: none !important; opacity: 1 !important; transform: none !important; stroke-dashoffset: 0 !important; stroke-dasharray: 5 4 !important; }
