@@ -1,0 +1,36 @@
+{
+  "name": "savebrew-site",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SaveBrew (savebrew.com): the Astro app for Webflow Cloud. Server rendered catch all, assets under public/assets.",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "data": "node scripts/build-copy.mjs && node scripts/build-longform.mjs && node scripts/build-product-ui.mjs && node scripts/check-assets.mjs",
+    "assets": "node scripts/copy-assets.mjs",
+    "check:width": "node scripts/check-width.mjs",
+    "check:dashes": "node scripts/check-dashes.mjs",
+    "prebuild": "npm run data && node scripts/check-width.mjs && node scripts/check-dashes.mjs",
+    "build": "astro build",
+    "preview": "astro preview",
+    "shoot": "node scripts/shoot.mjs",
+    "astro": "astro",
+    "twill": "node scripts/build-twill.mjs",
+    "fonts": "python3 scripts/build-fonts.py",
+    "product": "node scripts/build-product-ui.mjs"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^14.1.0",
+    "astro": "^7.0.5"
+  },
+  "devDependencies": {
+    "gsap": "^3.12.5",
+    "marked": "^18.0.0",
+    "playwright": "1.56.0",
+    "scroll-timeline-polyfill": "^1.1.0",
+    "three": "^0.128.0"
+  }
+}
