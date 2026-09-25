@@ -1,0 +1,15 @@
+---
+// THE WEFT PASS (3.19 item 3c): a single horizontal indigo thread with one knot at the left gutter, drawn
+// left to right on reveal. Sits under every heading pass; no default horizontal rules anywhere. The knot is
+// the kit knot at its true size; the thread stretches to the full width (the kit's weft-pass.svg, split so the
+// knot never squashes at narrow widths).
+import Knot from './Knot.astro';
+interface Props { class?: string; }
+const { class: className = '' } = Astro.props;
+---
+<div class:list={['weft-pass-wrap', className]} aria-hidden="true">
+  <Knot size={24} class="weft-pass__knot" />
+  <svg class="weft-pass" viewBox="0 0 100 24" preserveAspectRatio="none" focusable="false" data-weft>
+    <path class="w" d="M0 12H100" fill="none" stroke="currentColor" stroke-width="2" />
+  </svg>
+</div>

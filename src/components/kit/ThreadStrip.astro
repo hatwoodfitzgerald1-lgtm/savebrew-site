@@ -1,0 +1,17 @@
+---
+// THE THREAD STRIP (3.19 item 3b): five short vertical threads with per load sag drawn on canvas, each
+// labelled with its thread name and knot glyph. Sits at the head of every row board and is the continuity
+// device the loom hands off to. The labels are real text; the canvas is decorative.
+import { THREADS } from '../../lib/copy';
+import Knot from './Knot.astro';
+interface Props { class?: string; compact?: boolean; id?: string; labels?: boolean; }
+const { class: className = '', compact = false, id, labels = true } = Astro.props;
+---
+<div class:list={['threadstrip', compact ? 'threadstrip--compact' : '', className]} data-threadstrip id={id} role="img" aria-label={THREADS.map((t) => t.name).join(', ')}>
+  <canvas class="threadstrip__canvas" aria-hidden="true"></canvas>
+  <ol class="threadstrip__labels" aria-hidden="true">
+    {THREADS.map((th) => (
+      <li class="threadstrip__label" data-thread={th.key}><Knot size={14} /><span>{labels ? th.name : ''}</span></li>
+    ))}
+  </ol>
+</div>

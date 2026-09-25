@@ -1,0 +1,15 @@
+---
+// THE SELVEDGE SEAL (3.19 item 2): a woven S and B, 160px in the footer, 96px on cards, About and the
+// confirmation. Woven row by row top to bottom (Shuttle per row), the border stitches last (Knot).
+// The weave in runs when the seal gets .is-in (the motion system adds it when the seal scrolls into view).
+import raw from '../../../public/assets/kit/selvedge-seal.svg?raw';
+import { inlineSvg } from '../../lib/svg';
+import { t } from '../../lib/copy';
+interface Props { size?: 160 | 96 | number; class?: string; label?: string; animate?: boolean; }
+const { size = 160, class: className = '', label = t('footer.seal.alt'), animate = true } = Astro.props;
+let svg = inlineSvg(raw, { width: size, height: size, class: ['seal', animate ? 'seal--weave' : '', className].filter(Boolean).join(' '), label });
+// give each weft rect the same delay as its row so the weave reads row by row
+let i = 0;
+svg = svg.replace(/<rect class="weft"/g, () => `<rect class="weft" style="animation-delay:${(i++ * 0.08).toFixed(2)}s"`);
+---
+<Fragment set:html={svg} />

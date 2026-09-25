@@ -1,0 +1,12 @@
+---
+// The eleven kit icons (3.19 item 4): 24px grid, 1.75px stroke, square caps, indigo by default.
+// Names: rates, cashback, coupons, seasonal, paycheck, goals, texts, archive, your-moves, roundup, membership.
+import { inlineSvg } from '../../lib/svg';
+const files = import.meta.glob('../../../public/assets/kit/icons/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+interface Props { name: string; size?: number; class?: string; label?: string; }
+const { name, size = 24, class: className = '', label } = Astro.props;
+const key = Object.keys(files).find((k) => k.endsWith(`/${name}.svg`));
+if (!key) throw new Error(`<Icon name="${name}">: no kit icon with that name (have ${Object.keys(files).map((k) => k.split('/').pop()).join(', ')})`);
+const svg = inlineSvg(files[key], { width: size, height: size, class: ['icon', `icon--${name}`, className].filter(Boolean).join(' '), label });
+---
+<Fragment set:html={svg} />

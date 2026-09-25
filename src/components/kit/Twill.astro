@@ -1,0 +1,16 @@
+---
+// THE TWILL (generative surface two, 3.16): a procedural diagonal weave field, over two under two at a
+// 45 degree lay, at 6 percent contrast. Used only as the footer field, the membership row's ground and the
+// legal page margins. Pre rendered at build time to /assets/texture/twill.webp (npm run twill); until that
+// file exists the client renders the same field on a canvas and tiles it (surfaces.ts).
+import { twillPreRendered } from '../../lib/assets';
+interface Props { class?: string; tag?: string; id?: string; [key: `data-${string}`]: string | undefined; [key: `aria-${string}`]: string | undefined; }
+const { class: className = '', tag = 'div', id, ...rest } = Astro.props;
+const Tag = tag as any;
+// any data-* and aria-* attribute is forwarded (B1: the membership row needs data-entrance and aria-label on the twill section)
+const extra: Record<string, string> = {};
+for (const [k, v] of Object.entries(rest)) if ((k.startsWith('data-') || k.startsWith('aria-')) && v != null) extra[k] = String(v);
+---
+<Tag class:list={['twill', className]} id={id} data-twill={twillPreRendered ? 'file' : 'canvas'} {...extra}>
+  <slot />
+</Tag>

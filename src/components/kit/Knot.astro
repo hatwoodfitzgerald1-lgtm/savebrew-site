@@ -1,0 +1,11 @@
+---
+// THE KNOT (3.19 item 1): a 2px warp crossed by a weft loop that passes over, under and pulls tight.
+// Draw in: the warp top to bottom (Shuttle), the loop left to right and tightening (Knot).
+// Usage: <Knot size={18} /> beside a cell head; <Knot draw /> for the draw in on reveal (needs .is-in via data-entrance or IO).
+import raw from '../../../public/assets/kit/knot.svg?raw';
+import { inlineSvg } from '../../lib/svg';
+interface Props { size?: number; draw?: boolean; class?: string; label?: string; }
+const { size = 24, draw = false, class: className = '', label } = Astro.props;
+const svg = inlineSvg(raw, { width: size, height: size, class: ['knot', draw ? 'knot--draw' : '', className].filter(Boolean).join(' '), label });
+---
+<Fragment set:html={svg} />

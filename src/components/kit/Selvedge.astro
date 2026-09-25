@@ -1,0 +1,8 @@
+---
+// THE SELVEDGE (generative surface one, 3.16): a procedural running stitch drawn on a 2D canvas, seeded
+// from the section id so each instance has its own slight stitch length and angle jitter. Used as the
+// row divider, the card edge and the loader line. Draws on scroll (when in view); static when motion is reduced.
+interface Props { id: string; orientation?: 'horizontal' | 'vertical'; class?: string; thickness?: number; }
+const { id, orientation = 'horizontal', class: className = '', thickness = 14 } = Astro.props;
+---
+<canvas class:list={['selvedge', `selvedge--${orientation}`, className]} data-selvedge data-seed={id} data-orientation={orientation} aria-hidden="true" style={orientation === 'horizontal' ? `height:${thickness}px` : `width:${thickness}px`}></canvas>
