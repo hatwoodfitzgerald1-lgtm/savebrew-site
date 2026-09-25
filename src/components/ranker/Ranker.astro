@@ -176,24 +176,24 @@ const threadKey = (name: string) => name.toLowerCase();
   .ranker__disclaimer-inner { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
 
   /* entrances built from the primitives (.is-in, --i, Shuttle and Knot): tighten (the threads pull tight in turn), lift (the candidates lift from the cloth), draw (the Bobbin's stitch draws), rise (fades up inside a clip) */
-  [data-entrance="tighten"] .ent-item { opacity: 0; transform: translateX(-12px); }
-  [data-entrance="tighten"] .ent-item .ranker__thread::before { transform: scaleX(0); }
+  :where(html.sb-motion) [data-entrance="tighten"] .ent-item { opacity: 0; transform: translateX(-12px); }
+  :where(html.sb-motion) [data-entrance="tighten"] .ent-item .ranker__thread::before { transform: scaleX(0); }
   [data-entrance="tighten"].is-in .ent-item { animation: sb-tighten var(--dur-base) var(--ease-knot) both; animation-delay: calc(var(--i, 0) * var(--stagger, 50ms)); }
   [data-entrance="tighten"].is-in .ent-item .ranker__thread::before { transform: scaleX(0.55); transition-delay: calc(0.2s + var(--i, 0) * var(--stagger, 50ms)); }
   [data-entrance="tighten"].is-in .ent-item.is-on .ranker__thread::before { transform: scaleX(1); transition-delay: 0s; }
   @keyframes sb-tighten { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: none; } }
-  [data-entrance="lift"] .ent-item { opacity: 0; transform: translateY(18px) scale(0.98); }
-  [data-entrance="lift"] .ent-item .ranker__mark { transform: scale(0.4); }
+  :where(html.sb-motion) [data-entrance="lift"] .ent-item { opacity: 0; transform: translateY(18px) scale(0.98); }
+  :where(html.sb-motion) [data-entrance="lift"] .ent-item .ranker__mark { transform: scale(0.4); }
   [data-entrance="lift"].is-in .ent-item { animation: sb-lift var(--dur-base) var(--ease-knot) both; animation-delay: calc(var(--i, 0) * 60ms); }
   [data-entrance="lift"].is-in .ent-item .ranker__mark { transition: transform var(--dur-base) var(--ease-knot); transform: scale(1); transition-delay: calc(0.15s + var(--i, 0) * 60ms); }
   @keyframes sb-lift { from { opacity: 0; transform: translateY(18px) scale(0.98); } to { opacity: 1; transform: none; } }
   [data-entrance="draw"] .bobbin__border { stroke-dasharray: 5 4; }
-  [data-entrance="draw"]:not(.is-in) .ranker__bobbin .bobbin__border { stroke-dashoffset: 400; stroke-dasharray: 400; opacity: 0; }
+  :where(html.sb-motion) [data-entrance="draw"]:not(.is-in) .ranker__bobbin .bobbin__border { stroke-dashoffset: 400; stroke-dasharray: 400; opacity: 0; }
   [data-entrance="draw"].is-in .ranker__bobbin .bobbin__border { animation: sb-draw var(--dur-slow) var(--ease-shuttle) both; }
   @keyframes sb-draw { from { stroke-dasharray: 400; stroke-dashoffset: 400; opacity: 1; } to { stroke-dasharray: 5 4; stroke-dashoffset: 0; opacity: 0.85; } }
-  [data-entrance="draw"] .ent-item { opacity: 0; transform: translateX(10px); }
+  :where(html.sb-motion) [data-entrance="draw"] .ent-item { opacity: 0; transform: translateX(10px); }
   [data-entrance="draw"].is-in .ent-item { animation: sb-tighten var(--dur-base) var(--ease-knot) 0.5s both; }
-  [data-entrance="rise"]:not(.is-in) > * { clip-path: inset(100% 0 0 0); opacity: 0; }
+  :where(html.sb-motion) [data-entrance="rise"]:not(.is-in) > * { clip-path: inset(100% 0 0 0); opacity: 0; }
   [data-entrance="rise"].is-in > * { animation: sb-rise var(--dur-base) var(--ease-shuttle) both; }
   @keyframes sb-rise { from { clip-path: inset(100% 0 0 0); opacity: 0; } to { clip-path: inset(0 0 0 0); opacity: 1; } }
   @media (prefers-reduced-motion: reduce) {
