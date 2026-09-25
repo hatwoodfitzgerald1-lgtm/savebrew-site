@@ -138,7 +138,7 @@ const cards = [
   .membership--compact .membership__card { padding: clamp(16px, 1.4vw, 24px); gap: 8px; }
   .membership--compact .membership__item, .membership--compact .membership__arithmetic { font-size: var(--fs-label); }
   /* entrance: the cadence control, then the cards, then the free column wipe in from the left; the toggles click once */
-  [data-entrance="weft-cards"] .membership__part { clip-path: inset(0 100% 0 0); }
+  :where(html.sb-motion) [data-entrance="weft-cards"] .membership__part { clip-path: inset(0 100% 0 0); }
   [data-entrance="weft-cards"].is-in .membership__part { animation: sb-weft-left var(--dur-base) var(--ease-shuttle) both; animation-delay: calc(var(--i, 0) * 180ms); }
   [data-entrance="weft-cards"].is-in .mship-cadence__ply { animation: sb-ply var(--dur-base) var(--ease-knot) 0.7s 1; }
   /* collapse (0.2): two rows from 1279 down, the free column across the foot; one column below 768 */
