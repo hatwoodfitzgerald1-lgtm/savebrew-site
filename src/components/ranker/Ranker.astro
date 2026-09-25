@@ -1,0 +1,257 @@
+---
+// "Your moves", the ranker (Art Direction 3.21, design document 7.10). Server rendered in the editors' order
+// from src/data/moves.json (also served at /data/moves.json), re ranked in the browser by src/scripts/ranker.ts
+// with the deterministic score in src/lib/ranker.ts and GSAP Flip (Knot, 0.38s).
+//   <Ranker />                 the full page version: six switches, the state line, the ranked four with
+//                              minutes, why and skip if, the greyed rest with their reasons, Copy this list,
+//                              Print this list, the closing Bobbin with the members' line, the disclaimer
+//   <Ranker variant="embed" /> the compact home version (see RankerEmbed.astro): the six switches and the
+//                              ranked four, with the link line to /your-moves
+// Every string is a copy.md id. Works with motion reduced (static reorder) and at 375 with one thumb.
+import Board from '../Board.astro';
+import Bobbin from '../Bobbin.astro';
+import Disclaimer from '../Disclaimer.astro';
+import Picture from '../Picture.astro';
+import Knot from '../kit/Knot.astro';
+import Icon from '../kit/Icon.astro';
+import { t, fmt } from '../../lib/copy';
+import { moves } from '../../lib/longform';
+import { rank } from '../../lib/ranker';
+
+interface Props { variant?: 'full' | 'embed'; id?: string; class?: string; photo?: boolean; }
+const { variant = 'full', id = variant === 'embed' ? 'ranker-embed' : 'ranker', class: className = '', photo = variant === 'full' } = Astro.props;
+const full = variant === 'full';
+const uid = id;
+const data = { week_of: moves.week_of, toggle_order: moves.toggle_order, editors_order: moves.editors_order, candidates: moves.candidates };
+const initial = rank(data, data.toggle_order.map(() => false));
+const toggles = data.toggle_order.map((_, i) => t(`moves.toggle.${i + 1}`));
+const strings = {
+  empty: t('moves.state.empty'),
+  progress: t('moves.state.progress.pattern'),
+  result: t('moves.state.result.pattern'),
+  copyDone: t('moves.copy.done'),
+  copyFailed: t('moves.copy.failed'),
+  printDone: t('moves.print.done'),
+  printTitle: t('moves.print.title'),
+  printNote: t('moves.print.note'),
+  minutes: t('moves.rank.minutes.pattern'),
+  lower: [1, 2, 3, 4, 5, 6].map((n) => t(`moves.lower.${n}`)),
+  lowerDefault: t('moves.lower.default'),
+  on: t('moves.toggle.state.on'),
+  off: t('moves.toggle.state.off')
+};
+const threadKey = (name: string) => name.toLowerCase();
+---
+<div class:list={['ranker', `ranker--${variant}`, className]} id={uid} data-ranker data-variant={variant} data-state="empty" data-moves={JSON.stringify(data)} data-strings={JSON.stringify(strings)} data-order={initial.ranked.map((r) => r.candidate.id).join(' ')} data-minutes={initial.minutes}>
+  <Board id={`${uid}-toggles`} class="ranker__toggles-board" entrance="tighten" strip={full} edge={full} label={t('moves.toggles.legend')} tag="section">
+    <div class="ranker__toggles span-full" role="group" aria-labelledby={`${uid}-legend`} style="--stagger: 50ms">
+      <p class="ranker__legend" id={`${uid}-legend`}>{t('moves.toggles.legend')}</p>
+      {toggles.map((label, i) => (
+        <div class:list={['switch', 'ranker__switch', 'ent-item', i === 5 ? 'ranker__switch--sixth' : '']} style={`--i:${i}`} data-index={i}>
+          <button class="switch__track" type="button" role="switch" aria-checked="false" aria-labelledby={`${uid}-t${i}`} data-toggle={i}></button>
+          <span class="switch__label" id={`${uid}-t${i}`}>{label}</span>
+          <span class="switch__state" data-toggle-state aria-hidden="true">{t('moves.toggle.state.off')}</span>
+          <span class="ranker__thread" aria-hidden="true"></span>
+        </div>
+      ))}
+      {photo && <div class="ranker__photo"><Picture slot="photo.ranker-edge" sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 20vw" /></div>}
+    </div>
+  </Board>
+
+  <Board id={`${uid}-list`} class="ranker__list-board" entrance="lift" strip={false} edge={full} label={t('moves.heading')} tag="section">
+    <div class="ranker__print" hidden aria-hidden="true">
+      <p class="ranker__print-title">{t('moves.print.title')}</p>
+      <p class="ranker__print-note">{t('moves.print.note')}</p>
+    </div>
+    <p class="ranker__state span-full" data-state-line aria-live="polite" id={`${uid}-state`}>{t('moves.state.empty')}</p>
+    <ol class="ranker__top" data-top aria-labelledby={`${uid}-state`}>
+      {initial.ranked.map((r, i) => (
+        <li class:list={['ranker__item', 'ent-item', r.shown ? 'is-top' : 'is-rest']} style={`--i:${i}; --rank:${r.rank}`} data-candidate={r.candidate.id} data-thread={threadKey(r.candidate.thread)} data-rank={r.rank} hidden={!full && !r.shown ? true : undefined}>
+          <span class="ranker__mark" aria-hidden="true"><Knot size={20} /></span>
+          <p class="ranker__threadline"><span class="ranker__threadname" role="img" aria-label={fmt('moves.rank.thread.aria.pattern', { thread: r.candidate.thread })}><Icon name={threadKey(r.candidate.thread)} size={18} />{r.candidate.thread}</span><span class="ranker__minutes fig">{fmt('moves.rank.minutes.pattern', { minutes: r.candidate.minutes })}</span></p>
+          <h3 class="ranker__headline hv-target">{r.candidate.headline}</h3>
+          <div class="ranker__detail">
+            <p class="ranker__why"><span class="label">{t('moves.rank.why.label')}</span> <span>{r.candidate.why}</span></p>
+            <p class="ranker__skip"><span class="label">{t('moves.rank.skip.label')}</span> <span>{r.candidate.skip_if}</span></p>
+          </div>
+          <p class="ranker__reason" data-reason>{r.shown ? '' : t('moves.lower.default')}</p>
+        </li>
+      ))}
+    </ol>
+    {full ? (
+      <div class="ranker__controls">
+        <Bobbin label={t('moves.copy.label')} variant="secondary" compact class="ranker__copy" data-copy="" />
+        <Bobbin label={t('moves.print.label')} variant="secondary" compact class="ranker__printbtn" data-print="" />
+        <p class="ranker__copied" data-copy-done hidden>
+          <svg class="ranker__tick" data-copy-tick viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M4 12.5l5 5L20 6.5" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="butt" stroke-linejoin="miter" pathLength="100" /></svg>
+          <span data-copy-text>{t('moves.copy.done')}</span>
+        </p>
+      </div>
+    ) : (
+      <div class="ranker__controls ranker__controls--embed">
+        <a class="ranker__more" href="/your-moves">{t('home.cost.free.link.moves')}</a>
+      </div>
+    )}
+    {full && <ul class="ranker__rest span-full" data-rest></ul>}
+  </Board>
+
+  {full && (
+    <section class="board pass ranker__cta" id={`${uid}-cta`} data-entrance="draw" aria-label={t('moves.cta')}>
+      <div class="ranker__cta-button span-2"><Bobbin label={t('moves.cta')} sku="SB101" class="ranker__bobbin" /></div>
+      <p class="ranker__cta-line span-3 ent-item">{t('moves.cta.line')}</p>
+    </section>
+  )}
+  {full && (
+    <section class="pass ranker__disclaimer" id={`${uid}-disclaimer`} data-entrance="rise">
+      <div class="ranker__disclaimer-inner span-full"><Disclaimer /></div>
+    </section>
+  )}
+</div>
+
+<style is:global>
+  /* the toggles: five in the warp, the sixth centred beneath, the edge image in column five */
+  .ranker__toggles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: var(--gap); row-gap: clamp(12px, 1.2vw, 20px); grid-auto-flow: row dense; align-items: start; padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
+  .ranker__legend { grid-column: 1 / -1; font-family: var(--font-display); font-weight: 700; font-size: var(--fs-h3); color: var(--indigo); line-height: 1.1; }
+  .ranker__switch { position: relative; display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; grid-template-areas: "track label state" "thread thread thread"; align-items: center; column-gap: 12px; row-gap: 6px; min-height: 44px; padding: 8px 0 10px; cursor: pointer; }
+  .ranker__switch .switch__track { grid-area: track; }
+  .ranker__switch .switch__label { grid-area: label; cursor: pointer; font-weight: 600; font-size: var(--fs-body); line-height: 1.3; }
+  .ranker__switch .switch__state { grid-area: state; font-weight: 700; color: var(--muted); transition: color var(--dur-fast) var(--ease-shuttle); }
+  .ranker__switch.is-on .switch__state { color: var(--indigo); }
+  /* the thread under each question: slack when off, pulled tight when on */
+  .ranker__thread { grid-area: thread; height: 6px; position: relative; }
+  .ranker__thread::before { content: ""; position: absolute; left: 0; right: 0; top: 2px; height: 2px; border-radius: 1px; background: repeating-linear-gradient(90deg, var(--indigo) 0 6px, transparent 6px 10px); opacity: 0.35; transform: scaleX(0.55); transform-origin: left; transition: transform var(--dur-base) var(--ease-knot), opacity var(--dur-base) var(--ease-shuttle), background var(--dur-base) var(--ease-shuttle); }
+  .ranker__switch.is-on .ranker__thread::before { background: var(--indigo); opacity: 1; transform: scaleX(1); }
+  .ranker__switch:hover .switch__track, .ranker__switch:focus-within .switch__track { box-shadow: 0 0 0 2px var(--butter-pale), 0 0 0 3px var(--indigo); }
+  .ranker__switch .switch__track:focus-visible { outline: 2px solid var(--indigo); outline-offset: 3px; box-shadow: 0 0 0 2px var(--white); }
+  .ranker__switch--sixth { grid-column: 1 / span 4; justify-self: center; width: min(100%, 34rem); align-self: center; }
+  .ranker__photo { grid-column: 5; align-self: stretch; }
+  .ranker__photo .picture { height: 100%; min-height: 150px; max-height: 210px; border-radius: var(--radius-card); }
+  .ranker__photo .picture img { height: 100%; }
+  .ranker--embed .ranker__toggles { padding-inline: 0; }
+  .ranker--embed .ranker__switch--sixth { grid-column: 1 / -1; }
+
+  /* the ranked list: the four on a thread across columns one to four, the controls in five, the rest beneath */
+  .ranker__list-board { row-gap: var(--gap); }
+  .ranker__state { grid-column: 1 / -1; font-weight: 600; color: var(--ink); padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); min-height: 1.5em; }
+  .ranker__top { list-style: none; margin: 0; padding: 0; grid-column: 1 / span 4; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--gap); row-gap: var(--gap); position: relative; padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
+  .ranker__top::before { content: ""; position: absolute; left: var(--cell-pad, clamp(16px, 1.4vw, 28px)); right: 0; top: 13px; height: 2px; background: var(--indigo); opacity: 0.9; }
+  .ranker__item { position: relative; display: flex; flex-direction: column; gap: 8px; min-width: 0; padding-top: 4px; }
+  /* QA: the ranked four sit two by two so the why and skip lines read at 40 to 55ch instead of 22ch */
+  @media (min-width: 1920px) {
+    .ranker__item.is-top .ranker__detail { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--gap); }
+  }
+
+  .ranker__mark { display: block; width: 20px; height: 20px; color: var(--indigo-deep); background: var(--white); transition: transform var(--dur-base) var(--ease-knot); }
+  .ranker__item:hover .ranker__mark { transform: scale(1.12); }
+  .ranker__threadline { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; }
+  .ranker__threadname { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-display); font-weight: 600; font-size: var(--fs-cell-head); color: var(--indigo-deep); }
+  .ranker__minutes { font-size: var(--fs-label); color: var(--muted); }
+  .ranker__headline { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-h3); color: var(--indigo); line-height: 1.12; }
+  .ranker__detail { display: flex; flex-direction: column; gap: 8px; font-size: var(--fs-body); }
+  .ranker__detail .label { display: block; margin-bottom: 1px; }
+  .ranker__reason { display: none; font-size: var(--fs-label); color: var(--muted); font-weight: 600; }
+  .ranker__item.is-rest { color: var(--muted); }
+  .ranker__item.is-rest .ranker__headline, .ranker__item.is-rest .ranker__threadname, .ranker__item.is-rest .ranker__mark { color: var(--muted); }
+  .ranker__item.is-rest .ranker__detail { display: none; }
+  .ranker__item.is-rest .ranker__reason { display: block; }
+  .ranker__item.is-rest .ranker__mark { opacity: 0.7; }
+  .ranker__controls { grid-column: 5; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding-inline: 0 var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
+  .ranker__copied { display: flex; align-items: flex-start; gap: 8px; font-size: var(--fs-label); font-weight: 600; color: var(--ink); }
+  .ranker__copied.is-failed { color: var(--down); }
+  .ranker__tick { flex: none; color: var(--indigo); margin-top: 1px; }
+  .ranker__tick path { stroke-dasharray: 100; stroke-dashoffset: 100; }
+  .ranker__tick.is-drawn path { animation: sb-tick var(--dur-base) var(--ease-knot) forwards; }
+  @keyframes sb-tick { to { stroke-dashoffset: 0; } }
+  .ranker__rest { list-style: none; margin: 0; padding: 0; grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--gap); row-gap: var(--gap); position: relative; padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); padding-top: 12px; }
+  .ranker__rest::before { content: ""; position: absolute; left: var(--cell-pad, clamp(16px, 1.4vw, 28px)); right: var(--cell-pad, clamp(16px, 1.4vw, 28px)); top: 25px; height: 2px; background: var(--muted); opacity: 0.45; }
+  .ranker__rest:empty { display: none; }
+  .ranker__more { font-weight: 700; }
+  .ranker__print { display: none; }
+
+  /* the closing Bobbin and the members' line, then the disclaimer at the foot */
+  .ranker__cta { align-items: center; row-gap: var(--gap); }
+  .ranker__cta-button { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
+  .ranker__cta-line { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); font-size: var(--fs-standfirst); font-weight: 500; }
+  .ranker__disclaimer { background: var(--white); padding-block: clamp(16px, 1.6vw, 28px); margin-bottom: var(--reveal); }
+  .ranker__disclaimer-inner { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
+
+  /* entrances built from the primitives (.is-in, --i, Shuttle and Knot): tighten (the threads pull tight in turn), lift (the candidates lift from the cloth), draw (the Bobbin's stitch draws), rise (fades up inside a clip) */
+  [data-entrance="tighten"] .ent-item { opacity: 0; transform: translateX(-12px); }
+  [data-entrance="tighten"] .ent-item .ranker__thread::before { transform: scaleX(0); }
+  [data-entrance="tighten"].is-in .ent-item { animation: sb-tighten var(--dur-base) var(--ease-knot) both; animation-delay: calc(var(--i, 0) * var(--stagger, 50ms)); }
+  [data-entrance="tighten"].is-in .ent-item .ranker__thread::before { transform: scaleX(0.55); transition-delay: calc(0.2s + var(--i, 0) * var(--stagger, 50ms)); }
+  [data-entrance="tighten"].is-in .ent-item.is-on .ranker__thread::before { transform: scaleX(1); transition-delay: 0s; }
+  @keyframes sb-tighten { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: none; } }
+  [data-entrance="lift"] .ent-item { opacity: 0; transform: translateY(18px) scale(0.98); }
+  [data-entrance="lift"] .ent-item .ranker__mark { transform: scale(0.4); }
+  [data-entrance="lift"].is-in .ent-item { animation: sb-lift var(--dur-base) var(--ease-knot) both; animation-delay: calc(var(--i, 0) * 60ms); }
+  [data-entrance="lift"].is-in .ent-item .ranker__mark { transition: transform var(--dur-base) var(--ease-knot); transform: scale(1); transition-delay: calc(0.15s + var(--i, 0) * 60ms); }
+  @keyframes sb-lift { from { opacity: 0; transform: translateY(18px) scale(0.98); } to { opacity: 1; transform: none; } }
+  [data-entrance="draw"] .bobbin__border { stroke-dasharray: 5 4; }
+  [data-entrance="draw"]:not(.is-in) .ranker__bobbin .bobbin__border { stroke-dashoffset: 400; stroke-dasharray: 400; opacity: 0; }
+  [data-entrance="draw"].is-in .ranker__bobbin .bobbin__border { animation: sb-draw var(--dur-slow) var(--ease-shuttle) both; }
+  @keyframes sb-draw { from { stroke-dasharray: 400; stroke-dashoffset: 400; opacity: 1; } to { stroke-dasharray: 5 4; stroke-dashoffset: 0; opacity: 0.85; } }
+  [data-entrance="draw"] .ent-item { opacity: 0; transform: translateX(10px); }
+  [data-entrance="draw"].is-in .ent-item { animation: sb-tighten var(--dur-base) var(--ease-knot) 0.5s both; }
+  [data-entrance="rise"]:not(.is-in) > * { clip-path: inset(100% 0 0 0); opacity: 0; }
+  [data-entrance="rise"].is-in > * { animation: sb-rise var(--dur-base) var(--ease-shuttle) both; }
+  @keyframes sb-rise { from { clip-path: inset(100% 0 0 0); opacity: 0; } to { clip-path: inset(0 0 0 0); opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    [data-entrance="rise"] > *, [data-entrance="draw"] .ranker__bobbin .bobbin__border { animation: none !important; clip-path: none !important; opacity: 1 !important; stroke-dashoffset: 0 !important; stroke-dasharray: 5 4 !important; }
+    [data-entrance="tighten"] .ent-item .ranker__thread::before, [data-entrance="lift"] .ent-item .ranker__mark { transition: none !important; transform: none !important; }
+    .ranker__tick path { stroke-dashoffset: 0; animation: none !important; }
+  }
+  :root[data-motion="reduced"] [data-entrance="rise"] > *, :root[data-motion="reduced"] [data-entrance="draw"] .ranker__bobbin .bobbin__border { animation: none !important; clip-path: none !important; opacity: 1 !important; stroke-dashoffset: 0 !important; stroke-dasharray: 5 4 !important; }
+  :root[data-motion="reduced"] .ranker__tick path { stroke-dashoffset: 0; animation: none !important; }
+  :root[data-motion="reduced"] [data-entrance="lift"] .ent-item .ranker__mark { transition: none !important; transform: none !important; }
+  :root[data-motion="reduced"] [data-entrance="tighten"] .ent-item .ranker__thread::before { transition: none !important; transform: scaleX(0.55); }
+  :root[data-motion="reduced"] [data-entrance="tighten"] .ent-item.is-on .ranker__thread::before { transform: scaleX(1); }
+
+  /* the collapse rules (0.2) */
+  @media (max-width: 1279px) {
+    .ranker__toggles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .ranker__switch--sixth { grid-column: 1 / -1; }
+    .ranker__photo { grid-column: 3; grid-row: auto; }
+    .ranker__top { grid-column: 1 / span 2; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ranker__controls { grid-column: 3; }
+  }
+  @media (max-width: 1023px) {
+    .ranker__toggles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ranker__photo { grid-column: 2; }
+    .ranker__top { grid-column: 1 / -1; }
+    .ranker__controls { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; align-items: center; padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
+    .ranker__rest { grid-template-columns: minmax(0, 1fr); }
+    .ranker__rest::before { display: none; }
+    .ranker__cta-line { font-size: var(--fs-body); }
+  }
+  @media (max-width: 767px) {
+    .ranker__toggles { grid-template-columns: minmax(0, 1fr); padding-inline: 16px; }
+    .ranker__switch--sixth { width: 100%; justify-self: stretch; }
+    .ranker__photo { grid-column: 1 / -1; }
+    .ranker__photo .picture { max-height: none; aspect-ratio: 4 / 5; }
+    .ranker__top { grid-template-columns: minmax(0, 1fr); padding-inline: 16px; }
+    .ranker__top::before { left: 16px; }
+    .ranker__state, .ranker__controls, .ranker__rest, .ranker__cta-button, .ranker__cta-line, .ranker__disclaimer-inner { padding-inline: 16px; }
+    .ranker__controls .bobbin { width: 100%; }
+    .ranker__cta-button .bobbin { width: 100%; }
+  }
+
+  /* the print view: today's date and the four moves as ranked */
+  @media print {
+    body.ranker-print .site-main > *:not(.ranker) { display: none !important; }
+    body.ranker-print .ranker > *:not(.ranker__list-board) { display: none !important; }
+    body.ranker-print .ranker__list-board::before, body.ranker-print .ranker__controls, body.ranker-print .ranker__rest, body.ranker-print .ranker__state, body.ranker-print .board__edge, body.ranker-print .board__strip { display: none !important; }
+    body.ranker-print .ranker__print { display: block !important; grid-column: 1 / -1; padding-inline: 0; }
+    body.ranker-print .ranker__print-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--indigo); }
+    body.ranker-print .ranker__print-note { color: var(--muted); font-size: 13px; margin-top: 4px; }
+    body.ranker-print .ranker__list-board { display: block; padding: 0; margin: 0; }
+    body.ranker-print .ranker__top { display: block; padding: 0; margin-top: 16px; }
+    body.ranker-print .ranker__top::before { display: none; }
+    body.ranker-print .ranker__item { break-inside: avoid; margin-bottom: 14px; padding-top: 0; }
+    body.ranker-print .ranker__item .ranker__mark { display: none; }
+    body.ranker-print .ranker__item, body.ranker-print .ranker__item * { opacity: 1 !important; transform: none !important; animation: none !important; }
+  }
+</style>
+<script>
+  import '../../scripts/ranker';
+</script>

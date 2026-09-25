@@ -1,0 +1,10 @@
+---
+// The compact ranker for the home page (design document 7.1 row 6): the six switches and the ranked top
+// four only, with the link line to /your-moves. The same markup, logic and Flip re rank as the full page
+// version; ranks five to seven stay in the DOM hidden so the Flip has the same nodes.
+//   <RankerEmbed />   (inside Home's "Which threads should you pull first?" row)
+import Ranker from './Ranker.astro';
+interface Props { id?: string; class?: string; }
+const { id = 'ranker-embed', class: className = '' } = Astro.props;
+---
+<Ranker variant="embed" id={id} class={className} photo={false} />
