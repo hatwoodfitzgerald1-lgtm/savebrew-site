@@ -71,14 +71,33 @@ function markItems(el: HTMLElement) {
 }
 function observeIn(el: Element, onIn: () => void, threshold = 0.15) {
   if (!('IntersectionObserver' in window)) { onIn(); return; }
+  // a section taller than 60 percent of the viewport may never show 15 percent of itself at once (the
+  // membership row and the legal columns at 375 are six and seven viewports tall): it enters on its first pixel
+  const tall = el.getBoundingClientRect().height > window.innerHeight * 0.6;
   const io = new IntersectionObserver((entries) => {
     for (const e of entries) if (e.isIntersecting) { io.disconnect(); onIn(); }
-  }, { threshold, rootMargin: '0px 0px -8% 0px' });
+  }, { threshold: tall ? 0 : threshold, rootMargin: '0px 0px -8% 0px' });
   io.observe(el);
 }
+/** Jump every finite CSS entrance animation or transition inside el to its end state (idle loops keep running). */
+function settleEntrance(el: HTMLElement) {
+  if (typeof el.getAnimations !== 'function') return;
+  for (const a of el.getAnimations({ subtree: true })) {
+    const timing = a.effect?.getComputedTiming();
+    if (!timing || timing.iterations === Infinity || timing.endTime === Infinity) continue;
+    try { a.finish(); } catch { /* an animation that cannot finish is left alone */ }
+  }
+}
+let firstPass = true;
 export function initEntrances(root: ParentNode = document) {
   const reduced = motionReduced();
+  // the base hidden states of every entrance are gated on this class (:where(html.sb-motion) in the CSS), so the
+  // first paint shows the whole page before this script runs and nothing blinks when it does
+  document.documentElement.classList.add('sb-motion');
+  const pageLoad = firstPass && root === document;
+  firstPass = false;
   const els = Array.from(root.querySelectorAll<HTMLElement>('[data-entrance]'));
+  const settle: HTMLElement[] = [];
   let needsTimeline = false;
   for (const el of els) {
     if (el.dataset.entranceReady) continue;
@@ -87,10 +106,15 @@ export function initEntrances(root: ParentNode = document) {
     if (kind === 'dock' || kind === 'knots' || kind === 'stitch' || kind === 'pop') markItems(el);
     if (reduced) { el.classList.add('is-in'); continue; }
     if (kind === 'weft-left' || kind === 'weft-right') needsTimeline = true;
-    // rows already in the first viewport at load show at once (no veil over the first paint); rows below enter as they arrive
-    if (el.getBoundingClientRect().top < window.innerHeight * 0.6) el.classList.add('is-initial');
+    const top = el.getBoundingClientRect().top;
+    // rows in the first viewport at page load were already painted: they stay shown, settled at their end state in
+    // this same task, so no frame ever shows them hidden and no entrance replays over them
+    if (pageLoad && top < window.innerHeight) { el.classList.add('is-initial', 'is-in'); settle.push(el); continue; }
+    // rows inserted later that land near the top enter fast; everything else enters as it arrives
+    if (top < window.innerHeight * 0.6) el.classList.add('is-initial');
     observeIn(el, () => el.classList.add('is-in'));
   }
+  settle.forEach(settleEntrance);
   // things that draw themselves when in view even without a data-entrance (the seal, weft passes, knots that draw)
   root.querySelectorAll<HTMLElement>('.seal--weave, .weft-pass, .knot--draw').forEach((el) => {
     if (el.dataset.inReady || el.closest('[data-entrance]')) return;
