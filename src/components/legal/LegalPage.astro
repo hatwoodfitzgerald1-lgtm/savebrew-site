@@ -69,7 +69,7 @@ const route = doc === 'terms' ? '/terms' : '/privacy';
   /* the columns wipe in left to right, one after another, once the block is in view (Shuttle, 1.2s); built from the
      entrance primitives (.is-in from the motion system), not the scroll timeline, because the block is taller than a viewport */
   /* the clip sits on the child: an element clipped to nothing never intersects in Chromium, so the wrapper is what the observer watches */
-  [data-entrance="wipe"] > .legal__cols { clip-path: inset(0 100% 0 0); transition: clip-path var(--dur-slow) var(--ease-shuttle); }
+  :where(html.sb-motion) [data-entrance="wipe"] > .legal__cols { clip-path: inset(0 100% 0 0); transition: clip-path var(--dur-slow) var(--ease-shuttle); }
   [data-entrance="wipe"].is-in > .legal__cols, [data-entrance="wipe"].is-initial > .legal__cols { clip-path: inset(0 0 0 0); }
   @media (prefers-reduced-motion: reduce) { [data-entrance="wipe"] > .legal__cols { clip-path: none; transition: none; } }
   :root[data-motion="reduced"] [data-entrance="wipe"] > .legal__cols { clip-path: none; transition: none; }
