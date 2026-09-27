@@ -68,11 +68,12 @@ async function startProgress() {
 
 // ------------------------------------------------------------------ the docking of Today's pass onto the five warp positions
 // threadX(i, y) gives the thread's projected x at screen y (the loom's per frame projection); the static table is the fallback.
-export interface DockGeometry { left: number[]; centre: number[]; pad: number; headY: number[] }
+export interface DockGeometry { left: number[]; centre: number[]; pad: number; headY: number[]; collapsed: boolean }
 let dockGeo: DockGeometry | null = null;
+const heroKnots = hero ? Array.from(hero.querySelectorAll<HTMLElement>('.hm-hero__knots > li')) : [];
 function measureDock(): DockGeometry | null {
   if (!board || cells.length !== 5) return null;
-  const left: number[] = [], centre: number[] = [], headY: number[] = [];
+  const left: number[] = [], centre: number[] = [], headY: number[] = [], tops: number[] = [];
   let pad = 0;
   for (const c of cells) {
     const prev = c.style.transform; c.style.transform = 'none';
@@ -81,10 +82,19 @@ function measureDock(): DockGeometry | null {
     pad = parseFloat(getComputedStyle(c).paddingLeft) || 0;
     left.push(r.left + pad + 8); // the knot beside the cell head sits 8px in
     centre.push(r.left + r.width / 2);
+    tops.push(Math.round(r.top));
     const head = c.querySelector<HTMLElement>('.cell-head');
     headY.push(head ? head.getBoundingClientRect().top + 9 : r.top + 24);
   }
-  return { left, centre, pad, headY };
+  // under 1280 the board collapses to three plus two (and two plus two plus one), so its cells no longer give
+  // five distinct warp positions; the hero's five knot labels never collapse, so the five threads run to them
+  // and the cloth lays flat in place (no sideways dock onto a board that is not one row)
+  const collapsed = new Set(tops).size > 1;
+  if (collapsed && heroKnots.length === 5) {
+    const xs = heroKnots.map((li) => { const k = li.querySelector<HTMLElement>('svg') || li; const r = k.getBoundingClientRect(); return r.left + r.width / 2; });
+    return { left: xs.slice(), centre: xs, pad, headY, collapsed };
+  }
+  return { left, centre, pad, headY, collapsed };
 }
 export function dockGeometry(): DockGeometry | null {
   if (!dockGeo) dockGeo = measureDock();
@@ -114,7 +124,8 @@ function applyDock(p: number) {
     const rise = KNOT(local);
     const x = liveX ? liveX(i, g.headY[i], p) : staticX(i, p);
     // the cell's left edge (its knot) is pinned to the thread's projected x; it rises 28px onto it
-    const dx = p < 0.6 ? 0 : (x - g.left[i]) * (1 - hand);
+    // (on a collapsed board the threads lie on the hero's five knots, so the cells rise in place)
+    const dx = p < 0.6 || g.collapsed ? 0 : (x - g.left[i]) * (1 - hand);
     c.style.setProperty('--dock-x', `${dx.toFixed(2)}px`);
     c.style.setProperty('--dock-y', `${(28 * (1 - rise)).toFixed(2)}px`);
     c.style.setProperty('--dock-o', p < 0.6 ? '0' : rise.toFixed(3));
