@@ -89,7 +89,8 @@ html.no-scroll-timeline [data-entrance^="weft"].is-in { clip-path: inset(0 0 0 0
 /* ------------------------------------------------------------------ The Tightening (TYP-003) */
 .tighten { --wght: 500; }
 .tighten.is-tight { --wght: 800; }
-.tighten .g { font-variation-settings: "wght" var(--wght); transition: --wght var(--dur-base) var(--ease-knot); transition-delay: calc(var(--i, 0) * var(--glyph-stagger)); display: inline; white-space: pre-wrap; }
+.tighten .g { font-variation-settings: "wght" var(--wght); transition: --wght var(--dur-base) var(--ease-knot); transition-delay: calc(var(--i, 0) * var(--glyph-stagger)); display: inline; white-space: normal; }
+/* normal, not pre-wrap: a space glyph that lands at a soft wrap must collapse, or the wrapped line starts one space in */
 .tighten:not(.is-split) { font-variation-settings: "wght" var(--wght); }
 @media (max-width: 767px) { :root { --glyph-stagger: 9ms; } }
 

@@ -370,16 +370,19 @@
   },
   {
    "id": "scene.loom-poster",
-   "role": "the loom's poster: the flat cloth at progress 1.0, 1600 by 1000 WebP with a 4 percent static grain baked in, shown behind the hero until Three.js is live and kept under reduced motion, low power and init failure",
-   "aspect": "16:10",
+   "role": "the loom's poster: the flat cloth at progress 1.0 in four framings (1600 by 1000, 1500 by 1200, 1200 by 1200, 1080 by 1920 WebP, each with the same static grain baked in), shown behind the hero until Three.js is live and kept under reduced motion, low power and init failure",
+   "aspect": "16:10 (src), 5:4 (mid), 1:1 (square), 9:16 (tall)",
    "lives_on": [
     "/ (the hero, behind the loom canvas)"
    ],
    "files": {
-    "src": "/assets/scene/loom-poster.webp"
+    "src": "/assets/scene/loom-poster.webp",
+    "mid": "/assets/scene/loom-poster-mid.webp",
+    "square": "/assets/scene/loom-poster-square.webp",
+    "tall": "/assets/scene/loom-poster-tall.webp"
    },
    "status": "shipped",
-   "crop_note": "object-fit cover, anchored centre bottom"
+   "crop_note": "object-fit cover, anchored centre bottom; the picture element picks the framing whose aspect is at or just under the viewport's (16:10 and wider, 5:4 to 16:10, 1:1 to 5:4, under 1:1), so the poster always fits by width and the five threads land on the five knot labels"
   }
  ]
 }

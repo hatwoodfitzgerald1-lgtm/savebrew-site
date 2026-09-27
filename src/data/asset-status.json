@@ -1,5 +1,5 @@
 {
- "checked": "2026-09-25T17:09:00.284Z",
+ "checked": "2026-09-27T03:39:57.816Z",
  "slots": {
   "video.hero-loop": {
    "id": "video.hero-loop",
@@ -476,6 +476,18 @@
    "files": {
     "src": {
      "path": "/assets/scene/loom-poster.webp",
+     "exists": true
+    },
+    "mid": {
+     "path": "/assets/scene/loom-poster-mid.webp",
+     "exists": true
+    },
+    "square": {
+     "path": "/assets/scene/loom-poster-square.webp",
+     "exists": true
+    },
+    "tall": {
+     "path": "/assets/scene/loom-poster-tall.webp",
      "exists": true
     }
    },

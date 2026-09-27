@@ -49,7 +49,18 @@ const linkify = (s: string) => s
 const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const heroVideo = { desktop: file('video.hero-loop', 'desktop'), mobile: file('video.hero-loop', 'mobile'), poster: file('video.hero-loop', 'poster') };
 const pan = { src: file('video.product-pan', 'desktop'), poster: file('video.product-pan', 'poster') };
+// the poster in four framings: each is used only where the viewport is at least as wide as its own aspect, so object-fit cover always
+// fits it by width and the five threads land on the five knot labels (a 16:10 frame fitted by height would crop the outer threads away)
 const loomPoster = file('scene.loom-poster');
+const posterFrames = [
+  { href: file('scene.loom-poster', 'tall'), media: '(max-aspect-ratio: 999/1000)', preload: '(min-width: 900px) and (max-aspect-ratio: 999/1000)' },
+  { href: file('scene.loom-poster', 'square'), media: '(max-aspect-ratio: 1249/1000)', preload: '(min-width: 900px) and (min-aspect-ratio: 1/1) and (max-aspect-ratio: 1249/1000)' },
+  { href: file('scene.loom-poster', 'mid'), media: '(max-aspect-ratio: 1599/1000)', preload: '(min-width: 900px) and (min-aspect-ratio: 5/4) and (max-aspect-ratio: 1599/1000)' }
+];
+const posterPreload = [
+  ...posterFrames.map((f) => ({ href: f.href, as: 'image', type: 'image/webp', media: f.preload })),
+  { href: loomPoster, as: 'image', type: 'image/webp', media: '(min-width: 900px) and (min-aspect-ratio: 8/5)' }
+];
 const weekData = week.map((d, di) => ({
   weekday: d.weekday, date: d.date, label: dayLabels[di],
   items: d.items.map((it) => ({ key: it.key, thread: it.thread, headline: it.headline, summary: it.summary }))
@@ -60,7 +71,7 @@ const h1Break = h1Text.indexOf(' runs on ');
 const h1Lines = h1Break > 0 ? [h1Text.slice(0, h1Break), h1Text.slice(h1Break + 1)] : [h1Text];
 const heroItems = today.map((it) => ({ key: it.key, thread: it.thread, headline: it.headline, summary: it.summary, chip: chips[it.key] }));
 ---
-<Layout title={t('head.home.title')} description={t('head.home.meta')} route="/" hover="pluck" bodyClass="home" rss={[{ title: t('home.free.roundup.label'), href: '/roundup/feed.xml' }, { title: t('home.free.guides.label'), href: '/guides/feed.xml' }]} preload={[{ href: loomPoster, as: 'image', media: '(min-width: 900px)' }]}>
+<Layout title={t('head.home.title')} description={t('head.home.meta')} route="/" hover="pluck" bodyClass="home" rss={[{ title: t('home.free.roundup.label'), href: '/roundup/feed.xml' }, { title: t('home.free.guides.label'), href: '/guides/feed.xml' }]} preload={posterPreload}>
   <Fragment slot="head">
     <link rel="prefetch" href="/assets/js/three-lines-r128.js" as="script" fetchpriority="low" />
   </Fragment>
@@ -68,7 +79,10 @@ const heroItems = today.map((it) => ({ key: it.key, thread: it.thread, headline:
   <!-- 1. the hero: the loom, full bleed on butter; the copy is plain DOM at first paint -->
   <section class="hm-hero" id="hero" aria-labelledby="hero-h1" data-hero data-items={JSON.stringify(heroItems)}>
     <div class="hm-loom" data-loom aria-hidden="true">
-      <img class="hm-loom__poster" src={loomPoster} alt="" width="1600" height="1000" decoding="async" fetchpriority="high" data-loom-poster />
+      <picture>
+        {posterFrames.map((f) => <source media={f.media} srcset={f.href} type="image/webp" />)}
+        <img class="hm-loom__poster" src={loomPoster} alt="" width="1600" height="1000" decoding="async" fetchpriority="high" data-loom-poster />
+      </picture>
       <div class="hm-loom__proxies" data-loom-proxies></div>
     </div>
     <div class="hm-hero__pass pass">
@@ -274,7 +288,10 @@ const heroItems = today.map((it) => ({ key: it.key, thread: it.thread, headline:
   .hm-hero__pass { flex: 1 1 auto; grid-template-rows: auto auto auto minmax(24px, 1fr) auto; row-gap: clamp(14px, 1.6vw, 24px); padding-top: clamp(28px, 5vh, 56px); padding-bottom: clamp(16px, 2.5vh, 32px); align-content: start; }
   .hm-hero__h1 { grid-column: 1 / -1; font-size: var(--fs-h1); font-weight: 800; line-height: 0.98; color: var(--indigo); max-width: none; }
   .hm-hero__h1-line { display: block; }
-  @media (min-width: 2200px), (max-width: 899px) { .hm-hero__h1-line { display: inline; } }
+  @media (min-width: 2200px), (max-width: 1199px) { .hm-hero__h1-line { display: inline; } }
+  /* under 1200 the first line no longer fits at weight 800 (28px spare at 1200, none at 1100), so the forced
+     break would strand "money" on a line of its own: the lines flow and balance instead */
+  @media (min-width: 900px) and (max-width: 1199px) { .hm-hero__h1 { text-wrap: balance; } }
   .hm-hero__standfirst { grid-column: 1 / span 2; font-size: var(--fs-standfirst); color: var(--ink); }
   .hm-hero__audience { grid-column: 3 / span 1; align-self: end; font-size: var(--fs-body); color: var(--muted); }
   .hm-hero__actions { grid-column: 1 / span 2; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
