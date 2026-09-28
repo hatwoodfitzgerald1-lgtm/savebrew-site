@@ -84,7 +84,9 @@
   "add.guides.column.coupons.line": "No guide on this thread yet. The coupon codes we test run in the brief each weekday and in the Saturday Roundup.",
   "add.guides.column.coupons.link": "Open today's brief",
   "add.guides.column.paycheck.line": "No guide on this thread yet. The paycheck frameworks run in the brief each weekday, and Your moves ranks this week's paycheck move for you.",
+  "add.guides.column.today.label": "In today's pass",
   "add.about.compact.line": "A short brief, checked properly, on weekday mornings: that's the Daily.",
   "add.notfound.search.empty": "No guide mentions {query}. Try a thread word (rates, cashback, coupon, seasonal, paycheck).",
+  "add.notfound.search.all": "Every guide, and this week's Roundup",
   "add.contact.form.preview": "This preview does not send messages yet: email support@savebrew.com and a person will read it."
 }
