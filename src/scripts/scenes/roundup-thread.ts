@@ -24,6 +24,8 @@ class RoundupThread extends Scene {
     this.tieAt = this.stops.map(() => 0);
     const board = document.getElementById(root.dataset.moves || 'roundup-moves');
     this.moves = board ? Array.from(board.querySelectorAll<HTMLElement>(root.dataset.items || '[data-move]')) : [];
+    this.fallback = this.stops.slice();
+    this.layoutStops();
     if (this.reduced) { this.tieAt = this.stops.map(() => 1); return; }
     // each knot ties as its move enters the viewport
     this.io = new IntersectionObserver((entries) => {
@@ -35,7 +37,18 @@ class RoundupThread extends Scene {
     }, { threshold: 0.35 });
     this.moves.forEach((m) => this.io!.observe(m));
   }
-  resize() { /* drawn from the width each frame */ }
+  fallback: number[] = [0.2, 0.5, 0.8];
+  resize() { this.layoutStops(); }
+  /** Each knot sits over the centre of its move, measured whenever the moves share one row (the three equal
+   *  columns from 1024 up); stacked moves keep the data-stops fallback. */
+  layoutStops() {
+    if (!this.moves || !this.moves.length) return;
+    const r = this.root.getBoundingClientRect();
+    const rects = this.moves.map((m) => m.getBoundingClientRect());
+    const oneRow = rects.every((x) => Math.abs(x.top - rects[0].top) < 4);
+    if (!oneRow || !r.width || rects.length !== this.fallback.length) { this.stops = this.fallback.slice(); return; }
+    this.stops = rects.map((x) => Math.min(0.98, Math.max(0.02, (x.left + x.width / 2 - r.left) / r.width)));
+  }
   dispose() { this.io?.disconnect(); super.dispose(); }
   frame(now: number) {
     if (!this.stops) return;
