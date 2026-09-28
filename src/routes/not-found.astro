@@ -24,6 +24,8 @@ const index = [
   { title: `${roundup.heading} ${roundup.date}`, dek: roundup.past.entries[0]?.title || t('nav.roundup'), url: '/roundup', text: roundup.moves.map((m) => `${m.headline} ${m.paragraphs.map((p) => p.text).join(' ')}`).join(' '), thread: t('nav.roundup') },
   ...brief.today.items.map((it) => ({ title: it.headline, dek: it.summary, url: `/brief#${it.key}`, text: '', thread: `${it.thread}, ${t('footer.col.1.link.brief')}` }))
 ].map((e) => ({ ...e, haystack: `${e.title} ${e.dek} ${e.text}`.toLowerCase() }));
+// before any search the results list shows the four guides and the Roundup, so the search cell is never an empty field
+const defaults = index.filter((e) => !e.url.startsWith('/brief'));
 const links = [
   { label: t('notfound.link.home'), href: '/' },
   { label: t('notfound.link.roundup'), href: '/roundup' },
@@ -50,7 +52,12 @@ const links = [
         </div>
       </form>
       <p class="sr-only" id="nf-results-label">{t('notfound.search.label')}</p>
-      <ul class="nf-results" data-guide-results aria-live="polite" aria-labelledby="nf-results-label"></ul>
+      <p class="nf-results__all small muted" data-guide-all>{t('add.notfound.search.all')}</p>
+      <ul class="nf-results" data-guide-results aria-live="polite" aria-labelledby="nf-results-label">
+        {defaults.map((h) => (
+          <li class="nf-results__item"><a class="nf-results__link" href={h.url}><span class="nf-results__knot" aria-hidden="true"><Knot size={26} /></span><span class="nf-results__body"><span class="nf-results__thread">{h.thread}</span><span class="nf-results__title">{h.title}</span><span class="nf-results__dek">{h.dek}</span></span></a></li>
+        ))}
+      </ul>
       <p class="nf-results__empty small muted" data-guide-empty hidden></p>
     </div>
     <div class="cell span-2 nf-art">
@@ -74,11 +81,14 @@ const links = [
   const emptyLine = document.querySelector('[data-guide-empty]');
   const input = document.getElementById('nf-query');
   const knot = document.querySelector('.nf-links__knot')?.innerHTML || '';
+  const allLine = document.querySelector('[data-guide-all]');
+  const defaultList = results ? results.innerHTML : '';
   function search(q) {
     const query = q.trim().toLowerCase();
-    results.innerHTML = '';
     emptyLine.hidden = true;
-    if (!query) return;
+    if (!query) { results.innerHTML = defaultList; if (allLine) allLine.hidden = false; return; }
+    results.innerHTML = '';
+    if (allLine) allLine.hidden = true;
     const words = query.split(/\s+/).filter(Boolean);
     const hits = index.filter((e) => words.every((w) => e.haystack.includes(w)));
     if (!hits.length) { emptyLine.textContent = empty.replace('{query}', q.trim()); emptyLine.hidden = false; return; }
@@ -110,6 +120,19 @@ const links = [
   .nf-results__title { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-h3); color: var(--indigo); line-height: 1.12; }
   .nf-results__dek { font-size: var(--fs-body); }
   .nf-art { position: relative; }
+  .nf-results__all { margin-top: 4px; }
+  /* the full page rule: from 1280 up the still and its loose thread take the row's height (set by the search cell and its
+     list) instead of setting it as a square; stacked below 1280 the still is a wide band */
+  @media (min-width: 1280px) {
+    .nf-art { min-height: 360px; }
+    .nf-art .nf-art__still { position: absolute; inset: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
+    .nf-art .nf-art__still .picture { aspect-ratio: auto; height: 100%; }
+    .nf-art .nf-art__still .picture picture { display: block; width: 100%; height: 100%; }
+  }
+  @media (max-width: 1279px) and (min-width: 768px) {
+    .nf-art .nf-art__still .picture { aspect-ratio: 16 / 7; }
+    .nf-art .nf-art__still .picture picture { display: block; width: 100%; height: 100%; }
+  }
   .nf-art__still { border-radius: var(--radius-card); overflow: hidden; }
   .nf-art__still .picture { aspect-ratio: 1 / 1; }
   .nf-art__still .picture img { height: 100%; }

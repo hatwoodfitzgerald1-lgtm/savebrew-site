@@ -14,13 +14,15 @@ import Disclaimer from '../components/Disclaimer.astro';
 import Icon from '../components/kit/Icon.astro';
 import Knot from '../components/kit/Knot.astro';
 import { t, fmt, THREADS } from '../lib/copy';
-import { guides, guidesForThread } from '../lib/longform';
+import { guides, guidesForThread, brief } from '../lib/longform';
 import { inlineSvg } from '../lib/svg';
 interface Props { path: string; }
 const { path } = Astro.props;
 const graphics = import.meta.glob('../../public/assets/kit/guide-graphics/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
 const graphic = (slug: string) => { const k = Object.keys(graphics).find((f) => f.endsWith(`/${slug}.svg`)); return k ? inlineSvg(graphics[k], { class: 'guides-card__graphic', width: '100%', height: undefined }) : ''; };
 const columns = THREADS.map((th) => ({ ...th, label: t(`guides.column.${th.key}`), guides: guidesForThread(th.name) }));
+// a thread with no guide yet also carries that thread's item from today's pass, so its column reads as full as the others
+const todayFor = (key: string) => brief.today.items.find((it: { key: string }) => it.key === key) as { headline: string; summary: string } | undefined;
 const honest: Record<string, { line: string; link: string; href: string }> = {
   coupons: { line: t('add.guides.column.coupons.line'), link: t('add.guides.column.coupons.link'), href: '/brief' },
   paycheck: { line: t('add.guides.column.paycheck.line'), link: t('home.cost.free.link.moves'), href: '/your-moves' }
@@ -51,6 +53,13 @@ const honest: Record<string, { line: string; link: string; href: string }> = {
         )) : (
           <div class="gd-col__honest ent-item" style={`--i:${ci * 2}`}>
             <p>{honest[col.key].line}</p>
+            {todayFor(col.key) && (
+              <div class="gd-col__today">
+                <p class="gd-col__today-label small muted"><Knot size={14} />{t('add.guides.column.today.label')}</p>
+                <a class="gd-col__today-headline" href="/brief">{todayFor(col.key)!.headline}</a>
+                <p class="gd-col__today-summary">{todayFor(col.key)!.summary}</p>
+              </div>
+            )}
             <a class="gd-col__honest-link" href={honest[col.key].href}>{honest[col.key].link}</a>
           </div>
         )}
@@ -87,6 +96,31 @@ const honest: Record<string, { line: string; link: string; href: string }> = {
   .guides-card__dek { font-size: var(--fs-body); color: var(--ink); }
   .gd-col__honest { display: flex; flex-direction: column; gap: 10px; padding-top: 6px; border-top: 2px solid var(--butter-deep); }
   .gd-col__honest-link { font-weight: 700; }
+  .gd-col__today { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; border-top: 1px solid var(--hairline); }
+  .gd-col__today-label { display: flex; align-items: center; gap: 6px; }
+  .gd-col__today-label svg { color: var(--indigo); flex: none; }
+  .gd-col__today-headline { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-h3); line-height: 1.15; color: var(--indigo); text-decoration: none; }
+  .gd-col__today-headline:hover, .gd-col__today-headline:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+  .gd-col__today-summary { font-size: var(--fs-body); }
+  /* the full page rule: Rates carries two guides, so from 768 up they sit side by side in a Rates cell two tracks wide
+     (six tracks from 1280, the three and two track collapses below), and no column ends half way down the board */
+  @media (min-width: 768px) {
+    #guides-row > .gd-col[data-thread="rates"] { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--gap); row-gap: 14px; align-content: start; }
+    #guides-row > .gd-col[data-thread="rates"] > .gd-col__head { grid-column: 1 / -1; }
+  }
+  @media (min-width: 1280px) {
+    #guides-row.pass { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    #guides-row > .gd-col[data-thread="rates"] { grid-column: span 2; }
+  }
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    #guides-row > .gd-col { grid-row: auto; grid-column: auto; }
+    #guides-row > .gd-col[data-thread="rates"] { grid-column: span 2; }
+    #guides-row > .gd-row__scene { grid-row: auto; grid-column: 1 / -1; padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
+  }
+  @media (min-width: 768px) and (max-width: 1023px) {
+    #guides-row > .gd-col { grid-row: auto; grid-column: auto; }
+    #guides-row > .gd-col[data-thread="rates"] { grid-column: 1 / -1; }
+  }
   .gd-row__disclaimer { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); padding-top: 8px; }
   .gd-cross { align-items: center; row-gap: 12px; }
   .gd-cross__line { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); font-size: var(--fs-standfirst); }

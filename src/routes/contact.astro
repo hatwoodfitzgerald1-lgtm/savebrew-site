@@ -96,7 +96,23 @@ const strings = {
   .ct-where__scene { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
   .ct-line { font-size: var(--fs-body); }
   .ct-photo { aspect-ratio: 4 / 5; border-radius: var(--radius-card); }
+  .ct-photo picture { display: block; width: 100%; height: 100%; }
   .ct-photo img { height: 100%; }
+  /* the full page rule: beside the four short contact cells the still takes the row's height instead of setting it (a 4:5
+     still made the row three times taller than its text and left a white block under every cell); from 1024 to 1279 the
+     cells keep their order (address, phone, email, then hours) and the still spans the two tracks beside the hours, and between 768 and 1023 it is a wide band */
+  @media (min-width: 1024px) {
+    .ct-cell--photo { position: relative; min-height: 150px; }
+    .ct-cell--photo .ct-photo { position: absolute; inset: var(--cell-pad, clamp(16px, 1.4vw, 28px)); aspect-ratio: auto; }
+  }
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    #contact-where > .ct-cell { grid-row: auto; grid-column: auto; }
+    #contact-where > .ct-cell--photo { grid-column: span 2; }
+  }
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .ct-photo { aspect-ratio: 3 / 1; }
+    .ct-photo img { object-position: 50% 62%; }
+  }
   .ct-form__heading { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); font-size: var(--fs-h3); font-weight: 700; }
   .ct-form { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: var(--gap); row-gap: var(--gap); padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); }
   .ct-form__fields { grid-column: 1 / span 3; display: flex; flex-direction: column; gap: 18px; }
