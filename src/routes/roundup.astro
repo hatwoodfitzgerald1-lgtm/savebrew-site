@@ -58,11 +58,13 @@ const pastDate = pastEntry ? fmt('roundup.past.entry.pattern', { date: pastEntry
     {roundup.moves.map((m) => (
       <Cell thread={threadKey(m.thread) as any} span={spanOf(m.span) as any} class="ru-move" tag="article">
         <h2 class="ru-move__headline">{m.headline}</h2>
-        {m.paragraphs.map((p) => {
-          if (p.kind === 'body') return <p class="ru-move__body">{p.text}</p>;
-          const [l, rest] = lead(p.text);
-          return <p class:list={['ru-move__para', `ru-move__para--${p.kind}`]}>{l && <strong>{l}</strong>}{rest}</p>;
-        })}
+        <div class="ru-move__text">
+          {m.paragraphs.map((p) => {
+            if (p.kind === 'body') return <p class="ru-move__body">{p.text}</p>;
+            const [l, rest] = lead(p.text);
+            return <p class:list={['ru-move__para', `ru-move__para--${p.kind}`]}>{l && <strong>{l}</strong>}{rest}</p>;
+          })}
+        </div>
       </Cell>
     ))}
   </Board>
@@ -141,6 +143,17 @@ const pastDate = pastEntry ? fmt('roundup.past.entry.pattern', { date: pastEntry
   .ru-move__headline { font-size: var(--fs-h3); font-weight: 600; line-height: 1.15; }
   .ru-move__para--arithmetic strong, .ru-move__para--worth strong { font-weight: 700; color: var(--indigo-deep); }
   .ru-move__para--worth { border-top: 2px solid var(--butter-deep); padding-top: 8px; }
+  /* the three moves carry about the same length of text, so from 1024 up they share the row in three equal columns (a 2, 1, 2
+     split left the middle move twice as tall as the others and a void under the two wide ones); the knots on the thread above
+     follow the columns (roundup-thread.ts measures them). The measure rule (30 to 55 characters a line): a move's text runs in
+     as many columns as fit, at least 22ch each and two at most, and a stacked move below 1024 takes up to three of 24ch. */
+  .ru-move__text { columns: 24ch 3; column-gap: var(--gap); orphans: 2; widows: 2; }
+  @media (min-width: 1024px) {
+    .ru-moves.pass { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .ru-moves > .ru-move { grid-column: auto; }
+    .ru-move__text { columns: 22ch 2; }
+  }
+  .ru-move__text > p + p { margin-top: 10px; }
   .ru-table { width: 100%; font-size: var(--fs-body); }
   .ru-table th, .ru-table td { text-align: left; padding: 8px 10px 8px 0; border-bottom: 1px solid var(--hairline); vertical-align: top; }
   .ru-table thead th { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-cell-head); color: var(--indigo-deep); border-bottom: 2px solid var(--indigo); }
