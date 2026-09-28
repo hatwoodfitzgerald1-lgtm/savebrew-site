@@ -211,6 +211,19 @@ const pastDate = pastEntry ? fmt('roundup.past.entry.pattern', { date: pastEntry
     .ru-header__date, .ru-header__intro, .ru-header__disclaimer { grid-column: 1 / -1; grid-row: auto; }
     .ru-move { grid-column: 1 / -1; }
   }
+  /* the past issues row reads in source order with no empty track: from 1024 to 1279 the entry and the note share the
+     first row and the RSS link and the thread strip the second; from 768 to 1023 the entry and the note share a row and
+     the RSS link runs the full width under them */
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    #roundup-past-row > .ru-past__entry { grid-row: 1; grid-column: 1; }
+    #roundup-past-row > .ru-past__note { grid-row: 1; grid-column: 2 / span 2; }
+    #roundup-past-row > .ru-past__rss { grid-row: 2; grid-column: 1; }
+    #roundup-past-row > .board__strip { grid-row: 2; grid-column: 2 / span 2; }
+  }
+  @media (min-width: 768px) and (max-width: 1023px) {
+    #roundup-past-row > .ru-past__note { grid-column: auto; }
+    #roundup-past-row > .ru-past__rss { grid-column: 1 / -1; }
+  }
   @media (max-width: 767px) {
     .ru-header__band { height: min(100vw, 320px); }
     .ru-header__title { font-size: clamp(30px, 9vw, 40px); }

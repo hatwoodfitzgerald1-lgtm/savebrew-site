@@ -155,6 +155,22 @@ const panPoster = file('video.product-pan', 'poster');
     @keyframes sb-thread { from { transform: scaleY(0); } to { transform: scaleY(1); } }
     .mship-faq__disclaimer { padding-inline: 16px; }
   }
+  /* the full page rule: no white beside a lone phone (as on the home dashboard). From 1280 the chosen view and the next
+     one along stand side by side in the phone cell; from 768 to 1279 all three views fill the row; below 768 the chosen
+     view alone. The switch still sets hidden on the views it does not show (base.css hides [hidden] with !important),
+     so the phones shown beside it need !important */
+  @media (min-width: 1280px) {
+    .mship-dash__phones { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+    .mship-dash__phones .sb-app--phone { width: 100%; }
+    .mship-dash__group[data-view="today"] .mship-dash__phones .sb-app[data-product="rates"],
+    .mship-dash__group[data-view="rates"] .mship-dash__phones .sb-app[data-product="goals"],
+    .mship-dash__group[data-view="goals"] .mship-dash__phones .sb-app[data-product="today"] { display: block !important; }
+    .mship-dash__group[data-view="goals"] .mship-dash__phones .sb-app[data-product="today"] { order: 1; }
+  }
+  @media (min-width: 768px) and (max-width: 1279px) {
+    .mship-dash__phones { align-items: start; }
+    .mship-dash__phones .sb-app[hidden] { display: block !important; }
+  }
 </style>
 <script>
   import { motionReduced } from '../scripts/ease';
