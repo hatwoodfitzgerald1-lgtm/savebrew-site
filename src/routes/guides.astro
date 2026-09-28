@@ -20,6 +20,9 @@ interface Props { path: string; }
 const { path } = Astro.props;
 const graphics = import.meta.glob('../../public/assets/kit/guide-graphics/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
 const graphic = (slug: string) => { const k = Object.keys(graphics).find((f) => f.endsWith(`/${slug}.svg`)); return k ? inlineSvg(graphics[k], { class: 'guides-card__graphic', width: '100%', height: undefined }) : ''; };
+// the lanes without a guide open their pass item with a drawn box in the same thread language (kit/pass-graphics)
+const passGraphics = import.meta.glob('../../public/assets/kit/pass-graphics/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+const passGraphic = (key: string) => { const k = Object.keys(passGraphics).find((f) => f.endsWith(`/${key}.svg`)); return k ? inlineSvg(passGraphics[k], { class: 'guides-card__graphic', width: '100%', height: undefined }) : ''; };
 const columns = THREADS.map((th) => ({ ...th, label: t(`guides.column.${th.key}`), guides: guidesForThread(th.name) }));
 // a thread with no guide yet also carries that thread's item from today's pass, so its column reads as full as the others
 const todayFor = (key: string) => brief.today.items.find((it: { key: string }) => it.key === key) as { headline: string; summary: string } | undefined;
@@ -56,6 +59,7 @@ const honest: Record<string, { line: string; link: string; href: string }> = {
             {todayFor(col.key) && (
               <div class="gd-col__today">
                 <p class="gd-col__today-label small muted"><Knot size={14} />{t('add.guides.column.today.label')}</p>
+                {passGraphic(col.key) && <span class="guides-card__art gd-col__today-art" aria-hidden="true"><Fragment set:html={passGraphic(col.key)} /></span>}
                 <a class="gd-col__today-headline" href="/brief">{todayFor(col.key)!.headline}</a>
                 <p class="gd-col__today-summary">{todayFor(col.key)!.summary}</p>
               </div>
@@ -102,6 +106,12 @@ const honest: Record<string, { line: string; link: string; href: string }> = {
   .gd-col__today-headline { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-h3); line-height: 1.15; color: var(--indigo); text-decoration: none; }
   .gd-col__today-headline:hover, .gd-col__today-headline:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
   .gd-col__today-summary { font-size: var(--fs-body); }
+  .gd-col__today-art { margin-block: 2px 4px; }
+  /* 1280 to 1439: the deks take the narrow column body size the cell paragraphs take (layout.css), so every lane
+     on the board measures about 30ch and no lane ends a paragraph short of its neighbours */
+  @media (min-width: 1280px) and (max-width: 1439px) {
+    .guides-card__dek { font-size: 14.5px; }
+  }
   /* the full page rule: Rates carries two guides, so from 768 up they sit side by side in a Rates cell two tracks wide
      (six tracks from 1280, the three and two track collapses below), and no column ends half way down the board */
   @media (min-width: 768px) {
@@ -119,7 +129,14 @@ const honest: Record<string, { line: string; link: string; href: string }> = {
   }
   @media (min-width: 768px) and (max-width: 1023px) {
     #guides-row > .gd-col { grid-row: auto; grid-column: auto; }
-    #guides-row > .gd-col[data-thread="rates"] { grid-column: 1 / -1; }
+    #guides-row > .gd-row__scene { grid-row: 1; }
+    #guides-row > .gd-col[data-thread="rates"] { grid-row: 2; grid-column: 1 / -1; }
+    /* like with like, so no lane ends half way down a row: the two lanes with a guide share a row, the two lanes
+       carrying today's pass item share the next; the lanes read down each column, which is the thread order */
+    #guides-row > .gd-col[data-thread="cashback"] { grid-row: 3; grid-column: 1; }
+    #guides-row > .gd-col[data-thread="coupons"] { grid-row: 4; grid-column: 1; }
+    #guides-row > .gd-col[data-thread="seasonal"] { grid-row: 3; grid-column: 2; }
+    #guides-row > .gd-col[data-thread="paycheck"] { grid-row: 4; grid-column: 2; }
   }
   .gd-row__disclaimer { padding-inline: var(--cell-pad, clamp(16px, 1.4vw, 28px)); padding-top: 8px; }
   .gd-cross { align-items: center; row-gap: 12px; }
