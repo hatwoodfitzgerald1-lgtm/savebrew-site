@@ -447,6 +447,25 @@ const heroItems = today.map((it) => ({ key: it.key, thread: it.thread, headline:
   .hm-dash__control, .hm-dash__caption, .hm-dash__demo, .hm-dash__phone-frame { --m: 0; }
   @media (max-width: 1279px) { .hm-dash__phone-frame { width: min(100%, 320px); } }
   @media (max-width: 767px) { .hm-dash__phone { order: -1; } .hm-dash__phone-frame { width: min(100%, 320px); } }
+  /* the full page rule: no white beside a lone phone. From 1280 the chosen view and the next one along stand side by
+     side in the phone cell (two phones match the desktop window's height at every width); from 768 to 1279 the phone
+     row runs the full width with all three views; below 768 the chosen view alone. The switch still sets hidden on the
+     views it does not show (base.css hides [hidden] with !important), so the phones shown beside it need !important */
+  @media (min-width: 768px) {
+    .hm-dash__phone-frame { width: 100%; display: grid; gap: var(--gap); align-items: start; }
+  }
+  @media (min-width: 1280px) {
+    .hm-dash__phone-frame { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .hm-dash[data-view="today"] .hm-dash__phone-frame .sb-app[data-product="rates"],
+    .hm-dash[data-view="rates"] .hm-dash__phone-frame .sb-app[data-product="goals"],
+    .hm-dash[data-view="goals"] .hm-dash__phone-frame .sb-app[data-product="today"] { display: block !important; }
+    .hm-dash[data-view="goals"] .hm-dash__phone-frame .sb-app[data-product="today"] { order: 1; }
+  }
+  @media (min-width: 768px) and (max-width: 1279px) {
+    .hm-dash > .hm-dash__phone { grid-column: 1 / -1; }
+    .hm-dash__phone-frame { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .hm-dash__phone-frame .sb-app[hidden] { display: block !important; }
+  }
 
   /* ---------------------------------------------------------------- 7. free to read */
   .hm-free__roundup { grid-row: 1 / span 2; }
@@ -455,6 +474,14 @@ const heroItems = today.map((it) => ({ key: it.key, thread: it.thread, headline:
   .hm-free__guide { grid-row: 2; }
   @media (max-width: 1279px) { .hm-free__roundup { grid-row: auto; grid-column: 1 / -1; } .hm-free__guides-head { grid-column: 1 / -1; grid-row: auto; } .hm-free__guide { grid-row: auto; } }
   @media (max-width: 1023px) { .hm-free__guide:last-child { grid-column: 1 / -1; } }
+  /* 1024 to 1279: the three plus two collapse pins the fourth and fifth cells to the second row, which pulled two
+     guides ahead of the first and the Guides head below its guides; here the board reads in source order (the Roundup,
+     the Guides head, the three guides) and the Roundup's framing and moves fill two columns, not two of three */
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    #free-board > .cell { grid-row: auto; grid-column: auto; }
+    #free-board > .hm-free__roundup, #free-board > .hm-free__guides-head { grid-column: 1 / -1; }
+    #free-board .hm-free__roundup-body { columns: 2; }
+  }
   .hm-free__roundup-body { columns: 28ch; column-gap: var(--gap); }
   .hm-free__roundup-body > * { break-inside: avoid; }
   .hm-free__framing { color: var(--ink); margin-bottom: 10px; }

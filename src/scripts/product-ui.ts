@@ -57,7 +57,8 @@ function init(root: ParentNode = document) {
       group.querySelectorAll<HTMLElement>('.sb-app').forEach((a) => { a.hidden = a.dataset.product !== view; });
       group.querySelectorAll<HTMLElement>('[data-show-view]').forEach((b) => b.setAttribute('aria-selected', b.dataset.showView === view ? 'true' : 'false'));
       group.dataset.view = view;
-      group.querySelectorAll<HTMLElement>('.sb-app').forEach((a) => a.querySelectorAll('a[data-tab]').forEach((t) => { if (t.getAttribute('data-tab') === view) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); }));
+      // each view marks its own tab: on the home dashboard more than one phone view can be on screen at once
+      group.querySelectorAll<HTMLElement>('.sb-app').forEach((a) => a.querySelectorAll('a[data-tab]').forEach((t) => { if (t.getAttribute('data-tab') === a.dataset.product) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); }));
     };
     group.addEventListener('sb:product-view', (e: any) => show(e.detail.view));
     group.querySelectorAll<HTMLElement>('[data-show-view]').forEach((b) => b.addEventListener('click', () => show(b.dataset.showView!)));
